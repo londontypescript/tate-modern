@@ -11,6 +11,8 @@ export interface PlacedGlyph {
   baseline: number;
   d: string;
   bounds: Box;
+  /** Outline commands, kept for measuring strokes. */
+  commands: PathCommand[];
 }
 
 export interface TextRunLayout {
@@ -91,6 +93,7 @@ export function layoutTextRun(font: Font, text: string, options: TextRunOptions)
       x,
       baseline,
       d: commandsToPathData(path.commands),
+      commands: path.commands,
       bounds: { minX: bb.x1, minY: bb.y1, maxX: bb.x2, maxY: bb.y2 },
     });
     x += (glyph.advanceWidth ?? 0) * scale + letterSpacing * fontSize;
@@ -114,29 +117,36 @@ export function glyphBounds(glyphs: readonly PlacedGlyph[]): Box {
 // ---------------------------------------------------------------------------
 
 /**
- * A curl terminal: a tapered calligraphic stroke that sweeps outwards from
- * a letter, turns down and curls back into a ball. Shape coordinates are in
- * cap heights, with +x pointing away from the letter and +y down.
+ * A curl terminal: a calligraphic stroke that continues a horizontal stroke
+ * of a letter (a serif or crossbar), sweeps outwards, turns down and curls
+ * back into a ball. Shape coordinates are in cap heights, with +x pointing
+ * away from the letter and +y down; the origin is the centre of the stroke
+ * being continued.
  */
 export const curlShape = {
-  /** Cubic Bézier centreline P0..P3. */
+  /**
+   * Cubic Bézier centreline P0..P3. P0→P1 is horizontal so the curl leaves
+   * in the direction of the stroke it continues, with flush edges.
+   */
   centreline: [
     { x: 0, y: 0 },
-    { x: 0.32, y: -0.07 },
-    { x: 0.44, y: 0.25 },
-    { x: 0.17, y: 0.28 },
+    { x: 0.36, y: 0 },
+    { x: 0.46, y: 0.27 },
+    { x: 0.2, y: 0.29 },
   ],
-  /** Stroke width at the root and tip of the curl. */
-  hairline: 0.045,
   /** Peak stroke width at the outer bend. */
-  swell: 0.12,
-  ballRadius: 0.11,
-  samples: 32,
+  swell: 0.11,
+  /** Stroke width where it meets the ball. */
+  tip: 0.05,
+  ballRadius: 0.1,
+  samples: 40,
 } as const;
 
 export interface CurlOptions {
-  /** Where the curl leaves the letter. */
+  /** Centre of the stroke the curl continues, just inside its tip. */
   origin: Point;
+  /** Thickness of that stroke at `origin`, so the join is seamless. */
+  rootWidth: number;
   /** Horizontal direction of the sweep: -1 leftwards, 1 rightwards. */
   direction: -1 | 1;
   /** Length of one cap height, in output units. */
@@ -203,8 +213,18 @@ export interface CurlGeometry {
   bounds: Box;
 }
 
-/** Computes the outline of a curl terminal by offsetting its centreline. */
-export function curlGeometry({ origin, direction, capHeight, scale }: CurlOptions): CurlGeometry {
+/**
+ * Computes the outline of a curl terminal by offsetting its centreline on
+ * both sides. At the root the offsets are vertical and `rootWidth` apart,
+ * so the curl's edges continue the edges of the stroke it extends.
+ */
+export function curlGeometry({
+  origin,
+  rootWidth,
+  direction,
+  capHeight,
+  scale,
+}: CurlOptions): CurlGeometry {
   const unit = capHeight * scale;
   const toWorld = (p: Point): Point => ({
     x: origin.x + p.x * unit * direction,
@@ -213,14 +233,19 @@ export function curlGeometry({ origin, direction, capHeight, scale }: CurlOption
   const ctrl = curlShape.centreline.map(toWorld);
   const left: Point[] = [];
   const right: Point[] = [];
+  // Quadratic width profile: the stroke's own thickness at the root,
+  // `swell` at the middle of the curve, `tip` where it enters the ball.
+  const tipWidth = curlShape.tip * unit;
+  const control = 2 * curlShape.swell * unit - (rootWidth + tipWidth) / 2;
+  const widthAt = (t: number) =>
+    (1 - t) * (1 - t) * rootWidth + 2 * t * (1 - t) * control + t * t * tipWidth;
 
   for (let i = 0; i <= curlShape.samples; i++) {
     const t = i / curlShape.samples;
     const p = cubicPoint(ctrl, t);
     const tan = cubicTangent(ctrl, t);
     const len = Math.hypot(tan.x, tan.y) || 1;
-    const width =
-      unit * (curlShape.hairline + (curlShape.swell - curlShape.hairline) * Math.sin(Math.PI * t));
+    const width = widthAt(t);
     const nx = (-tan.y / len) * (width / 2);
     const ny = (tan.x / len) * (width / 2);
     left.push({ x: p.x + nx, y: p.y + ny });

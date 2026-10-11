@@ -23,6 +23,7 @@ import {
   xHeightRatio,
   type PlacedGlyph,
 } from './typography';
+import { crossbarRight, flattenCommands, horizontalStrokeEnd, type StrokeJoin } from './outline';
 
 const DEG = Math.PI / 180;
 
@@ -211,14 +212,49 @@ export function buildEmblem(emblem: EmblemConfig, tile: TileConfig, sans: Font):
 // ---------------------------------------------------------------------------
 
 /**
- * Anchors of the two flourishes, in cap heights relative to the glyph:
- * the L curl leaves its top-left serif; the t terminal leaves the right
- * end of its crossbar (which sits on the x-height).
+ * Where the flourishes join their letters, measured from the glyph outlines
+ * (lengths in cap heights). The L curl continues its top-left serif; the
+ * t terminal continues the right end of its crossbar. Each curl starts
+ * `overlap` inside the stroke's tip, at the stroke's own thickness.
  */
-const flourishAnchors = {
-  lInset: { x: 0.05, y: 0.05 },
-  tInset: { x: 0.07, y: 0.045 },
+const flourishJoins = {
+  /** Depth below the cap line at which the L's serif is probed. */
+  serifProbe: 0.02,
+  /** Distance right of the t's stem at which its crossbar is probed. */
+  crossbarProbe: 0.03,
+  overlap: 0.06,
+  /** Used only if a glyph has no measurable stroke (e.g. other text). */
+  fallbackWidth: 0.03,
 } as const;
+
+function serifJoin(glyph: PlacedGlyph, capHeight: number): StrokeJoin {
+  const { serifProbe, overlap, fallbackWidth } = flourishJoins;
+  const y = glyph.bounds.minY + serifProbe * capHeight;
+  return (
+    horizontalStrokeEnd(flattenCommands(glyph.commands), y, 'left', overlap * capHeight) ?? {
+      origin: { x: glyph.bounds.minX + overlap * capHeight, y },
+      thickness: fallbackWidth * capHeight,
+      top: glyph.bounds.minY,
+    }
+  );
+}
+
+function crossbarJoin(glyph: PlacedGlyph, xHeight: number, capHeight: number): StrokeJoin {
+  const { crossbarProbe, overlap, fallbackWidth } = flourishJoins;
+  const midXHeight = glyph.baseline - xHeight / 2;
+  return (
+    crossbarRight(
+      flattenCommands(glyph.commands),
+      midXHeight,
+      crossbarProbe * capHeight,
+      overlap * capHeight,
+    ) ?? {
+      origin: { x: glyph.bounds.maxX - overlap * capHeight, y: glyph.baseline - xHeight },
+      thickness: fallbackWidth * capHeight,
+      top: glyph.baseline - xHeight,
+    }
+  );
+}
 
 /**
  * Lays out the two-line wordmark at `fontSize`. In wordmark space the top
@@ -258,21 +294,19 @@ export function buildWordmark(config: WordmarkConfig, font: Font, fontSize: numb
   const last = lineGlyphs[1]?.at(-1);
   if (config.flourishScale > 0 && first && last) {
     const common = { capHeight, scale: config.flourishScale };
+    const serif = serifJoin(first.glyph, capHeight);
     const lCurl = curlShapes('flourish-l', first.colour, {
       ...common,
       direction: -1,
-      origin: {
-        x: first.glyph.bounds.minX + flourishAnchors.lInset.x * capHeight,
-        y: first.glyph.bounds.minY + flourishAnchors.lInset.y * capHeight,
-      },
+      origin: serif.origin,
+      rootWidth: serif.thickness,
     });
+    const crossbar = crossbarJoin(last.glyph, xHeightRatio(font) * fontSize, capHeight);
     const tCurl = curlShapes('flourish-t', last.colour, {
       ...common,
       direction: 1,
-      origin: {
-        x: last.glyph.bounds.maxX - flourishAnchors.tInset.x * capHeight,
-        y: baselines[1] - xHeightRatio(font) * fontSize + flourishAnchors.tInset.y * capHeight,
-      },
+      origin: crossbar.origin,
+      rootWidth: crossbar.thickness,
     });
     shapes.push(...lCurl.shapes, ...tCurl.shapes);
     bounds = unionBox(bounds, unionBox(lCurl.bounds, tCurl.bounds));

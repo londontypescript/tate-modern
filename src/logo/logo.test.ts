@@ -3,7 +3,8 @@ import { loadLogoFontsFromDisk } from '../../scripts/node-fonts';
 import { defaultLogoConfig } from './config';
 import type { LogoFonts } from './fonts';
 import { buildLogo, buildWordmark, wordmarkFontSizeForHeight } from './geometry';
-import { capHeightRatio, curlGeometry, layoutTextRun } from './typography';
+import { crossbarRight, flattenCommands, horizontalStrokeEnd } from './outline';
+import { capHeightRatio, curlGeometry, layoutTextRun, xHeightRatio } from './typography';
 
 let fonts: LogoFonts;
 beforeAll(async () => {
@@ -39,12 +40,48 @@ describe('wordmark', () => {
 
 describe('curl flourishes', () => {
   it('mirror each other horizontally', () => {
-    const base = { origin: { x: 0, y: 0 }, capHeight: 50, scale: 1 };
+    const base = { origin: { x: 0, y: 0 }, rootWidth: 2, capHeight: 50, scale: 1 };
     const left = curlGeometry({ ...base, direction: -1 });
     const right = curlGeometry({ ...base, direction: 1 });
     expect(left.ballCentre.x).toBeCloseTo(-right.ballCentre.x);
     expect(left.bounds.minX).toBeCloseTo(-right.bounds.maxX);
     expect(left.bounds.minY).toBeCloseTo(right.bounds.minY);
+  });
+
+  it('starts flush with the stroke it continues', () => {
+    const curl = curlGeometry({ origin: { x: 10, y: 20 }, rootWidth: 3, direction: 1, capHeight: 50, scale: 1 });
+    const first = curl.stroke[0];
+    const last = curl.stroke.at(-1);
+    expect(first).toEqual({ x: 10, y: 21.5 });
+    expect(last).toEqual({ x: 10, y: 18.5 });
+  });
+});
+
+describe('flourish joins', () => {
+  const measure = (char: string) => {
+    const [glyph] = layoutTextRun(fonts.serif, char, { x: 0, baseline: 0, fontSize: 1000, letterSpacing: 0 }).glyphs;
+    return { glyph: glyph!, contours: flattenCommands(glyph!.commands) };
+  };
+
+  it('finds the top-left serif of the L at the cap line', () => {
+    const { glyph, contours } = measure('L');
+    const join = horizontalStrokeEnd(contours, glyph.bounds.minY + 15, 'left', 40);
+    expect(join).toBeDefined();
+    expect(join!.top).toBeCloseTo(glyph.bounds.minY, -1);
+    expect(join!.origin.x).toBeCloseTo(glyph.bounds.minX + 40);
+    expect(join!.thickness).toBeGreaterThan(5);
+    expect(join!.thickness).toBeLessThan(80);
+  });
+
+  it('finds the crossbar of the t near the x-height, right of the stem', () => {
+    const { glyph, contours } = measure('t');
+    const xHeight = xHeightRatio(fonts.serif) * 1000;
+    const join = crossbarRight(contours, -xHeight / 2, 20, 40);
+    expect(join).toBeDefined();
+    expect(join!.top).toBeGreaterThan(-xHeight - 60);
+    expect(join!.top).toBeLessThan(-xHeight + 60);
+    expect(join!.origin.x).toBeGreaterThan(glyph.bounds.maxX - 100);
+    expect(join!.thickness).toBeLessThan(60);
   });
 });
 

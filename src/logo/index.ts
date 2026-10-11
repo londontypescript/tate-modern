@@ -5,4 +5,5 @@ export * from './config';
 export * from './fonts';
 export * from './geometry';
 export * from './typography';
+export * from './outline';
 export * from './animation';
