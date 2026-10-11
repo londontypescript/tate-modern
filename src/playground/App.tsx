@@ -1,4 +1,4 @@
-import { use, useMemo, useState, type ReactNode } from 'react';
+import { use, useMemo, useState } from 'react';
 import {
   LondonTypeScriptLogo,
   TypeScriptMark,
@@ -10,7 +10,9 @@ import {
   type SvgVariant,
 } from '../components';
 import { buildLogo, defaultLogoConfig, type BlendMode, type LogoConfig } from '../logo';
-import { controlGroups, type SliderControl } from './controls';
+import { controlGroups } from './controls';
+import { PresetsPanel } from './PresetsPanel';
+import { Button, Panel, Slider, Toggle } from './ui';
 
 function download(variant: SvgVariant, svg: string) {
   const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
@@ -24,6 +26,13 @@ export function App() {
   const [config, setConfig] = useState<LogoConfig>(defaultLogoConfig);
   const [animating, setAnimating] = useState(false);
   const [exportBackground, setExportBackground] = useState(false);
+  const [activePresetId, setActivePresetId] = useState<string | null>(null);
+
+  const reset = () => {
+    setConfig(defaultLogoConfig);
+    setAnimating(false);
+    setActivePresetId(null);
+  };
   const reducedMotion = usePrefersReducedMotion();
 
   const logo = useMemo(() => buildLogo(config, fonts), [config, fonts]);
@@ -88,14 +97,7 @@ export function App() {
               <Button onClick={() => setAnimating((a) => !a)} primary={!animating}>
                 {animating ? 'Stop animation' : 'Animate squares'}
               </Button>
-              <Button
-                onClick={() => {
-                  setConfig(defaultLogoConfig);
-                  setAnimating(false);
-                }}
-              >
-                Reset to approved
-              </Button>
+              <Button onClick={reset}>Reset</Button>
             </div>
             <Toggle
               label="Alternate rotation directions"
@@ -131,6 +133,18 @@ export function App() {
             </div>
           </Panel>
 
+          <PresetsPanel
+            config={config}
+            baseline={defaultLogoConfig}
+            activeId={activePresetId}
+            onActiveChange={setActivePresetId}
+            onNew={reset}
+            onLoad={(preset) => {
+              setConfig(preset.config);
+              setActivePresetId(preset.id);
+            }}
+          />
+
           {controlGroups.map((group) => (
             <Panel key={group.title} title={group.title}>
               <div className="space-y-3">
@@ -148,92 +162,5 @@ export function App() {
         </aside>
       </div>
     </div>
-  );
-}
-
-function Panel({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <section className="rounded-xl border border-stone-200 bg-white p-4 shadow-sm">
-      <h2 className="mb-3 text-sm font-semibold text-stone-700">{title}</h2>
-      {children}
-    </section>
-  );
-}
-
-function Slider({
-  control,
-  value,
-  onChange,
-}: {
-  control: SliderControl;
-  value: number;
-  onChange: (value: number) => void;
-}) {
-  const decimals = Math.max(0, -Math.floor(Math.log10(control.step)));
-  return (
-    <label className="block">
-      <span className="flex justify-between text-xs text-stone-600">
-        <span>{control.label}</span>
-        <span className="font-mono tabular-nums">
-          {value.toFixed(decimals)}
-          {control.unit}
-        </span>
-      </span>
-      <input
-        type="range"
-        min={control.min}
-        max={control.max}
-        step={control.step}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        className="mt-1 w-full accent-blue-600"
-      />
-    </label>
-  );
-}
-
-function Toggle({
-  label,
-  checked,
-  onChange,
-}: {
-  label: string;
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-}) {
-  return (
-    <label className="mt-3 flex items-center gap-2 text-sm text-stone-700">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-        className="accent-blue-600"
-      />
-      {label}
-    </label>
-  );
-}
-
-function Button({
-  onClick,
-  primary = false,
-  children,
-}: {
-  onClick: () => void;
-  primary?: boolean;
-  children: ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-        primary
-          ? 'bg-blue-600 text-white hover:bg-blue-700'
-          : 'border border-stone-300 bg-white text-stone-800 hover:bg-stone-50'
-      }`}
-    >
-      {children}
-    </button>
   );
 }

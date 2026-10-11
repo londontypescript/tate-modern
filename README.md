@@ -50,9 +50,16 @@ Each square, facet and glyph is its own element with an `lts-…` id, for exampl
 - **Animate squares / Stop animation:** stopping glides each square back to the approved composition.
 - **Toggles:** alternate rotation directions, and "multiply overlaps" (a tinted-glass blend mode).
 - **Download SVG:** mark, wordmark or complete logo, built from your current slider settings with the same code as `generate:assets`. Optionally includes the cream background.
-- **Reset to approved:** restores `defaultLogoConfig`.
+- **Reset:** restores the approved `defaultLogoConfig` and unloads any saved configuration.
+- **Saved configurations:** keep named variations in this browser's localStorage.
+  - **New:** starts again from the approved settings, unloading the current configuration. It asks first if there are unsaved changes.
+  - **Duplicate:** saves the current settings as a new configuration named after the loaded one plus "Copy" (for example "Dense rosette Copy", then "Dense rosette Copy 2" if that name is taken) and switches to it. With nothing loaded it's called "New Config". The name opens for editing straight away; press Escape to keep it.
+  - **Save as new:** stores the current settings under a name you type; that configuration is then the one being edited.
+  - **Save changes:** writes the current settings back to the loaded configuration. It's enabled when there are unsaved changes.
+  - **Load, Rename, Delete:** load and delete ask for confirmation when work would be lost.
+  - Saved configurations from older versions still load: fields added to the config since then take their defaults.
 
-Slider changes only live in the browser. When you find values you like, copy them into `defaultLogoConfig` in `src/logo/config.ts` and run `npm run generate:assets`.
+Saved configurations live only in this browser; they aren't shared and don't change the generated assets. To make a configuration the official logo, copy its values into `defaultLogoConfig` in `src/logo/config.ts` and run `npm run generate:assets`.
 
 ## How it works
 
@@ -71,7 +78,7 @@ config ──► GEOMETRY (pure TS) ──► model (plain data) ──► RENDE
 | Animation | `src/logo/animation.ts` | How the squares' rotations change over time |
 | Rendering | `src/components/` | Turns models into SVG elements; calculates nothing |
 | Export | `src/components/renderSvg.tsx`, `scripts/generate-assets.ts` | The same components rendered to standalone SVG documents |
-| Playground | `src/playground/` | Development UI only |
+| Playground | `src/playground/` | Development UI only (including saved configurations in `presets.ts`) |
 
 `src/logo` imports neither React nor the DOM. Its functions are deterministic, and you can use them from any renderer:
 
@@ -140,6 +147,7 @@ For static pages, simply use the generated files in `public/assets/`.
 - **Animation:** distinct deterministic speeds, integration, shortest symmetric settling, and the easing.
 - **Layout:** the tile aligns with the top of "London" and the baseline of "TypeScript" at several sizes; the emblem–wordmark gap; and the flourishes mirroring each other.
 - **Export:** identical output on every run; valid standalone documents with no `<text>` or images; every square present as its own element.
+- **Saved configurations:** parsing corrupt storage, and merging older saved configurations with current defaults.
 
 ## Project structure
 
