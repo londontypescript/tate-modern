@@ -46,16 +46,18 @@ export function App() {
     );
 
   return (
-    <div className="min-h-screen bg-stone-100 text-stone-900">
-      <header className="flex flex-wrap items-baseline justify-between gap-2 border-b border-stone-200 bg-white px-6 py-4">
+    <div className="min-h-screen bg-stone-100 text-stone-900 lg:flex lg:h-screen lg:flex-col">
+      <header className="flex shrink-0 flex-wrap items-baseline justify-between gap-2 border-b border-stone-200 bg-white px-6 py-4">
         <h1 className="text-lg font-semibold">London TypeScript logo playground</h1>
         <p className="text-sm text-stone-500">
           Development tool. Edit <code>src/logo/config.ts</code> to change the approved defaults.
         </p>
       </header>
 
-      <div className="grid gap-6 p-6 lg:grid-cols-[1fr_22rem]">
-        <main className="space-y-6">
+      {/* On wide screens each column scrolls on its own below the header, so the
+          previews stay in view while the controls are scrolled. */}
+      <div className="grid gap-6 p-6 lg:min-h-0 lg:flex-1 lg:grid-cols-[1fr_22rem] lg:py-0">
+        <main className="space-y-6 lg:overflow-y-auto lg:overscroll-contain lg:py-6">
           <Panel title="Complete logo">
             <div className="rounded-lg p-8 sm:p-12" style={cream}>
               <LondonTypeScriptLogo
@@ -91,7 +93,7 @@ export function App() {
           </div>
         </main>
 
-        <aside className="space-y-4">
+        <aside className="space-y-4 lg:overflow-y-auto lg:overscroll-contain lg:py-6 lg:pr-1">
           <Panel title="Animation & export">
             <div className="flex flex-wrap gap-2">
               <Button onClick={() => setAnimating((a) => !a)} primary={!animating}>
