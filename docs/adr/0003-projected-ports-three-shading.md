@@ -9,9 +9,12 @@ the sculpture its depth and light but produces a bitmap. The flat concept is vec
 depth. The projected concept (b4d22b3) is meant to be a vector logo with the 3D sculpture's depth
 and light, exported as SVG.
 
-Drawing polygons in SVG means working out each face's colour ourselves. The options were to render
-through WebGL and trace or embed the result, or to compute the colours in plain code. The history
-doesn't record that tracing or embedding a render was considered, or why it was ruled out.
+Drawing polygons in SVG means working out each face's colour ourselves. The alternative was to keep
+three.js drawing and use its picture: trace the bitmap into shapes, or embed it in an SVG. Both go
+against the studio's aim that every shape comes from parameters rather than pixels (README): a
+trace loses the parameters and comes out approximate, and an embedded bitmap doesn't scale. The
+approach was chosen by the session that built the concept, without the maintainer being asked; this
+ADR records it after the fact.
 
 ## Decision
 
@@ -23,9 +26,11 @@ objects.
 
 `shading.ts` ports the formulas that set a pixel's colour in three.js: `MeshStandardMaterial`'s
 Lambert diffuse and GGX specular, ACES filmic tone mapping and sRGB encoding. Porting the formulas
-rather than approximating the look is meant to make a face come out the colour the 3D render gives
-it; the studio can show the live 3D render beside the projection to check this. The port keeps
-three.js's MIT licence notice in the file, and the README credits it.
+rather than approximating the look makes a face come out the colour the 3D render gives it; the
+studio can show the live 3D render beside the projection to check this. The maintainer has since
+compared the two and endorses the approach: it is complex, but its output is much closer to the 3D
+render than an approximation would be. The port keeps three.js's MIT licence notice in the file, and
+the README credits it.
 
 Environment reflections are not modelled, so the projected concept takes the 3D concept's settings
 minus those.

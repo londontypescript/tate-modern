@@ -11,10 +11,9 @@ between them. Commit 3f29d94 restructured the code for that.
 
 Some code belongs to the logo itself, whichever way it is drawn: the brand colours, the fonts, the
 typography, and the wordmark with its placement beside an emblem. Other code belongs to one way of
-drawing it: the flat concept's geometry, animation and controls. The options were to keep one engine
-that every concept bends to fit, or to give each concept its own engine and share only what is the
-same for all of them. The history doesn't record that the first option was tried or why it was
-rejected.
+drawing it: the flat concept's geometry, animation and controls. The split was made during the
+restructure without the maintainer being asked; this ADR records it after the fact, with the
+maintainer's reasons.
 
 ## Decision
 
@@ -27,9 +26,12 @@ Each concept keeps its own engine, components and controls in `src/concepts/<nam
 exports a studio page and is registered in `src/studio/concepts.ts`, so adding one doesn't touch
 the others.
 
-The commit says the generated assets stayed byte-identical, so the split changed no output. The
-history doesn't record why sharing the wordmark and palette was preferred to each concept carrying
-its own copy.
+Each concept needs features of its own: the flat one's rotated squares and fades, the 3D one's
+lights and camera, the projected one's ported shading. One engine shared by every concept would cut
+them all down to what they have in common, so the concepts share only what really is the same for
+all of them. The wordmark is the same in every concept, and only the emblem beside it changes, so
+the wordmark is shared, not copied into each concept. The commit says the generated assets stayed
+byte-identical, so the split changed no output.
 
 ## What would end it
 
