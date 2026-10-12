@@ -8,6 +8,7 @@ The emblem descends from a Three.js sculpture of bevelled translucent blue slabs
 | --- | --- | --- |
 | **Flat** (`src/concepts/flat`) | Translucent squares rotated about a faceted tile: pure 2D SVG. The first MVP, refined against the ChatGPT original. | Working; produces `public/assets/` |
 | **3D** (`src/concepts/three`) | The original React Three Fiber sculpture, ported from the March 2026 prototype: bevelled metal slabs, real lights and reflections. For heroes and high-resolution stills. | Working; exports PNG |
+| **Projected** (`src/concepts/projected`) | The 3D slabs drawn as flat SVG: projected through the same camera and shaded with three.js's own material and tone-mapping maths. A vector logo with the sculpture's depth and light. | Working; exports SVG |
 
 > **The TypeScript source code is the design.** The SVG files in `public/assets/` are build artefacts. Never edit them by hand; change the configuration (for the flat concept, `src/concepts/flat/engine/config.ts`) and regenerate them.
 
@@ -85,6 +86,14 @@ Saved configurations live only in this browser; they aren't shared and don't cha
 - **Wordmark beside it:** the shared wordmark, for judging a lockup.
 - **Download PNG** at 1×, 2× or 4× the preview's resolution, on white, cream, black or a transparent background.
 
+### The projected concept
+
+`npm run dev`, then the **Projected** tab. It takes the 3D concept's settings (the same starting points and sliders, minus environment reflections) and draws them as polygons:
+
+- **Compare with the live 3D render:** shows the projected emblem beside the real react-three-fiber render of the same settings, framed identically. The two should match.
+- **Drawing:** gradients across faces (on by default; a face's highlight varies across it in perspective), see-through back faces, exposure, and the wordmark's size and gap in the lockup.
+- **Download SVG:** the mark, the complete logo, or the logo on the chosen background.
+
 ## How it works
 
 The code is split three ways:
@@ -103,6 +112,17 @@ To add a concept, create `src/concepts/<name>/`, export a page component that re
 - `ThreeStudio.tsx`, `controls.ts`, `starters.ts`: the studio page.
 
 three.js loads only when the 3D concept is opened.
+
+### The projected concept's code
+
+A tiny renderer for lit glass boxes, framework-free in `engine/`:
+
+- `slab.ts`: a slab's faces, built ring by ring as three's `ExtrudeGeometry` builds its bevel (a quarter-circle profile in `bevelSegments` steps).
+- `project.ts`: places the slabs with the 3D concept's own `placeSlabs`, applies the scene's transforms, culls faces turned away from the camera, shades every corner, projects through the perspective camera and orders the slabs back to front as three sorts transparent objects. Each face gets a flat colour, or a gradient between its lightest and darkest corners. The "TS" is mapped onto the front face with an affine `matrix()`.
+- `shading.ts`: the parts of three.js that set a pixel's colour, ported: `MeshStandardMaterial`'s Lambert diffuse and GGX specular (Smith-correlated visibility, Schlick Fresnel), ACES filmic tone mapping (react-three-fiber's default) and sRGB encoding. With the same numbers, a face comes out the colour the 3D render gives it.
+- `vec.ts`: the vector maths.
+
+`components/` renders the polygons to SVG and sets the shared wordmark beside them. Environment reflections are not modelled.
 
 ### The flat concept
 
@@ -195,6 +215,7 @@ For static pages, simply use the generated files in `public/assets/`.
 - **Export:** identical output on every run; valid standalone documents with no `<text>` or images; every square present as its own element.
 - **Saved configurations:** parsing corrupt storage, and merging older saved configurations with current defaults.
 - **3D stack:** the prototype's placement of each slab, drift and opacity falloff, the scrambled angles, and the slab's chamfer measurements.
+- **Projection:** the slab faces against `ExtrudeGeometry`'s layout, the colour conversions and tone mapping, metal lit only by its specular lobe, culling, paint order, lettering, gradients, spinning, and deterministic, self-contained SVG output.
 
 ## Project structure
 
@@ -204,6 +225,7 @@ src/
     react/             SVG frame, wordmark renderer, browser font loading
   concepts/
     three/             3D concept: config, stack maths, R3F scene, studio page
+    projected/         projected concept: engine (projection, shading), SVG components, studio page
     flat/
       engine/          config, geometry, animation (framework-free)
       components/      React renderers, animation hook, SVG export

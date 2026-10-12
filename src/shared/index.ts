@@ -6,3 +6,4 @@ export * from './fonts';
 export * from './typography';
 export * from './outline';
 export * from './wordmark';
+export * from './lettering';

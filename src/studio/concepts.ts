@@ -26,4 +26,10 @@ export const concepts: readonly Concept[] = [
     summary: 'The original React Three Fiber sculpture: bevelled metal slabs, lit and rendered in real 3D.',
     Component: lazy(() => import('../concepts/three/ThreeStudio')),
   },
+  {
+    id: 'projected',
+    name: 'Projected',
+    summary: 'The 3D slabs drawn as flat SVG: projected through the same camera, shaded like the same material.',
+    Component: lazy(() => import('../concepts/projected/ProjectedStudio')),
+  },
 ];

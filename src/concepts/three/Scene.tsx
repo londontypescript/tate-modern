@@ -2,7 +2,6 @@ import { Environment, OrbitControls } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
 import {
-  DoubleSide,
   ExtrudeGeometry,
   Shape,
   ShapeGeometry,
@@ -12,7 +11,7 @@ import {
 } from 'three';
 import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js';
 import type { Font } from 'opentype.js';
-import { capHeightRatio, glyphBounds, layoutTextRun } from '../../shared';
+import { tileLettering } from '../../shared';
 import type { CameraConfig, LetteringConfig, LightingConfig, SlabConfig, ThreeConfig } from './config';
 import { placeSlabs, slabFaceHalfWidth, slabFrontZ } from './stack';
 
@@ -37,28 +36,27 @@ function useSlabGeometry(slab: SlabConfig) {
 
 /**
  * "TS" as flat geometry for the front face, set like the flat concept's
- * tile: cap height a third of the face, flush to the bottom-right margins.
- * The outlines come from the shared sans font via SVG path data.
+ * tile (`tileLettering`), via SVG path data.
  */
 function useLetteringGeometry(font: Font, faceHalf: number) {
   const geometry = useMemo(() => {
     const size = 100;
-    const fontSize = (0.35 * size) / capHeightRatio(font);
-    const baseline = size / 2 - 0.06 * size;
-    const measured = layoutTextRun(font, 'TS', { x: 0, baseline, fontSize, letterSpacing: -0.01 });
-    const right = size / 2 - 0.07 * size;
-    const placed = layoutTextRun(font, 'TS', {
-      x: right - glyphBounds(measured.glyphs).maxX,
-      baseline,
-      fontSize,
-      letterSpacing: -0.01,
-    });
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg">${placed.glyphs.map((g) => `<path d="${g.d}"/>`).join('')}</svg>`;
+    const glyphs = tileLettering(font);
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg">${glyphs.map((g) => `<path d="${g.d}"/>`).join('')}</svg>`;
     const shapes = new SVGLoader().parse(svg).paths.flatMap((path) => SVGLoader.createShapes(path));
     const geometry = new ShapeGeometry(shapes);
-    // From a 100-unit, y-down tile to the slab's face, y up.
+    // From a 100-unit, y-down tile to the slab's face, y up. The mirror
+    // reverses the triangles' winding, so turn them back to face forwards.
     const k = (2 * faceHalf) / size;
     geometry.scale(k, -k, 1);
+    const index = geometry.getIndex();
+    if (index) {
+      for (let i = 0; i < index.count; i += 3) {
+        const b = index.getX(i + 1);
+        index.setX(i + 1, index.getX(i + 2));
+        index.setX(i + 2, b);
+      }
+    }
     return geometry;
   }, [font, faceHalf]);
   useEffect(() => () => geometry.dispose(), [geometry]);
@@ -69,8 +67,7 @@ function Lettering({ font, slab, lettering }: { font: Font; slab: SlabConfig; le
   const geometry = useLetteringGeometry(font, slabFaceHalfWidth(slab));
   return (
     <mesh geometry={geometry} position={[0, 0, slabFrontZ(slab) + 0.002]}>
-      {/* Flipping the y-down glyphs upright reverses their winding, so draw both sides. */}
-      <meshStandardMaterial color={lettering.colour} roughness={0.4} metalness={0} side={DoubleSide} />
+      <meshStandardMaterial color={lettering.colour} roughness={0.4} metalness={0} />
     </mesh>
   );
 }
