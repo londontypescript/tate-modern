@@ -39,6 +39,8 @@ describe('sanitizeHalo', () => {
 });
 
 describe('buildHalo', () => {
+  const w = (v: number) => Number(v.toFixed(3));
+
   it('is absent at the neutral values, and when strength or reach is 0', () => {
     expect(buildHalo(tileWith(neutralHalo))).toBeUndefined();
     expect(buildHalo(tileWith({ ...on, strength: 0 }))).toBeUndefined();
@@ -46,14 +48,15 @@ describe('buildHalo', () => {
     expect(buildHalo(tileWith(undefined))).toBeUndefined();
   });
 
-  it('is absent when the tile size or corner radius is not a finite positive number', () => {
+  it('is absent for a size that is not finite and positive, or a corner radius not finite and not negative', () => {
     for (const size of [huge, -huge, NaN, 0, -100, 'big']) {
       expect(buildHalo(tileWith(on, { size: size as number })), `size ${String(size)}`).toBeUndefined();
     }
-    for (const cornerRadius of [huge, NaN, 0, -1, 'round']) {
+    for (const cornerRadius of [huge, NaN, -1, 'round']) {
       const tile = tileWith(on, { cornerRadius: cornerRadius as number });
       expect(buildHalo(tile), `cornerRadius ${String(cornerRadius)}`).toBeUndefined();
     }
+    expect(buildHalo(tileWith(on, { cornerRadius: 0 }))).toBeDefined();
   });
 
   it('is navy at the configured strength', () => {
@@ -62,40 +65,117 @@ describe('buildHalo', () => {
     expect(halo.strength).toBe(0.8);
   });
 
-  it('places the core and every piece about the tile moved left and down by the offset', () => {
-    const size = 100;
-    const r = 0.8;
-    const [h, a, R] = [size / 2, size / 2 - r, r + on.reach];
-    const [ox, oy] = [-on.offset, on.offset];
-    const halo = buildHalo(tileWith(on)) as HaloModel;
-    expect(halo.core).toEqual({ minX: ox - a, minY: oy - a, maxX: ox + a, maxY: oy + a });
-    const strip = Object.fromEntries(halo.strips.map((s) => [s.side, s.rect]));
-    expect(strip.left).toEqual({ minX: ox - a - R, minY: oy - a, maxX: ox - a, maxY: oy + a });
-    expect(strip.right).toEqual({ minX: ox + a, minY: oy - a, maxX: ox + a + R, maxY: oy + a });
-    expect(strip.top).toEqual({ minX: ox - a, minY: oy - a - R, maxX: ox + a, maxY: oy - a });
-    expect(strip.bottom).toEqual({ minX: ox - a, minY: oy + a, maxX: ox + a, maxY: oy + a + R });
-    for (const patch of halo.patches) {
-      expect(patch.radius).toBe(R);
-      expect([Math.abs(patch.centre.x - ox), Math.abs(patch.centre.y - oy)]).toEqual([a, a]);
+  const shapes: [HaloConfig, number][] = [
+    [on, 0.8],
+    [on, 0],
+    [{ strength: 0.5, reach: 13.37, offset: 7.77 }, 3.333],
+    [{ strength: 1, reach: 0.5, offset: 0.5 }, 0],
+  ];
+
+  it('places every piece about the tile moved left and down, on four written lines each way', () => {
+    for (const [config, r] of shapes) {
+      const label = `r ${r} reach ${config.reach}`;
+      const [h, a, R] = [50, 50 - r, r + config.reach];
+      const [ox, oy] = [-config.offset, config.offset];
+      const [x0 = NaN, x1 = NaN, x2 = NaN, x3 = NaN] = [ox - a - R, ox - a, ox + a, ox + a + R].map(w);
+      const [y0 = NaN, y1 = NaN, y2 = NaN, y3 = NaN] = [oy - a - R, oy - a, oy + a, oy + a + R].map(w);
+      const halo = buildHalo(tileWith(config, { cornerRadius: r })) as HaloModel;
+      expect(halo.core, label).toEqual({ minX: x1, minY: y1, maxX: x2, maxY: y2 });
+      const strip = Object.fromEntries(halo.strips.map((s) => [s.side, s.rect]));
+      expect(strip.left, label).toEqual({ minX: x0, minY: y1, maxX: x1, maxY: y2 });
+      expect(strip.right, label).toEqual({ minX: x2, minY: y1, maxX: x3, maxY: y2 });
+      expect(strip.top, label).toEqual({ minX: x1, minY: y0, maxX: x2, maxY: y1 });
+      expect(strip.bottom, label).toEqual({ minX: x1, minY: y2, maxX: x2, maxY: y3 });
+      const corners = Object.fromEntries(halo.patches.map((p) => [p.corner, p]));
+      expect(corners['top-left']).toMatchObject({
+        centre: { x: x1, y: y1 },
+        start: { x: x0, y: y1 },
+        end: { x: x1, y: y0 },
+      });
+      expect(corners['top-right']).toMatchObject({
+        centre: { x: x2, y: y1 },
+        start: { x: x3, y: y1 },
+        end: { x: x2, y: y0 },
+      });
+      expect(corners['bottom-right']).toMatchObject({
+        centre: { x: x2, y: y2 },
+        start: { x: x3, y: y2 },
+        end: { x: x2, y: y3 },
+      });
+      expect(corners['bottom-left']).toMatchObject({
+        centre: { x: x1, y: y2 },
+        start: { x: x0, y: y2 },
+        end: { x: x1, y: y3 },
+      });
+      for (const p of halo.patches) {
+        // Each arc's radii are its written depths, so it ends exactly on the lines.
+        expect(p.rx, `${label} ${p.corner}`).toBe(w(Math.abs(p.start.x - p.centre.x)));
+        expect(p.ry, `${label} ${p.corner}`).toBe(w(Math.abs(p.end.y - p.centre.y)));
+        expect(Math.abs(p.rx - p.ry), `${label} ${p.corner}`).toBeLessThanOrEqual(0.001 + 1e-9);
+        expect(Math.abs(p.radius - R), `${label} ${p.corner}`).toBeLessThanOrEqual(0.001 + 1e-9);
+      }
+      // The box is the halo's exact box, to within a written rounding step.
+      const exact = {
+        minX: ox - h - config.reach,
+        minY: oy - h - config.reach,
+        maxX: ox + h + config.reach,
+        maxY: oy + h + config.reach,
+      };
+      expect(halo.box).toEqual({ minX: x0, minY: y0, maxX: x3, maxY: y3 });
+      for (const key of ['minX', 'minY', 'maxX', 'maxY'] as const) {
+        expect(Math.abs(halo.box[key] - exact[key]), `${label} ${key}`).toBeLessThanOrEqual(0.0005 + 1e-9);
+      }
     }
-    const box = halo.box;
-    expect(box.minX).toBeCloseTo(ox - h - on.reach, 9);
-    expect(box.maxX).toBeCloseTo(ox + h + on.reach, 9);
-    expect(box.minY).toBeCloseTo(oy - h - on.reach, 9);
-    expect(box.maxY).toBeCloseTo(oy + h + on.reach, 9);
   });
 
-  it('runs each strip’s gradient across its depth, outward from the core', () => {
-    const halo = buildHalo(tileWith(on)) as HaloModel;
-    for (const { side, rect, from, to } of halo.strips) {
-      const depth = Math.hypot(to.x - from.x, to.y - from.y);
-      expect(depth, side).toBeCloseTo(0.8 + on.reach, 9);
-      const inner = { left: rect.maxX, right: rect.minX, top: rect.maxY, bottom: rect.minY }[side];
-      expect(side === 'left' || side === 'right' ? from.x : from.y, side).toBe(inner);
+  // Both edges of a lap are rounded as written, so it is within 0.001 of its intended size.
+  it('grows each strip over the core and into both neighbouring corners, but never the core', () => {
+    for (const [config, r] of shapes) {
+      const halo = buildHalo(tileWith(config, { cornerRadius: r })) as HaloModel;
+      const [lapIn, lapAlong] = [Math.min(0.5, 50 - r), Math.min(0.5, config.reach / 64)];
+      for (const { side, rect, paint } of halo.strips) {
+        const across = side === 'left' || side === 'right';
+        const inward = {
+          left: paint.maxX - rect.maxX,
+          right: rect.minX - paint.minX,
+          top: paint.maxY - rect.maxY,
+          bottom: rect.minY - paint.minY,
+        }[side];
+        expect(Math.abs(inward - lapIn), side).toBeLessThanOrEqual(0.001 + 1e-9);
+        const [before, after] = across
+          ? [rect.minY - paint.minY, paint.maxY - rect.maxY]
+          : [rect.minX - paint.minX, paint.maxX - rect.maxX];
+        expect(Math.abs(before - lapAlong), side).toBeLessThanOrEqual(0.001 + 1e-9);
+        expect(Math.abs(after - lapAlong), side).toBeLessThanOrEqual(0.001 + 1e-9);
+        const outer = {
+          left: paint.minX - rect.minX,
+          right: paint.maxX - rect.maxX,
+          top: paint.minY - rect.minY,
+          bottom: paint.maxY - rect.maxY,
+        }[side];
+        expect(outer, side).toBe(0);
+      }
     }
   });
 
-  /** Which pieces contain a point: core, strips (boxes) and patches (quarter discs). */
+  it('runs each strip’s gradient from its inner edge to its outer edge', () => {
+    for (const [config, r] of shapes) {
+      const halo = buildHalo(tileWith(config, { cornerRadius: r })) as HaloModel;
+      for (const { side, rect, from, to } of halo.strips) {
+        const [inner, outer] = {
+          left: [rect.maxX, rect.minX],
+          right: [rect.minX, rect.maxX],
+          top: [rect.maxY, rect.minY],
+          bottom: [rect.minY, rect.maxY],
+        }[side];
+        const across = side === 'left' || side === 'right';
+        expect(across ? [from.x, to.x] : [from.y, to.y], side).toEqual([inner, outer]);
+        expect(across ? from.y - to.y : from.x - to.x, side).toBe(0);
+      }
+    }
+  });
+
+  /** Which of the halo's shares contain a point: core, strips (boxes) and corners (quarter discs). */
   function piecesAt(halo: HaloModel, x: number, y: number) {
     const inBox = (b: { minX: number; minY: number; maxX: number; maxY: number }) =>
       x > b.minX && x < b.maxX && y > b.minY && y < b.maxY;
@@ -104,52 +184,38 @@ describe('buildHalo', () => {
       const [dx, dy] = [x - p.centre.x, y - p.centre.y];
       const outward =
         Math.sign(dx) === Math.sign(p.start.x - p.centre.x) && Math.sign(dy) === Math.sign(p.end.y - p.centre.y);
-      pieces.push(outward && Math.hypot(dx, dy) < p.radius);
+      pieces.push(outward && (dx / p.rx) ** 2 + (dy / p.ry) ** 2 < 1);
     }
     return pieces.filter(Boolean).length;
   }
 
-  it('partitions the shadow exactly: every point within reach of the core is in one piece, others in none', () => {
+  it('partitions the shadow exactly: every point within reach of the core is in one share, others in none', () => {
     for (const config of [on, { strength: 1, reach: 40, offset: 20 }, { strength: 0.3, reach: 0.5, offset: 0 }]) {
-      for (const cornerRadius of [0.8, 12, 50]) {
+      for (const cornerRadius of [0, 0.8, 12, 50]) {
         const halo = buildHalo(tileWith(config, { cornerRadius })) as HaloModel;
         const { core, box } = halo;
         const R = halo.patches[0]?.radius ?? NaN;
-        // An irrational step keeps the samples off the pieces' shared edges.
+        // An irrational step keeps the samples off the shares' shared edges;
+        // points within a rounding step of the outline are left out.
         for (let x = box.minX - 3; x < box.maxX + 3; x += Math.SQRT2 / 1.7) {
           for (let y = box.minY - 3; y < box.maxY + 3; y += Math.PI / 4.1) {
             const dx = Math.max(core.minX - x, 0, x - core.maxX);
             const dy = Math.max(core.minY - y, 0, y - core.maxY);
-            const inside = Math.hypot(dx, dy) < R;
-            expect(piecesAt(halo, x, y), `r ${cornerRadius} (${x}, ${y})`).toBe(inside ? 1 : 0);
+            const d = Math.hypot(dx, dy);
+            if (Math.abs(d - R) < 0.002) continue;
+            expect(piecesAt(halo, x, y), `r ${cornerRadius} (${x}, ${y})`).toBe(d < R ? 1 : 0);
           }
         }
       }
     }
   });
 
-  it('builds one stop list: full strength to the moved outline, then (1 − t)² over the reach', () => {
+  it('builds one stop list: full to the moved outline, then (1 − t)² over the reach, as 8-bit greys', () => {
     const r = 0.8;
     const halo = buildHalo(tileWith(on)) as HaloModel;
     const ts = [0, 0.25, 0.5, 0.75, 1];
     expect(halo.stops.map((s) => s.offset)).toEqual(ts.map((t) => (r + t * on.reach) / (r + on.reach)));
-    expect(halo.stops.map((s) => s.opacity)).toEqual(ts.map((t) => on.strength * (1 - t) ** 2));
-  });
-
-  it('keeps within strength / 64 of the smooth curve between its stops', () => {
-    const halo = buildHalo(tileWith({ strength: 1, reach: 10, offset: 0 })) as HaloModel;
-    const [r, R] = [0.8, 10.8];
-    let worst = 0;
-    for (let d = r; d <= R; d += 0.01) {
-      const u = d / R;
-      const i = Math.max(
-        halo.stops.findIndex((s) => s.offset >= u),
-        1,
-      );
-      const [s0, s1] = [halo.stops[i - 1]!, halo.stops[i]!];
-      const linear = s0.opacity + ((s1.opacity - s0.opacity) * (u - s0.offset)) / (s1.offset - s0.offset);
-      worst = Math.max(worst, Math.abs(linear - (1 - (d - r) / 10) ** 2));
-    }
-    expect(worst).toBeLessThanOrEqual(1 / 64 + 1e-9);
+    expect(halo.stops.map((s) => s.level)).toEqual(ts.map((t) => (1 - t) ** 2));
+    expect(halo.stops.map((s) => s.grey)).toEqual(['#ffffff', '#8f8f8f', '#404040', '#101010', '#000000']);
   });
 });
