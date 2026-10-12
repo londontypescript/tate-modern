@@ -37,6 +37,18 @@ const sameNumbers = (a: readonly number[], b: readonly number[]) =>
   a.length === b.length && a.every((v, i) => v === b[i]);
 
 /**
+ * The state to start a new frame loop from when the mode changes, or
+ * `undefined` when there is nothing to show but the static composition.
+ * A loop measures time from its own first frame, and any glide starts
+ * afresh: an old one's deadline may have passed while no frame was drawn,
+ * and reusing it would snap the sheets home.
+ */
+export function restartMotion(state: MotionState | undefined, mode: MotionMode): MotionState | undefined {
+  if (!state || mode === 'still') return undefined;
+  return { rotations: state.rotations };
+}
+
+/**
  * The state after the frame at `now` (milliseconds), or `undefined` once the
  * sheets are back in their static composition.
  *
@@ -52,12 +64,15 @@ export function stepMotion(
   mode: MotionMode,
 ): MotionState | undefined {
   if (mode === 'still' || (mode === 'settle' && !state)) return undefined;
-  const current = inputs.targets.map((target, i) => state?.rotations[i] ?? target);
+  const existing = state?.rotations.slice(0, inputs.targets.length) ?? [];
+  const current = inputs.targets.map((target, i) => existing[i] ?? target);
 
   if (mode === 'run') {
     // A long gap (a background tab) counts as a tenth of a second, not a lurch.
     const dt = state?.last === undefined ? 0 : Math.min((now - state.last) / 1000, 0.1);
-    return { rotations: advanceRotations(current, inputs.velocities, dt), last: now };
+    // Only sheets that were already turning move; a new one appears at its static angle.
+    const moved = advanceRotations(existing, inputs.velocities, dt);
+    return { rotations: current.map((r, i) => moved[i] ?? r), last: now };
   }
 
   const previous = state?.settling;

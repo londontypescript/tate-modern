@@ -1,10 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { SETTLE_DURATION, type Symmetry } from './animation';
-import { stepMotion, type MotionInputs, type MotionMode, type MotionState } from './motion';
+import { restartMotion, stepMotion, type MotionInputs, type MotionMode, type MotionState } from './motion';
 
 const FRAME = 16;
 
-/** A fake frame clock: each `frame()` advances time by one frame and steps the motion, as the hook's loop does. */
+/**
+ * A fake frame clock. Each `frame()` advances time by one frame and steps the
+ * motion, as the hook's loop does; changing the mode restarts the motion as
+ * the hook's effect does, whether or not a frame follows.
+ */
 function frameClock(inputs: MotionInputs) {
   let now = 1000;
   let state: MotionState | undefined;
@@ -15,6 +19,11 @@ function frameClock(inputs: MotionInputs) {
     },
     set mode(next: MotionMode) {
       mode = next;
+      state = restartMotion(state, next);
+    },
+    /** Lets time pass with no frame drawn. */
+    wait(ms: number) {
+      now += ms;
     },
     frame() {
       now += FRAME;
@@ -62,8 +71,10 @@ describe('stepMotion', () => {
     const clock = frameClock(inputsOf(targets, symmetries, [40, -55, 70]));
     clock.frames(200);
     clock.mode = 'settle';
-    const near = clock.frames(settleFrames - 2) ?? [];
-    near.forEach((angle, i) => expect(offPose(angle, targets[i] ?? NaN, symmetries[i] ?? NaN)).toBeLessThan(0.1));
+    const near = clock.frames(settleFrames - 2);
+    expect(near).toBeDefined();
+    expect(near).toHaveLength(3);
+    near?.forEach((angle, i) => expect(offPose(angle, targets[i] ?? NaN, symmetries[i] ?? NaN)).toBeLessThan(0.1));
   });
 
   it('restarts settling from where the sheets are when the targets change on the way', () => {
@@ -101,7 +112,8 @@ describe('stepMotion', () => {
     const grown = clock.frame() ?? [];
     expect(grown).toHaveLength(4);
     expect(Math.abs((grown[0] ?? NaN) - (running[0] ?? NaN))).toBeLessThan(1);
-    expect(Math.abs((grown[2] ?? NaN) - 30)).toBeLessThan(1);
+    expect(grown[2]).toBe(30);
+    expect(grown[3]).toBe(40);
 
     clock.mode = 'settle';
     const settling = clock.frames(10) ?? [];
@@ -124,6 +136,29 @@ describe('stepMotion', () => {
     clock.mode = 'settle';
     clock.frames(10);
     expect(clock.frames(settleFrames)).toBeUndefined();
+  });
+
+  it('advances only the sheets that existed on the frame a new one appears', () => {
+    const previous: MotionState = { rotations: [10, 20], last: 1000 };
+    const next = stepMotion(previous, 1016, inputsOf([10, 20, 30], [90, 90, 90]), 'run');
+    expect(next?.rotations[0]).toBeCloseTo(10.48);
+    expect(next?.rotations[1]).toBeCloseTo(20.48);
+    expect(next?.rotations[2]).toBe(30);
+  });
+
+  it('starts a fresh glide when settling resumes after animation restarted with no frame in between', () => {
+    const clock = frameClock(inputsOf([0, 45], [360, 360]));
+    clock.frames(150); // about 70° on from the static angles
+    clock.mode = 'settle';
+    const settling = clock.frames(Math.round(200 / FRAME));
+    clock.mode = 'run'; // animation restarted…
+    clock.mode = 'settle'; // …and stopped again before any running frame
+    clock.wait(1400);
+    const resumed = clock.frame();
+    // The old glide's deadline has passed, but the sheets must glide from here, not snap home.
+    expect(resumed).toBeDefined();
+    expect(jump(settling, resumed)).toBeLessThan(1e-9);
+    expect(clock.frames(settleFrames - 2)).toBeDefined();
   });
 
   it('shows the static composition at once under reduced motion, running or settling', () => {

@@ -3,6 +3,7 @@ import { usePrefersReducedMotion } from '../../../shared/react/usePrefersReduced
 import {
   layerSymmetry,
   layerVelocities,
+  restartMotion,
   stepMotion,
   type AnimationConfig,
   type MotionInputs,
@@ -46,13 +47,11 @@ export function useLayerRotations(
   const state = useRef<MotionState | undefined>(undefined);
 
   useEffect(() => {
-    if (mode === 'still' || (mode === 'settle' && !state.current)) {
-      state.current = undefined;
+    state.current = restartMotion(state.current, mode);
+    if (!state.current && mode !== 'run') {
       setRotations(undefined);
       return;
     }
-    // A new loop measures time from its own first frame.
-    if (state.current) state.current = { ...state.current, last: undefined };
 
     let frame = 0;
     const tick = (now: number) => {
