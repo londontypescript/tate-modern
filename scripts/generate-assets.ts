@@ -1,15 +1,17 @@
 /**
- * Regenerates the standalone SVG assets from the approved configuration:
+ * Regenerates the flat concept's standalone SVG assets from its approved
+ * configuration:
  *
  *   npm run generate:assets
  *
- * The files in public/assets are build artefacts; edit src/logo instead.
+ * The files in public/assets are build artefacts; edit
+ * src/concepts/flat/engine/config.ts instead.
  */
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { renderLogoSvg, svgFileName, svgVariants } from '../src/components/renderSvg';
-import { buildLogo, defaultLogoConfig } from '../src/logo';
+import { renderLogoSvg, svgFileName, svgVariants } from '../src/concepts/flat/components/renderSvg';
+import { buildLogo, defaultLogoConfig } from '../src/concepts/flat/engine';
 import { loadLogoFontsFromDisk } from './node-fonts';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');

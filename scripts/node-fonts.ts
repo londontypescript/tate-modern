@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
-import { fontFiles, parseLogoFonts, type FontRole, type LogoFonts } from '../src/logo';
+import { fontFiles, parseLogoFonts, type FontRole, type LogoFonts } from '../src/shared';
 
 const require = createRequire(import.meta.url);
 
