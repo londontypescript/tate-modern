@@ -13,11 +13,18 @@ import {
   type SvgVariant,
 } from './components';
 import { controlGroups } from './controls';
-import { buildLogo, defaultLogoConfig, type BlendMode } from './engine';
+import { buildLogo, defaultLogoConfig, neutralVariation, type BlendMode } from './engine';
 import { flatStarters } from './starters';
 
 /** Kept from the original playground, so configurations saved there still load. */
 const PRESETS_KEY = 'lts-logo:presets:v1';
+
+/**
+ * Configurations saved before the sheet variation existed get it switched
+ * off, not the current defaults, so they keep looking as they did whatever
+ * the defaults become.
+ */
+const fillMissing = { emblem: neutralVariation };
 
 function download(variant: SvgVariant, svg: string) {
   const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
@@ -125,7 +132,7 @@ export default function FlatStudio() {
         </div>
       </Panel>
 
-      <PresetsPanel storageKey={PRESETS_KEY} state={state} starters={flatStarters} />
+      <PresetsPanel storageKey={PRESETS_KEY} state={state} starters={flatStarters} fillMissing={fillMissing} />
 
       {controlGroups.map((group) => (
         <Panel key={group.title} title={group.title}>

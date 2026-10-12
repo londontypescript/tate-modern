@@ -1,42 +1,44 @@
-import type { EmblemModel, SquareLayer } from '../engine';
+import { useId } from 'react';
+import type { EmblemModel, SheetLayer } from '../engine';
 import { SvgFrame, num, shapeId, type SvgFrameProps } from '../../../shared/react/SvgFrame';
 import { TypeScriptTile } from './TypeScriptTile';
 
-/** Short deterministic hash, so equal fades share an id and different ones never do. */
-const hash = (text: string) => {
-  let h = 5381;
-  for (let i = 0; i < text.length; i++) h = ((h * 33) ^ text.charCodeAt(i)) >>> 0;
-  return h.toString(36);
-};
-
 /**
- * Id of a square's fade gradient. Derived from everything that shapes the
- * gradient, so several logos on one page never pick up each other's fades.
+ * A sheet's fade, in the sheet's own user space so it moves and turns with
+ * it: full strength in the sheet's colour on one side, fading towards the
+ * fade colour (and transparency) on the other. It spans the sheet's smaller
+ * side, so a square fades exactly as it did when the gradient filled its
+ * bounding box, and a stretched sheet's fade keeps its true angle.
  */
-const fadeId = (prefix: string | undefined, layer: SquareLayer) =>
-  layer.fade &&
-  `${prefix ?? 'lts'}-fade-${layer.index}-${hash(
-    `${layer.fill}|${layer.fade.colour}|${num(layer.fade.angle)}|${num(layer.fade.strength)}`,
-  )}`;
-
-/**
- * A square's fade, in its own bounding box so it turns with the square:
- * full strength in the square's colour on one edge, fading towards the
- * fade colour (and transparency) on the opposite edge.
- */
-function FadeGradient({ id, layer }: { id: string; layer: SquareLayer }) {
+function FadeGradient({ id, layer }: { id: string; layer: SheetLayer }) {
   const fade = layer.fade;
   if (!fade) return null;
   const theta = (fade.angle * Math.PI) / 180;
-  const dx = Math.cos(theta) / 2;
-  const dy = Math.sin(theta) / 2;
+  const reach = Math.min(layer.width, layer.height) / 2;
+  const dx = reach * Math.cos(theta);
+  const dy = reach * Math.sin(theta);
   return (
-    <linearGradient id={id} x1={num(0.5 - dx)} y1={num(0.5 - dy)} x2={num(0.5 + dx)} y2={num(0.5 + dy)}>
+    <linearGradient id={id} gradientUnits="userSpaceOnUse" x1={num(-dx)} y1={num(-dy)} x2={num(dx)} y2={num(dy)}>
       <stop offset="0" stopColor={layer.fill} />
       <stop offset="1" stopColor={fade.colour} stopOpacity={num(1 - fade.strength)} />
     </linearGradient>
   );
 }
+
+/**
+ * Where a sheet sits and how it is turned. It is drawn centred on (0, 0)
+ * and moved to its centre afterwards, so it turns about its own centre and
+ * that pivot stays exact however the numbers are rounded. A sheet at the
+ * origin is written as plain `rotate(r)`, as it always was.
+ */
+function sheetTransform(layer: SheetLayer, rotation: number) {
+  const [x, y] = [num(layer.x), num(layer.y)];
+  const rotate = `rotate(${num(rotation)})`;
+  return x === 0 && y === 0 ? rotate : `translate(${x} ${y}) ${rotate}`;
+}
+
+/** Characters safe in an id that a `url(#…)` reference also names. */
+const idSafe = (id: string) => id.replace(/[^A-Za-z0-9_-]/g, '');
 
 export interface MarkShapesProps {
   emblem: EmblemModel;
@@ -46,12 +48,17 @@ export interface MarkShapesProps {
 }
 
 /**
- * The emblem as an SVG group centred on (0, 0). Every square is its own
- * <rect>, rotated about the shared origin with an SVG `rotate()` attribute
- * (not CSS transform-origin), which behaves identically in every browser.
+ * The emblem as an SVG group centred on (0, 0). Every sheet is its own
+ * <rect>, turned with an SVG `rotate()` attribute (not CSS
+ * transform-origin), which behaves identically in every browser.
+ *
+ * Fade gradients need ids that no other logo on the page shares: exports
+ * use their `idPrefix`, and a live logo without one takes its own from
+ * React, so each sheet's id only has to be unique within its logo.
  */
 export function MarkShapes({ emblem, rotations, idPrefix }: MarkShapesProps) {
-  const fades = emblem.layers.map((layer) => fadeId(idPrefix, layer));
+  const ownId = `lts${idSafe(useId())}`;
+  const fades = emblem.layers.map((layer) => layer.fade && `${idPrefix ?? ownId}-fade-${layer.index}`);
   return (
     <g id={shapeId(idPrefix, 'emblem')}>
       {fades.some(Boolean) && (
@@ -64,21 +71,20 @@ export function MarkShapes({ emblem, rotations, idPrefix }: MarkShapesProps) {
       )}
       <g id={shapeId(idPrefix, 'layers')} style={{ isolation: 'isolate' }}>
         {emblem.layers.map((layer, i) => {
-          const half = layer.size / 2;
           const fade = fades[i];
           return (
             <rect
               key={layer.id}
               id={shapeId(idPrefix, layer.id)}
-              x={num(-half)}
-              y={num(-half)}
-              width={num(layer.size)}
-              height={num(layer.size)}
+              x={num(-layer.width / 2)}
+              y={num(-layer.height / 2)}
+              width={num(layer.width)}
+              height={num(layer.height)}
               rx={num(layer.cornerRadius)}
               fill={fade ? `url(#${fade})` : layer.fill}
               opacity={num(layer.opacity)}
               style={layer.blendMode === 'normal' ? undefined : { mixBlendMode: layer.blendMode }}
-              transform={`rotate(${num(rotations?.[i] ?? layer.rotation)})`}
+              transform={sheetTransform(layer, rotations?.[i] ?? layer.rotation)}
             />
           );
         })}
@@ -91,7 +97,7 @@ export function MarkShapes({ emblem, rotations, idPrefix }: MarkShapesProps) {
 export interface TypeScriptMarkProps extends SvgFrameProps, MarkShapesProps {
   /**
    * `tight` frames the static composition exactly; `rotation-safe` leaves
-   * room for every square at any angle, so animation never clips.
+   * room for every sheet at any angle, so animation never clips.
    */
   framing?: 'tight' | 'rotation-safe';
 }

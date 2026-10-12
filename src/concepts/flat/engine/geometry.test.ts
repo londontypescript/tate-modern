@@ -1,22 +1,20 @@
 import { describe, expect, it } from 'vitest';
-import { defaultLogoConfig, type EmblemConfig } from './config';
-import {
-  clampCornerRadius,
-  generateFacets,
-  generateLayers,
-  layersBounds,
-  rotatedHalfExtent,
-  rotationSafeRadius,
-} from './geometry';
+import { defaultLogoConfig, neutralVariation, type EmblemConfig } from './config';
+import { clampCornerRadius } from './bounds';
+import { generateFacets, generateLayers } from './geometry';
+import { Channel, sample } from './random';
+import type { SheetLayer } from './types';
 
-const emblem: EmblemConfig = { ...defaultLogoConfig.emblem };
+const emblem: EmblemConfig = { ...defaultLogoConfig.emblem, ...neutralVariation };
 
 describe('generateLayers', () => {
-  it('creates one centred layer per count, rotated by a fixed increment', () => {
+  it('creates one centred square per count, rotated by a fixed increment', () => {
     const layers = generateLayers({ ...emblem, layerCount: 6, initialRotation: 7.5, rotationIncrement: 15 });
     expect(layers.map((l) => l.rotation)).toEqual([7.5, 22.5, 37.5, 52.5, 67.5, 82.5]);
     expect(layers.map((l) => l.index)).toEqual([0, 1, 2, 3, 4, 5]);
     expect(new Set(layers.map((l) => l.id)).size).toBe(6);
+    for (const l of layers)
+      expect(l).toMatchObject({ x: 0, y: 0, width: emblem.squareSize, height: emblem.squareSize });
   });
 
   it('is deterministic', () => {
@@ -30,51 +28,98 @@ describe('generateLayers', () => {
 
   it('tapers sizes linearly from the back layer to the front one', () => {
     const layers = generateLayers({ ...emblem, layerCount: 3, squareSize: 100, sizeTaper: 0.2 });
-    expect(layers.map((l) => l.size)).toEqual([100, 90, 80]);
+    expect(layers.map((l) => l.width)).toEqual([100, 90, 80]);
+    expect(layers.map((l) => l.height)).toEqual([100, 90, 80]);
   });
 
   it('handles degenerate counts', () => {
     expect(generateLayers({ ...emblem, layerCount: 0 })).toEqual([]);
-    expect(generateLayers({ ...emblem, layerCount: 1, sizeTaper: 0.5 })[0]?.size).toBe(emblem.squareSize);
-  });
-
-  it('never lets the corner radius exceed half the side', () => {
-    expect(clampCornerRadius(10, 40)).toBe(5);
-    expect(clampCornerRadius(10, -1)).toBe(0);
+    expect(generateLayers({ ...emblem, layerCount: 1, sizeTaper: 0.5 })[0]?.width).toBe(emblem.squareSize);
   });
 });
 
-describe('square extents', () => {
-  it('matches the closed forms for sharp squares', () => {
-    expect(rotatedHalfExtent(100, 0, 0)).toBeCloseTo(50);
-    expect(rotatedHalfExtent(100, 0, 45)).toBeCloseTo(50 * Math.SQRT2);
-    expect(rotatedHalfExtent(100, 0, 90)).toBeCloseTo(50);
+describe('sheet variation', () => {
+  const base: EmblemConfig = { ...emblem, layerCount: 8, sizeTaper: 0.2, seed: 7 };
+  const neutral = generateLayers(base);
+  const geometryOf = (l: SheetLayer) => ({
+    rotation: [l.rotation],
+    size: [(l.width + l.height) / 2],
+    aspect: [l.width / l.height],
+    offset: [l.x, l.y],
+  });
+  /** Which kinds of geometry differ from the neutral sheets'. */
+  const changed = (layers: SheetLayer[]) =>
+    (['rotation', 'size', 'aspect', 'offset'] as const).filter((key) =>
+      layers.some((l, i) => {
+        const before = geometryOf(neutral[i] as SheetLayer)[key];
+        return geometryOf(l)[key].some((v, j) => Math.abs(v - (before[j] ?? NaN)) > 1e-9);
+      }),
+    );
+
+  it('follows the formulas for each channel', () => {
+    const c = { ...base, rotationJitter: 10, sizeJitter: 0.2, aspectJitter: 0.1, offsetJitter: 5 };
+    const layers = generateLayers(c);
+    layers.forEach((layer, i) => {
+      const u = (channel: (typeof Channel)[keyof typeof Channel]) => sample(7, i, channel);
+      const s = (neutral[i]?.width ?? 0) * (1 + 0.2 * u(Channel.size));
+      expect(layer.rotation).toBeCloseTo(7.5 + i * 15 + 10 * u(Channel.rotation), 12);
+      expect(layer.width).toBeCloseTo(s * (1 + 0.1 * u(Channel.aspect)), 12);
+      expect(layer.height).toBeCloseTo(s * (1 - 0.1 * u(Channel.aspect)), 12);
+      expect((layer.width + layer.height) / 2).toBeCloseTo(s, 12);
+      expect(layer.x).toBeCloseTo(5 * u(Channel.offsetX), 12);
+      expect(layer.y).toBeCloseTo(5 * u(Channel.offsetY), 12);
+    });
   });
 
-  it('shrinks the corner reach as rounding grows', () => {
-    expect(rotatedHalfExtent(100, 10, 45)).toBeLessThan(rotatedHalfExtent(100, 0, 45));
-    expect(rotatedHalfExtent(100, 50, 30)).toBeCloseTo(50); // a circle
+  it('changes only its own geometry for each control', () => {
+    expect(changed(generateLayers({ ...base, rotationJitter: 10 }))).toEqual(['rotation']);
+    expect(changed(generateLayers({ ...base, sizeJitter: 0.2 }))).toEqual(['size']);
+    expect(changed(generateLayers({ ...base, aspectJitter: 0.2 }))).toEqual(['aspect']);
+    expect(changed(generateLayers({ ...base, offsetJitter: 10 }))).toEqual(['offset']);
   });
 
-  it('has the 90° symmetry of a square', () => {
-    for (const angle of [3, 17, 44, 61]) {
-      expect(rotatedHalfExtent(80, 2, angle)).toBeCloseTo(rotatedHalfExtent(80, 2, angle + 90));
-      expect(rotatedHalfExtent(80, 2, angle)).toBeCloseTo(rotatedHalfExtent(80, 2, -angle));
+  it('shifts each axis independently', () => {
+    const layers = generateLayers({ ...base, offsetJitter: 10 });
+    expect(layers.some((l) => Math.abs(Math.abs(l.x) - Math.abs(l.y)) > 0.5)).toBe(true);
+  });
+
+  it('gives the same emblem for the same seed, and a different one for another', () => {
+    const c = { ...base, rotationJitter: 10, sizeJitter: 0.2, aspectJitter: 0.2, offsetJitter: 10 };
+    expect(generateLayers({ ...c })).toEqual(generateLayers({ ...c }));
+    expect(generateLayers({ ...c, seed: 8 })).not.toEqual(generateLayers(c));
+  });
+
+  it("never shifts existing layers' samples when the layer count changes", () => {
+    const c = { ...emblem, rotationJitter: 10, aspectJitter: 0.2, offsetJitter: 10, seed: 3 };
+    const four = generateLayers({ ...c, layerCount: 4 });
+    const nine = generateLayers({ ...c, layerCount: 9 });
+    four.forEach((layer, i) => {
+      const other = nine[i] as SheetLayer;
+      expect([other.rotation, other.x, other.y, other.width / other.height]).toEqual([
+        layer.rotation,
+        layer.x,
+        layer.y,
+        layer.width / layer.height,
+      ]);
+    });
+  });
+
+  it('clamps the corner radius to half the smaller side', () => {
+    expect(clampCornerRadius(10, 40)).toBe(5);
+    expect(clampCornerRadius(10, -1)).toBe(0);
+    // Within the sliders' ranges the smallest sheet still holds the largest radius.
+    const layers = generateLayers({ ...base, sizeTaper: 0.4, sizeJitter: 0.3, aspectJitter: 0.3, cornerRadius: 12 });
+    for (const l of layers) {
+      expect(l.cornerRadius).toBe(12);
+      expect(l.cornerRadius).toBeLessThanOrEqual(Math.min(l.width, l.height) / 2);
     }
   });
 
-  it('keeps every rotation inside the rotation-safe radius', () => {
-    const safe = rotationSafeRadius(145, 1.6);
-    for (let angle = 0; angle <= 90; angle += 0.5) {
-      expect(rotatedHalfExtent(145, 1.6, angle)).toBeLessThanOrEqual(safe + 1e-9);
+  it('places a neutral sheet exactly at the origin, never at -0', () => {
+    for (const l of generateLayers(base)) {
+      expect(Object.is(l.x, 0)).toBe(true);
+      expect(Object.is(l.y, 0)).toBe(true);
     }
-    expect(rotatedHalfExtent(145, 1.6, 45)).toBeCloseTo(safe);
-  });
-
-  it('bounds the composition symmetrically about the origin', () => {
-    const box = layersBounds(generateLayers(emblem));
-    expect(box.minX).toBeCloseTo(-box.maxX);
-    expect(box.minY).toBeCloseTo(-box.maxY);
   });
 });
 

@@ -1,46 +1,55 @@
 import type { Font } from 'opentype.js';
 import {
   capHeightRatio,
-  emptyBox,
   glyphBounds,
   layoutTextRun,
   palette,
   placeWordmark,
   unionBox,
-  type Box,
   type LogoFonts,
   type PathShape,
   type Point,
 } from '../../../shared';
 import type { EmblemConfig, FacetShading, LogoConfig, TileConfig } from './config';
-import type { EmblemModel, LogoModel, SquareLayer, TileModel } from './types';
-
-const DEG = Math.PI / 180;
+import { clampCornerRadius, layersBounds, rotationSafeLayersBounds } from './bounds';
+import { Channel, sample, type ChannelKey } from './random';
+import { sanitizeEmblemConfig } from './sanitize';
+import type { EmblemModel, LogoModel, SheetLayer, TileModel } from './types';
 
 // ---------------------------------------------------------------------------
-// Background squares
+// Background sheets
 // ---------------------------------------------------------------------------
-
-/** Corner radius limited to what a square of the given size can hold. */
-export const clampCornerRadius = (size: number, radius: number) => Math.min(Math.max(radius, 0), size / 2);
 
 /**
- * The rotating background squares, back to front. Each is centred on the
- * emblem origin, rotated `initialRotation + index * rotationIncrement` and
- * scaled linearly by `sizeTaper` from the back layer to the front one.
+ * The background sheets, back to front. Each is rotated
+ * `initialRotation + index * rotationIncrement` and scaled linearly by
+ * `sizeTaper` from the back layer to the front one. The variation then
+ * adds, per sheet, a seeded turn, a change of size, a stretch away from a
+ * square that keeps the mean side, and a shift of its centre. With every
+ * jitter at 0 each sheet is exactly the centred square it always was.
  */
-export function generateLayers(config: EmblemConfig): SquareLayer[] {
-  const count = Math.max(0, Math.floor(config.layerCount));
+export function generateLayers(input: EmblemConfig): SheetLayer[] {
+  const config = sanitizeEmblemConfig(input);
+  const count = Math.floor(config.layerCount);
   const colours = config.colours.length > 0 ? config.colours : [palette.blue];
   return Array.from({ length: count }, (_, index) => {
+    const u = (channel: ChannelKey) => sample(config.seed, index, channel);
     const depth = count > 1 ? index / (count - 1) : 0;
-    const size = config.squareSize * (1 - config.sizeTaper * depth);
+    const tapered = config.squareSize * (1 - config.sizeTaper * depth);
+    const size = Math.max(tapered * (1 + config.sizeJitter * u(Channel.size)), 0);
+    const stretch = config.aspectJitter * u(Channel.aspect);
+    const width = size * (1 + stretch);
+    const height = size * (1 - stretch);
     return {
       id: `layer-${index}`,
       index,
-      size,
-      rotation: config.initialRotation + index * config.rotationIncrement,
-      cornerRadius: clampCornerRadius(size, config.cornerRadius),
+      width,
+      height,
+      // `|| 0` turns -0 into 0, so a neutral sheet is exactly at the origin.
+      x: config.offsetJitter * u(Channel.offsetX) || 0,
+      y: config.offsetJitter * u(Channel.offsetY) || 0,
+      rotation: config.initialRotation + index * config.rotationIncrement + config.rotationJitter * u(Channel.rotation),
+      cornerRadius: clampCornerRadius(Math.min(width, height), config.cornerRadius),
       fill: colours[index % colours.length] as string,
       opacity: config.opacity,
       blendMode: config.blendMode,
@@ -54,37 +63,6 @@ export function generateLayers(config: EmblemConfig): SquareLayer[] {
           : undefined,
     };
   });
-}
-
-/**
- * Half-width of the axis-aligned box around a rounded square rotated by
- * `rotation` degrees about its centre. The straight part of the square
- * contributes (s/2 - r)(|cos θ| + |sin θ|); the corner arcs add r.
- */
-export function rotatedHalfExtent(size: number, cornerRadius: number, rotation: number): number {
-  const r = clampCornerRadius(size, cornerRadius);
-  const theta = rotation * DEG;
-  return (size / 2 - r) * (Math.abs(Math.cos(theta)) + Math.abs(Math.sin(theta))) + r;
-}
-
-/** Distance from the centre to the furthest point of a rounded square. */
-export function rotationSafeRadius(size: number, cornerRadius: number): number {
-  const r = clampCornerRadius(size, cornerRadius);
-  return (size / 2 - r) * Math.SQRT2 + r;
-}
-
-const squareBox = (half: number): Box => ({ minX: -half, minY: -half, maxX: half, maxY: half });
-
-/** Bounds of the layers at the given rotations (their static ones by default). */
-export function layersBounds(
-  layers: readonly SquareLayer[],
-  rotations: readonly number[] = layers.map((l) => l.rotation),
-): Box {
-  return layers.reduce(
-    (box, layer, i) =>
-      unionBox(box, squareBox(rotatedHalfExtent(layer.size, layer.cornerRadius, rotations[i] ?? layer.rotation))),
-    emptyBox(),
-  );
 }
 
 // ---------------------------------------------------------------------------
@@ -188,13 +166,13 @@ function generateTile(config: TileConfig, font: Font): TileModel {
 
 function buildEmblem(emblem: EmblemConfig, tile: TileConfig, sans: Font): EmblemModel {
   const layers = generateLayers(emblem);
-  const tileBox = squareBox(tile.size / 2);
-  const safe = layers.reduce((r, l) => Math.max(r, rotationSafeRadius(l.size, l.cornerRadius)), 0);
+  const half = tile.size / 2;
+  const tileBox = { minX: -half, minY: -half, maxX: half, maxY: half };
   return {
     layers,
     tile: generateTile(tile, sans),
     bounds: unionBox(layersBounds(layers), tileBox),
-    rotationSafeBounds: unionBox(squareBox(safe), tileBox),
+    rotationSafeBounds: unionBox(rotationSafeLayersBounds(layers), tileBox),
   };
 }
 

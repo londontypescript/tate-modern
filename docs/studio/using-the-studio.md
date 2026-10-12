@@ -18,10 +18,16 @@ The flat concept has:
 - **Previews:** the complete logo on the reference's cream background, a static emblem, and an animation preview.
 - **Sliders:**
   - Squares: layer count, rotation increment, initial rotation, size, size taper, corner radius, opacity, and the fade across each square (strength, turn per square, first direction).
+  - Sheet variation: random, per-sheet departures from the even rosette, all off (0) by default, so the approved logo doesn't change until you turn them up.
+    - **Uneven angles** (0-20°): turns each sheet by up to this much either way.
+    - **Uneven sizes** (0-0.3): grows or shrinks each sheet by up to this fraction, on top of the taper.
+    - **Stretch from square** (0-0.3): makes each sheet a rectangle, up to this fraction wider and as much shorter (or the other way), so its average side stays the same.
+    - **Shift off centre** (0-20, where the tile is 100 wide): moves each sheet's centre by up to this much across and, separately, up or down. Each sheet still turns about its own centre.
+    - **Variation seed** (1-999): picks which random variation you get. The same seed always gives the same emblem; changing the number of layers keeps the existing sheets' variation and adds new sheets after them.
   - TS tile: letter size, margins, letter spacing.
   - Wordmark and layout: gap, line spacing, letter spacing, condense letters, flourish scale.
   - Animation: speed and speed variation.
-- **Animate squares / Stop animation:** stopping glides each square back to the approved composition.
+- **Animate squares / Stop animation:** stopping glides each sheet back to the static composition, the short way round: a square looks the same every quarter turn, a stretched sheet every half turn and a fading sheet only after a full turn. Changing a setting while they glide sends them on from where they are.
 - **Toggles:** alternate rotation directions, and "multiply overlaps" (a tinted-glass blend mode).
 - **Download SVG:** mark, wordmark or complete logo, built from your current slider settings with the same code as `generate:assets`. Optionally includes the cream background.
 - **Reset:** restores the approved `defaultLogoConfig` and unloads any saved configuration.
@@ -32,7 +38,7 @@ The flat concept has:
   - **Save as new:** stores the current settings under a name you type; that configuration is then the one being edited.
   - **Save changes:** writes the current settings back to the loaded configuration. It's enabled when there are unsaved changes.
   - **Load, Rename, Delete:** load and delete ask for confirmation when work would be lost.
-  - Saved configurations from older versions still load: fields added to the config since then take their defaults.
+  - Saved configurations from older versions still load: fields added to the config since then take their defaults, except the sheet variation, which stays off, so an older configuration looks as it did even if the defaults later turn variation on. Values that aren't sensible numbers (for example from a hand-edited file) fall back to the defaults, and every number is kept within its slider's range.
 
 Saved configurations live only in this browser; they aren't shared and don't change the generated assets. To make a configuration the official logo, copy its values into `defaultLogoConfig` in `src/concepts/flat/engine/config.ts` and run `pnpm generate:assets`. (Flat configurations saved in the original playground still load: the storage key is unchanged.)
 

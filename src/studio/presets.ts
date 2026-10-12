@@ -19,29 +19,44 @@ export interface StarterConfig<T> {
 const isPlainObject = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && !Array.isArray(v);
 
+/** Any part of a configuration, nested objects included. */
+export type DeepPartial<T> = T extends readonly unknown[]
+  ? T
+  : T extends object
+    ? { [K in keyof T]?: DeepPartial<T[K]> }
+    : T;
+
 /**
  * Overlays a saved value on the defaults, field by field. Fields added to
- * the config after a preset was saved get their default; fields whose type
- * no longer matches are ignored.
+ * the config after a preset was saved get their default, or their value in
+ * `missing` when it has one: a concept passes `missing` for fields whose
+ * default may change, so older saved configurations keep looking as they
+ * did. A saved value of the wrong type is ignored and filled the same way.
  */
-export function mergeWithDefaults<T>(defaults: T, saved: unknown): T {
+export function mergeWithDefaults<T>(defaults: T, saved: unknown, missing?: NoInfer<DeepPartial<T>>): T {
   if (isPlainObject(defaults)) {
-    if (!isPlainObject(saved)) return defaults;
+    if (!isPlainObject(saved) && missing === undefined) return defaults;
+    const from = isPlainObject(saved) ? saved : {};
+    const fill: Record<string, unknown> = isPlainObject(missing) ? missing : {};
     const out: Record<string, unknown> = {};
-    for (const [key, value] of Object.entries(defaults)) out[key] = mergeWithDefaults(value, saved[key]);
+    for (const [key, value] of Object.entries(defaults)) {
+      out[key] = mergeWithDefaults(value, from[key], fill[key]);
+    }
     return out as T;
   }
-  if (Array.isArray(defaults)) {
-    return (Array.isArray(saved) && saved.length === defaults.length ? saved : defaults) as T;
-  }
-  return (typeof saved === typeof defaults ? saved : defaults) as T;
+  const usable = Array.isArray(defaults)
+    ? Array.isArray(saved) && saved.length === defaults.length
+    : typeof saved === typeof defaults;
+  if (usable) return saved as T;
+  // A field that is absent or unusable takes its `missing` value when it has one.
+  return (missing !== undefined && typeof missing === typeof defaults ? missing : defaults) as T;
 }
 
 /**
  * Reads presets from their stored JSON, dropping anything malformed and
- * filling fields added since they were saved from `defaults`.
+ * filling fields added since they were saved from `missing`, then `defaults`.
  */
-export function parsePresets<T>(json: string | null, defaults: T): Preset<T>[] {
+export function parsePresets<T>(json: string | null, defaults: T, missing?: NoInfer<DeepPartial<T>>): Preset<T>[] {
   if (!json) return [];
   let data: unknown;
   try {
@@ -56,7 +71,7 @@ export function parsePresets<T>(json: string | null, defaults: T): Preset<T>[] {
           {
             id: item.id,
             name: item.name,
-            config: mergeWithDefaults(defaults, item.config),
+            config: mergeWithDefaults(defaults, item.config, missing),
             savedAt: typeof item.savedAt === 'string' ? item.savedAt : '',
           },
         ]
@@ -64,9 +79,9 @@ export function parsePresets<T>(json: string | null, defaults: T): Preset<T>[] {
   );
 }
 
-function readStorage<T>(key: string, defaults: T): Preset<T>[] {
+function readStorage<T>(key: string, defaults: T, missing?: NoInfer<DeepPartial<T>>): Preset<T>[] {
   try {
-    return parsePresets(window.localStorage.getItem(key), defaults);
+    return parsePresets(window.localStorage.getItem(key), defaults, missing);
   } catch {
     return [];
   }
@@ -88,10 +103,11 @@ const newId = () =>
 
 /**
  * Named configurations persisted in localStorage under `storageKey`, one
- * list per concept.
+ * list per concept. `missing` fills fields saved configurations lack (see
+ * `mergeWithDefaults`).
  */
-export function usePresets<T>(storageKey: string, defaults: T) {
-  const [presets, setPresets] = useState<Preset<T>[]>(() => readStorage(storageKey, defaults));
+export function usePresets<T>(storageKey: string, defaults: T, missing?: NoInfer<DeepPartial<T>>) {
+  const [presets, setPresets] = useState<Preset<T>[]>(() => readStorage(storageKey, defaults, missing));
   const [storageFailed, setStorageFailed] = useState(false);
 
   const commit = (next: Preset<T>[]) => {

@@ -1,7 +1,8 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { loadLogoFontsFromDisk } from '../../../../scripts/node-fonts';
 import type { LogoFonts } from '../../../shared';
-import { buildLogo, defaultLogoConfig, type LogoModel } from '../engine';
+import { parsePresets } from '../../../studio/presets';
+import { buildLogo, defaultLogoConfig, neutralVariation, type LogoModel } from '../engine';
 import { renderLogoSvg, svgVariants } from './renderSvg';
 
 let fonts: LogoFonts;
@@ -35,6 +36,30 @@ describe('renderLogoSvg', () => {
     for (const layer of logo.emblem.layers) {
       expect(svg).toContain(`id="lts-${layer.id}"`);
       expect(svg).toContain(`transform="rotate(${layer.rotation})"`);
+    }
+  });
+
+  it('writes only finite numbers from a hand-edited saved configuration', () => {
+    const stored =
+      '[{"id":"x","name":"Edited","config":{"emblem":{"layerCount":1e400,"squareSize":-80,' +
+      '"cornerRadius":1e400,"initialRotation":-1e400,"rotationJitter":1e400,"sizeJitter":-3,' +
+      '"aspectJitter":1e400,"offsetJitter":-1e400,"seed":1e400}}}]';
+    const [preset] = parsePresets(stored, defaultLogoConfig, { emblem: neutralVariation });
+    const edited = buildLogo(preset!.config, fonts);
+    expect(edited.emblem.layers).toHaveLength(defaultLogoConfig.emblem.layerCount);
+    for (const variant of svgVariants) {
+      expect(renderLogoSvg(variant, edited)).not.toMatch(/NaN|Infinity|undefined|(width|height|rx)="-/);
+    }
+    // A saved config that lacks the new fields altogether draws as before.
+    const [older] = parsePresets(
+      '[{"id":"y","name":"Older","config":{"emblem":{"layerCount":3}}}]',
+      defaultLogoConfig,
+      {
+        emblem: neutralVariation,
+      },
+    );
+    for (const layer of buildLogo(older!.config, fonts).emblem.layers) {
+      expect(layer).toMatchObject({ x: 0, y: 0, width: defaultLogoConfig.emblem.squareSize });
     }
   });
 

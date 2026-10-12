@@ -2,6 +2,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { loadLogoFontsFromDisk } from '../../../../scripts/node-fonts';
 import { capHeightRatio, layoutTextRun, type LogoFonts } from '../../../shared';
 import { defaultLogoConfig } from './config';
+import { sheetBox } from './bounds';
 import { buildLogo } from './geometry';
 
 let fonts: LogoFonts;
@@ -42,5 +43,38 @@ describe('buildLogo', () => {
 
   it('is deterministic', () => {
     expect(buildLogo(defaultLogoConfig, fonts)).toEqual(buildLogo(defaultLogoConfig, fonts));
+  });
+
+  it('frames the tile alone when there are no sheets', () => {
+    const logo = buildLogo({ ...defaultLogoConfig, emblem: { ...defaultLogoConfig.emblem, layerCount: 0 } }, fonts);
+    const tile = { minX: -50, minY: -50, maxX: 50, maxY: 50 };
+    expect(logo.emblem.bounds).toEqual(tile);
+    expect(logo.emblem.rotationSafeBounds).toEqual(tile);
+  });
+});
+
+describe('the wordmark beside varied sheets', () => {
+  it('sits beside the static sheets, never over them, however they are shifted and stretched', () => {
+    for (let seed = 1; seed <= 60; seed++) {
+      const emblem = {
+        ...defaultLogoConfig.emblem,
+        seed,
+        rotationJitter: 20,
+        sizeJitter: 0.3,
+        aspectJitter: 0.3,
+        offsetJitter: 20,
+      };
+      const logo = buildLogo({ ...defaultLogoConfig, emblem }, fonts);
+      const wordmarkLeft = logo.wordmark.bounds.minX + logo.wordmarkOffset.x;
+      const gap = defaultLogoConfig.layout.horizontalGap * defaultLogoConfig.tile.size;
+      expect(wordmarkLeft - logo.emblem.bounds.maxX).toBeCloseTo(gap);
+      for (const layer of logo.emblem.layers) {
+        expect(sheetBox(layer).maxX, `seed ${seed} ${layer.id}`).toBeLessThanOrEqual(wordmarkLeft - gap + 1e-9);
+      }
+      // While animating the sheets may pass under the wordmark, but the frame still holds them all.
+      expect(logo.rotationSafeBounds.minX).toBeLessThanOrEqual(logo.emblem.rotationSafeBounds.minX);
+      expect(logo.rotationSafeBounds.maxY).toBeGreaterThanOrEqual(logo.emblem.rotationSafeBounds.maxY);
+      expect(logo.rotationSafeBounds.minY).toBeLessThanOrEqual(logo.emblem.rotationSafeBounds.minY);
+    }
   });
 });
