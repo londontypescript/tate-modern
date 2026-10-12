@@ -2,7 +2,7 @@
  * Regenerates the flat concept's standalone SVG assets from its approved
  * configuration:
  *
- *   npm run generate:assets
+ *   pnpm generate:assets
  *
  * The files in public/assets are build artefacts; edit
  * src/concepts/flat/engine/config.ts instead.
