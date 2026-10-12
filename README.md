@@ -238,3 +238,11 @@ public/
   assets/              generated SVGs: do not edit
   references/          images the concepts are compared against
 ```
+
+## Licence and credits
+
+The studio's code and generated assets are [MIT](LICENSE) licensed.
+
+- **Fonts:** Open Sans and Playfair Display, both under the SIL Open Font License 1.1, installed from `@fontsource` packages. No font files are committed.
+- **three.js:** `src/concepts/projected/engine/shading.ts` ports formulas from three.js's shaders ([MIT](https://github.com/mrdoob/three.js/blob/dev/LICENSE), © 2010-2026 three.js authors).
+- **Reference images** (`public/references/`): `chatgpt-original.webp` is the image generated with ChatGPT that the emblem started from; `flat-mvp.png`, `three-hero.png` and `three-stack.png` are screenshots of this project's own prototypes.

@@ -9,6 +9,9 @@
  *
  * Colours are linear RGB triples unless named sRGB. Formulas follow three's
  * shader chunks (`bsdfs`, `lights_physical_pars_fragment`, `tonemapping_pars_fragment`).
+ *
+ * Ported from three.js (https://github.com/mrdoob/three.js), MIT License,
+ * Copyright © 2010-2026 three.js authors.
  */
 import { dot, normalize, add, type Vec3 } from './vec';
 
