@@ -69,6 +69,8 @@ describe('buildHalo', () => {
     [on, 0.8],
     [on, 0],
     [{ strength: 0.5, reach: 13.37, offset: 7.77 }, 3.333],
+    // More decimals than are written, so every line and depth is rounded.
+    [{ strength: 0.45, reach: 13.3717, offset: 7.7777 }, 3.33333],
     [{ strength: 1, reach: 0.5, offset: 0.5 }, 0],
   ];
 
