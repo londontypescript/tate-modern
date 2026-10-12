@@ -49,13 +49,15 @@ describe('the halo as written to the SVG', () => {
   });
 
   it('writes the same stop list into every strip and corner, strictly increasing', () => {
-    const cases: [HaloConfig, number][] = [
-      [on, 0.8],
-      [{ strength: 0.37, reach: 0.5, offset: 0 }, 50],
-      [{ strength: 1, reach: 40, offset: 20 }, 12],
+    // The smallest reach on a big, fully rounded tile puts the stops closest together.
+    const cases: [HaloConfig, number, number][] = [
+      [on, 0.8, 100],
+      [{ strength: 0.37, reach: 0.5, offset: 0 }, 50, 100],
+      [{ strength: 0.37, reach: 0.5, offset: 0 }, 150, 300],
+      [{ strength: 1, reach: 40, offset: 20 }, 12, 100],
     ];
-    for (const [halo, cornerRadius] of cases) {
-      const lists = stopLists(renderLogoSvg('mark', buildLogo(withHalo(halo, { cornerRadius }), fonts)));
+    for (const [halo, cornerRadius, size] of cases) {
+      const lists = stopLists(renderLogoSvg('mark', buildLogo(withHalo(halo, { cornerRadius, size }), fonts)));
       expect(lists.map((l) => l.kind)).toEqual([
         ...Array<string>(4).fill('linear'),
         ...Array<string>(4).fill('radial'),
@@ -105,13 +107,17 @@ describe('the halo as written to the SVG', () => {
 
   it('stays still while the sheets turn', () => {
     const logo = buildLogo(withHalo(on), fonts);
-    const still = haloMarkup(renderToStaticMarkup(<TypeScriptMark emblem={logo.emblem} idPrefix="t" />));
+    // Everything between the sheets and the tile: the halo and anything wrapped round it.
+    const between = (svg: string) =>
+      svg.slice(svg.indexOf('</g>', svg.indexOf('id="t-layers"')), svg.indexOf('<g id="t-tile"'));
+    const still = between(renderToStaticMarkup(<TypeScriptMark emblem={logo.emblem} idPrefix="t" />));
+    expect(still).toContain('t-halo-core');
     for (const step of [1, 13, 50]) {
       const rotations = logo.emblem.layers.map((l, i) => l.rotation + step * (i + 1));
       const svg = renderToStaticMarkup(
         <TypeScriptMark emblem={logo.emblem} rotations={rotations} framing="rotation-safe" idPrefix="t" />,
       );
-      expect(haloMarkup(svg)).toBe(still);
+      expect(between(svg)).toBe(still);
     }
   });
 
