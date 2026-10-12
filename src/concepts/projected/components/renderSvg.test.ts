@@ -22,7 +22,9 @@ describe('renderProjectedSvg', () => {
     for (const variant of ['mark', 'logo'] as const) {
       const svg = renderProjectedSvg(variant, lockup());
       expect(svg).toBe(renderProjectedSvg(variant, lockup()));
-      expect(svg).toMatch(/^<\?xml version="1.0" encoding="UTF-8"\?>\n<svg xmlns="http:\/\/www.w3.org\/2000\/svg" viewBox="[-\d. ]+"/);
+      expect(svg).toMatch(
+        /^<\?xml version="1.0" encoding="UTF-8"\?>\n<svg xmlns="http:\/\/www.w3.org\/2000\/svg" viewBox="[-\d. ]+"/,
+      );
       expect(svg).not.toMatch(/<(text|image|foreignObject|script)\b/);
       expect(svg).not.toMatch(/NaN|Infinity|undefined/);
     }

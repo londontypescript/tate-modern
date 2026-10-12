@@ -28,8 +28,7 @@ export interface LogoFonts {
 // opentype.js ships a UMD build for Node and the browser, so the module
 // namespace may hide its API behind `default`.
 const opentype: typeof opentypeNamespace =
-  (opentypeNamespace as unknown as { default?: typeof opentypeNamespace }).default ??
-  opentypeNamespace;
+  (opentypeNamespace as unknown as { default?: typeof opentypeNamespace }).default ?? opentypeNamespace;
 
 export function parseLogoFonts(buffers: Record<FontRole, ArrayBuffer>): LogoFonts {
   return {

@@ -185,9 +185,7 @@ export function PresetsPanel<T>({
               ) : (
                 <div className="flex items-center gap-2">
                   <div className="min-w-0 flex-1">
-                    <p
-                      className={`truncate text-sm ${preset.id === activeId ? 'font-semibold text-blue-700' : ''}`}
-                    >
+                    <p className={`truncate text-sm ${preset.id === activeId ? 'font-semibold text-blue-700' : ''}`}>
                       {preset.name}
                     </p>
                     <p className="text-[11px] text-stone-400">{savedAtLabel(preset.savedAt)}</p>

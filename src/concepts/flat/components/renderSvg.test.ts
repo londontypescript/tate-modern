@@ -21,7 +21,9 @@ describe('renderLogoSvg', () => {
   it('writes standalone, responsive, self-contained documents', () => {
     for (const variant of svgVariants) {
       const svg = renderLogoSvg(variant, logo);
-      expect(svg).toMatch(/^<\?xml version="1.0" encoding="UTF-8"\?>\n<svg xmlns="http:\/\/www.w3.org\/2000\/svg" viewBox="[-\d. ]+"/);
+      expect(svg).toMatch(
+        /^<\?xml version="1.0" encoding="UTF-8"\?>\n<svg xmlns="http:\/\/www.w3.org\/2000\/svg" viewBox="[-\d. ]+"/,
+      );
       expect(svg).not.toMatch(/<svg[^>]*\s(width|height)=/);
       expect(svg).not.toMatch(/<(text|image|foreignObject|script)\b/);
       expect(svg).not.toMatch(/NaN|Infinity|undefined/);

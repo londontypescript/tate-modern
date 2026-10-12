@@ -24,10 +24,7 @@ export function useSpins(count: number, speed: number, enabled: boolean): number
       const dt = last === undefined ? 0 : Math.min((now - last) / 1000, 0.1);
       last = now;
       const { count, speed } = latest.current;
-      current.current = Array.from(
-        { length: count },
-        (_, i) => (current.current[i] ?? 0) + dt * speed * DEG * (i + 1),
-      );
+      current.current = Array.from({ length: count }, (_, i) => (current.current[i] ?? 0) + dt * speed * DEG * (i + 1));
       setSpins(current.current);
       frame = requestAnimationFrame(tick);
     };

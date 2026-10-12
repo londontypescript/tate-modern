@@ -16,8 +16,7 @@ const PRESETS_KEY = 'lts-studio:three:presets:v1';
 const backgrounds = { white: '#ffffff', cream: palette.cream, black: '#000000', transparent: 'transparent' } as const;
 type BackgroundName = keyof typeof backgrounds;
 const backgroundNames = Object.keys(backgrounds) as BackgroundName[];
-const backgroundName = (colour: string) =>
-  backgroundNames.find((name) => backgrounds[name] === colour) ?? 'white';
+const backgroundName = (colour: string) => backgroundNames.find((name) => backgrounds[name] === colour) ?? 'white';
 
 /** Saves a PNG data URL, optionally painted over a solid background first. */
 async function downloadPng(dataUrl: string, background: string, name: string) {
@@ -57,8 +56,7 @@ export default function ThreeStudio() {
 
   const wordmark = useMemo(() => buildWordmark(defaultWordmarkConfig, fonts.serif, 100), [fonts]);
   const background = config.layout.background;
-  const checkerboard =
-    'repeating-conic-gradient(#e7e5e4 0% 25%, #fafaf9 0% 50%) 50% / 20px 20px';
+  const checkerboard = 'repeating-conic-gradient(#e7e5e4 0% 25%, #fafaf9 0% 50%) 50% / 20px 20px';
 
   const exportStill = async (scale: number) => {
     const url = capture.current?.(scale);
@@ -147,7 +145,11 @@ export default function ThreeStudio() {
       <PresetsPanel storageKey={PRESETS_KEY} state={state} starters={threeStarters} />
 
       <Panel title="Look">
-        <ColourInput label="Slab colour" value={config.material.colour} onChange={(colour) => set('material', { colour })} />
+        <ColourInput
+          label="Slab colour"
+          value={config.material.colour}
+          onChange={(colour) => set('material', { colour })}
+        />
         <Select
           label="Environment reflections"
           value={config.lighting.environment}

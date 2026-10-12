@@ -58,12 +58,11 @@ Saved configurations live only in this browser; they aren't shared and don't cha
 
 The flat concept's approved configuration is exported as:
 
-
-| File | Contents |
-| --- | --- |
-| `public/assets/london-typescript-logo.svg` | Complete horizontal logo |
-| `public/assets/london-typescript-mark.svg` | Emblem only |
-| `public/assets/london-typescript-wordmark.svg` | Two-line wordmark only |
+| File                                           | Contents                 |
+| ---------------------------------------------- | ------------------------ |
+| `public/assets/london-typescript-logo.svg`     | Complete horizontal logo |
+| `public/assets/london-typescript-mark.svg`     | Emblem only              |
+| `public/assets/london-typescript-wordmark.svg` | Two-line wordmark only   |
 
 Each file is:
 

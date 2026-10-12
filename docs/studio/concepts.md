@@ -12,14 +12,14 @@ config ──► GEOMETRY (pure TS) ──► model (plain data) ──► RENDE
                      ANIMATION (pure TS) rotations over time    EXPORT (renderToStaticMarkup)
 ```
 
-| Layer | Where | Responsibility |
-| --- | --- | --- |
-| Configuration | `engine/config.ts` | Typed parameters and the approved defaults (`defaultLogoConfig`) |
-| Geometry | `engine/geometry.ts` (plus `src/shared/wordmark.ts`, `typography.ts`) | What the shapes are and where they start |
-| Animation | `engine/animation.ts` | How the squares' rotations change over time |
-| Rendering | `components/` | Turns models into SVG elements; calculates nothing |
-| Export | `components/renderSvg.tsx`, `scripts/generate-assets.ts` | The same components rendered to standalone SVG documents |
-| Studio page | `FlatStudio.tsx`, `controls.ts`, `starters.ts` | Development UI only |
+| Layer         | Where                                                                 | Responsibility                                                   |
+| ------------- | --------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Configuration | `engine/config.ts`                                                    | Typed parameters and the approved defaults (`defaultLogoConfig`) |
+| Geometry      | `engine/geometry.ts` (plus `src/shared/wordmark.ts`, `typography.ts`) | What the shapes are and where they start                         |
+| Animation     | `engine/animation.ts`                                                 | How the squares' rotations change over time                      |
+| Rendering     | `components/`                                                         | Turns models into SVG elements; calculates nothing               |
+| Export        | `components/renderSvg.tsx`, `scripts/generate-assets.ts`              | The same components rendered to standalone SVG documents         |
+| Studio page   | `FlatStudio.tsx`, `controls.ts`, `starters.ts`                        | Development UI only                                              |
 
 `engine/` imports neither React nor the DOM. Its functions are deterministic, and you can use them from any renderer:
 
@@ -32,7 +32,7 @@ logo.emblem.layers; // SquareLayer[]: size, rotation, cornerRadius, fill, opacit
 
 ### Geometry
 
-- **Background squares** (`generateLayers`): `layerCount` squares share a centre. Square *i* is rotated `initialRotation + i × rotationIncrement`. The approved logo uses 6 squares at 15° steps from 7.5°, which makes it mirror-symmetric. Each square is 1.58 × the tile wide, with a very small corner radius.
+- **Background squares** (`generateLayers`): `layerCount` squares share a centre. Square _i_ is rotated `initialRotation + i × rotationIncrement`. The approved logo uses 6 squares at 15° steps from 7.5°, which makes it mirror-symmetric. Each square is 1.58 × the tile wide, with a very small corner radius.
 - **Transparency:** the squares are translucent and overlap with `multiply` blending, like tinted glass: every overlap gets deeper, so the centre darkens to royal blue around the tile while the tips stay light. The shades come from the overlaps themselves and update as the squares rotate. (`blendMode: 'normal'` gives plain alpha compositing instead.)
 - **Fades** (`fade`, off by default): each square can fade across its own surface, from its colour at full strength on one edge to `fadeColour` and near-transparency on the other. The direction turns by `fadeTurn` from one square to the next, so overlaps vary instead of stacking into a uniform disc, and the layers seem to weave in and out as in the reference. Each fade is a `linearGradient` in the square's own frame, so it turns with the square when animated.
 - **Bounds:** worked out in closed form. A rounded square rotated by θ reaches `(s/2 − r)(|cos θ| + |sin θ|) + r` from its centre. This gives a tight `viewBox` for static output, and a "rotation-safe" frame for animation so nothing clips.

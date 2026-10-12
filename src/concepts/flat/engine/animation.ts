@@ -23,11 +23,7 @@ export function layerVelocities(count: number, config: AnimationConfig): number[
 }
 
 /** Advances each rotation by its velocity over `dt` seconds. */
-export function advanceRotations(
-  rotations: readonly number[],
-  velocities: readonly number[],
-  dt: number,
-): number[] {
+export function advanceRotations(rotations: readonly number[], velocities: readonly number[], dt: number): number[] {
   return rotations.map((r, i) => r + (velocities[i] ?? 0) * dt);
 }
 
@@ -40,18 +36,13 @@ export function symmetricDelta(from: number, to: number): number {
   return d >= SYMMETRY / 2 ? d - SYMMETRY : d;
 }
 
-export const easeInOutCubic = (t: number) =>
-  t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
+export const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
 
 /**
  * Rotations part-way through settling back to the static composition.
  * At progress 1 the result is exactly `targets`.
  */
-export function settleRotations(
-  from: readonly number[],
-  targets: readonly number[],
-  progress: number,
-): number[] {
+export function settleRotations(from: readonly number[], targets: readonly number[], progress: number): number[] {
   if (progress >= 1) return [...targets];
   const e = easeInOutCubic(Math.max(0, progress));
   return targets.map((target, i) => {

@@ -18,7 +18,8 @@ export const threeStarters: readonly StarterConfig<ThreeConfig>[] = [
   },
   {
     name: 'Turned deck (Mar 2026)',
-    description: 'The hidden second group in the same prototype: larger slabs turning the other way, tilted to the side',
+    description:
+      'The hidden second group in the same prototype: larger slabs turning the other way, tilted to the side',
     config: {
       ...d,
       stack: { ...d.stack, rotateStep: -0.15 * RAD, scaleStart: 1.25, scaleStep: 0.15, tiltY: 0.5 * RAD, scale: 0.25 },

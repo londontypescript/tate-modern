@@ -35,7 +35,10 @@ export const rotateZ = ([x, y, z]: Vec3, a: number): Vec3 => [
 
 /** Centroid of a polygon's vertices. */
 export const centroid = (points: readonly Vec3[]): Vec3 =>
-  scale(points.reduce<Vec3>((sum, p) => add(sum, p), [0, 0, 0]), 1 / Math.max(points.length, 1));
+  scale(
+    points.reduce<Vec3>((sum, p) => add(sum, p), [0, 0, 0]),
+    1 / Math.max(points.length, 1),
+  );
 
 /** Unit normal of a planar polygon (Newell's method, robust for any vertex count). */
 export function polygonNormal(points: readonly Vec3[]): Vec3 {

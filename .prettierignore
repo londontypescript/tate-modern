@@ -1,0 +1,3 @@
+# Generated or local files Prettier must not rewrite.
+pnpm-lock.yaml
+.temple-bar/

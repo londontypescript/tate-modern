@@ -25,8 +25,7 @@ const PRESETS_KEY = 'lts-studio:projected:presets:v1';
 const backgrounds = { white: '#ffffff', cream: palette.cream, black: '#000000' } as const;
 type BackgroundName = keyof typeof backgrounds;
 const backgroundNames = Object.keys(backgrounds) as BackgroundName[];
-const backgroundName = (colour: string) =>
-  backgroundNames.find((name) => backgrounds[name] === colour) ?? 'white';
+const backgroundName = (colour: string) => backgroundNames.find((name) => backgrounds[name] === colour) ?? 'white';
 
 /** The 3D sliders minus environment reflections, which the projection doesn't model. */
 const sharedGroups = threeControls<ProjectedConfig>().map((group) => ({

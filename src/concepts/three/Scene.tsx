@@ -1,14 +1,7 @@
 import { Environment, OrbitControls } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
-import {
-  ExtrudeGeometry,
-  Shape,
-  ShapeGeometry,
-  Vector2,
-  type Mesh,
-  type PerspectiveCamera,
-} from 'three';
+import { ExtrudeGeometry, Shape, ShapeGeometry, Vector2, type Mesh, type PerspectiveCamera } from 'three';
 import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js';
 import type { Font } from 'opentype.js';
 import { tileLettering } from '../../shared';
@@ -20,7 +13,12 @@ const DEG = Math.PI / 180;
 /** A unit square extruded with the configured chamfer, centred on the origin. */
 function useSlabGeometry(slab: SlabConfig) {
   const geometry = useMemo(() => {
-    const shape = new Shape([new Vector2(-0.5, -0.5), new Vector2(-0.5, 0.5), new Vector2(0.5, 0.5), new Vector2(0.5, -0.5)]);
+    const shape = new Shape([
+      new Vector2(-0.5, -0.5),
+      new Vector2(-0.5, 0.5),
+      new Vector2(0.5, 0.5),
+      new Vector2(0.5, -0.5),
+    ]);
     return new ExtrudeGeometry(shape, {
       depth: slab.depth,
       bevelEnabled: true,
