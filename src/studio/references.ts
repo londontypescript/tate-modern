@@ -12,16 +12,14 @@ export const references: readonly Reference[] = [
   {
     id: 'chatgpt-original',
     name: 'ChatGPT original',
-    description:
-      'The raster logo ChatGPT painted from the Three.js concepts: the look the flat logo set out to match.',
+    description: 'The raster logo ChatGPT painted from the Three.js concepts: the look the flat logo set out to match.',
     src: '/references/chatgpt-original.webp',
     background: '#fcf6e9',
   },
   {
     id: 'three-stack',
     name: 'Three.js stack',
-    description:
-      'The original hand-built React Three Fiber concept: bevelled metal slabs fanned behind a "Ts" tile.',
+    description: 'The original hand-built React Three Fiber concept: bevelled metal slabs fanned behind a "Ts" tile.',
     src: '/references/three-stack.png',
     background: '#ffffff',
   },

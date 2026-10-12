@@ -22,8 +22,7 @@ const DEG = Math.PI / 180;
 // ---------------------------------------------------------------------------
 
 /** Corner radius limited to what a square of the given size can hold. */
-export const clampCornerRadius = (size: number, radius: number) =>
-  Math.min(Math.max(radius, 0), size / 2);
+export const clampCornerRadius = (size: number, radius: number) => Math.min(Math.max(radius, 0), size / 2);
 
 /**
  * The rotating background squares, back to front. Each is centred on the
@@ -37,22 +36,22 @@ export function generateLayers(config: EmblemConfig): SquareLayer[] {
     const depth = count > 1 ? index / (count - 1) : 0;
     const size = config.squareSize * (1 - config.sizeTaper * depth);
     return {
-    id: `layer-${index}`,
-    index,
-    size,
-    rotation: config.initialRotation + index * config.rotationIncrement,
-    cornerRadius: clampCornerRadius(size, config.cornerRadius),
-    fill: colours[index % colours.length] as string,
-    opacity: config.opacity,
-    blendMode: config.blendMode,
-    fade:
-      config.fade > 0
-        ? {
-            angle: (((config.fadeAngle + index * config.fadeTurn) % 360) + 360) % 360,
-            strength: Math.min(config.fade, 1),
-            colour: config.fadeColour,
-          }
-        : undefined,
+      id: `layer-${index}`,
+      index,
+      size,
+      rotation: config.initialRotation + index * config.rotationIncrement,
+      cornerRadius: clampCornerRadius(size, config.cornerRadius),
+      fill: colours[index % colours.length] as string,
+      opacity: config.opacity,
+      blendMode: config.blendMode,
+      fade:
+        config.fade > 0
+          ? {
+              angle: (((config.fadeAngle + index * config.fadeTurn) % 360) + 360) % 360,
+              strength: Math.min(config.fade, 1),
+              colour: config.fadeColour,
+            }
+          : undefined,
     };
   });
 }
@@ -83,10 +82,7 @@ export function layersBounds(
 ): Box {
   return layers.reduce(
     (box, layer, i) =>
-      unionBox(
-        box,
-        squareBox(rotatedHalfExtent(layer.size, layer.cornerRadius, rotations[i] ?? layer.rotation)),
-      ),
+      unionBox(box, squareBox(rotatedHalfExtent(layer.size, layer.cornerRadius, rotations[i] ?? layer.rotation))),
     emptyBox(),
   );
 }
@@ -193,10 +189,7 @@ export function generateTile(config: TileConfig, font: Font): TileModel {
 export function buildEmblem(emblem: EmblemConfig, tile: TileConfig, sans: Font): EmblemModel {
   const layers = generateLayers(emblem);
   const tileBox = squareBox(tile.size / 2);
-  const safe = layers.reduce(
-    (r, l) => Math.max(r, rotationSafeRadius(l.size, l.cornerRadius)),
-    0,
-  );
+  const safe = layers.reduce((r, l) => Math.max(r, rotationSafeRadius(l.size, l.cornerRadius)), 0);
   return {
     layers,
     tile: generateTile(tile, sans),

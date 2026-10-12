@@ -17,11 +17,11 @@ describe('placeSlabs', () => {
   });
 
   it('drifts slabs sideways and fades them towards the back when asked', () => {
-    const slabs = placeSlabs(
-      { ...stack, count: 4, offsetX: 0.1, offsetY: -0.05 },
-      slab,
-      { ...material, opacity: 0.9, opacityFalloff: 0.4 },
-    );
+    const slabs = placeSlabs({ ...stack, count: 4, offsetX: 0.1, offsetY: -0.05 }, slab, {
+      ...material,
+      opacity: 0.9,
+      opacityFalloff: 0.4,
+    });
     expect(slabs[2]!.position[0]).toBeCloseTo(0.2);
     expect(slabs[2]!.position[1]).toBeCloseTo(-0.1);
     [0.9, 0.5, 0.1, 0].forEach((opacity, i) => expect(slabs[i]!.opacity).toBeCloseTo(opacity));

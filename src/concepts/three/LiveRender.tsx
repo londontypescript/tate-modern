@@ -9,7 +9,15 @@ const ignoreCapture = () => {};
  * The 3D render of a configuration on its own, for other concepts to show
  * beside theirs (loaded lazily, so three.js costs nothing until it is used).
  */
-export default function LiveRender({ config, font, animate = false }: { config: ThreeConfig; font: Font; animate?: boolean }) {
+export default function LiveRender({
+  config,
+  font,
+  animate = false,
+}: {
+  config: ThreeConfig;
+  font: Font;
+  animate?: boolean;
+}) {
   return (
     <Canvas
       gl={{ alpha: true, antialias: true }}

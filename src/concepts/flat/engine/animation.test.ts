@@ -1,11 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  advanceRotations,
-  easeInOutCubic,
-  layerVelocities,
-  settleRotations,
-  symmetricDelta,
-} from './animation';
+import { advanceRotations, easeInOutCubic, layerVelocities, settleRotations, symmetricDelta } from './animation';
 import { defaultLogoConfig } from './config';
 
 const config = defaultLogoConfig.animation;

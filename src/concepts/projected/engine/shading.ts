@@ -37,7 +37,13 @@ export function linearToHex(c: Rgb): string {
 
 /** Same, for a colour that is already sRGB-encoded (as after tone mapping). */
 export function srgbToHex(c: Rgb): string {
-  return `#${c.map((v) => Math.round(clamp01(v) * 255).toString(16).padStart(2, '0')).join('')}`;
+  return `#${c
+    .map((v) =>
+      Math.round(clamp01(v) * 255)
+        .toString(16)
+        .padStart(2, '0'),
+    )
+    .join('')}`;
 }
 
 /** Column-major 3×3 matrix times vector, as in GLSL `mat3(...) * v`. */

@@ -11,12 +11,7 @@ export interface AnimatedTypeScriptMarkProps extends SvgFrameProps {
 }
 
 /** The same `TypeScriptMark`, with its squares driven by `useLayerRotations`. */
-export function AnimatedTypeScriptMark({
-  emblem,
-  animation,
-  enabled = true,
-  ...props
-}: AnimatedTypeScriptMarkProps) {
+export function AnimatedTypeScriptMark({ emblem, animation, enabled = true, ...props }: AnimatedTypeScriptMarkProps) {
   const rotations = useLayerRotations(emblem.layers, animation, enabled);
   return <TypeScriptMark emblem={emblem} rotations={rotations} framing="rotation-safe" {...props} />;
 }

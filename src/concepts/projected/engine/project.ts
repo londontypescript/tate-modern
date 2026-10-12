@@ -100,7 +100,11 @@ export function buildProjectedEmblem(
   const faces = slabFaces(slab);
   const lights = sceneLights(lighting);
   const ambient = lighting.ambient;
-  const surface = { colour: hexToLinear(material.colour), metalness: material.metalness, roughness: material.roughness };
+  const surface = {
+    colour: hexToLinear(material.colour),
+    metalness: material.metalness,
+    roughness: material.roughness,
+  };
   const cameraPosition: Vec3 = [0, 0, camera.distance];
   const focal = 1 / Math.tan((camera.fov * DEG) / 2);
   const project = (p: Vec3): Point => {
@@ -160,7 +164,9 @@ export function buildProjectedEmblem(
     });
 
     // Within a slab, paint faces seen from behind first.
-    drawn.sort((a, b) => Number(a.type === 'face' && a.kind !== 'back') - Number(b.type === 'face' && b.kind !== 'back'));
+    drawn.sort(
+      (a, b) => Number(a.type === 'face' && a.kind !== 'back') - Number(b.type === 'face' && b.kind !== 'back'),
+    );
 
     if (placement.index === 0 && config.lettering.show && front && lettering.length > 0) {
       // Lettering tile (u, v) in [-50, 50], y down → the front face's corners:

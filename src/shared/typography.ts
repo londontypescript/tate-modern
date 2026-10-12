@@ -54,10 +54,7 @@ export function unionBox(a: Box, b: Box): Box {
 }
 
 export function boxOfPoints(points: readonly Point[]): Box {
-  return points.reduce<Box>(
-    (box, p) => unionBox(box, { minX: p.x, minY: p.y, maxX: p.x, maxY: p.y }),
-    emptyBox(),
-  );
+  return points.reduce<Box>((box, p) => unionBox(box, { minX: p.x, minY: p.y, maxX: p.x, maxY: p.y }), emptyBox());
 }
 
 export function translateBox(box: Box, dx: number, dy: number): Box {
@@ -244,13 +241,7 @@ export interface CurlGeometry {
  * both sides. At the root the offsets are vertical and `rootWidth` apart,
  * so the curl's edges continue the edges of the stroke it extends.
  */
-export function curlGeometry({
-  origin,
-  rootWidth,
-  direction,
-  capHeight,
-  scale,
-}: CurlOptions): CurlGeometry {
+export function curlGeometry({ origin, rootWidth, direction, capHeight, scale }: CurlOptions): CurlGeometry {
   const unit = capHeight * scale;
   const toWorld = (p: Point): Point => ({
     x: origin.x + p.x * unit * direction,
@@ -263,8 +254,7 @@ export function curlGeometry({
   // `swell` at the middle of the curve, `tip` where it enters the ball.
   const tipWidth = curlShape.tip * unit;
   const control = 2 * curlShape.swell * unit - (rootWidth + tipWidth) / 2;
-  const widthAt = (t: number) =>
-    (1 - t) * (1 - t) * rootWidth + 2 * t * (1 - t) * control + t * t * tipWidth;
+  const widthAt = (t: number) => (1 - t) * (1 - t) * rootWidth + 2 * t * (1 - t) * control + t * t * tipWidth;
 
   for (let i = 0; i <= curlShape.samples; i++) {
     const t = i / curlShape.samples;
@@ -290,7 +280,11 @@ export function curlGeometry({
   return { stroke, ballCentre, ballRadius, bounds: unionBox(boxOfPoints(stroke), ballBox) };
 }
 
-export function curlShapes(id: string, fill: string, options: CurlOptions): {
+export function curlShapes(
+  id: string,
+  fill: string,
+  options: CurlOptions,
+): {
   shapes: PathShape[];
   bounds: Box;
 } {

@@ -5,8 +5,7 @@ import type { Box } from '..';
 export const num = (v: number) => Number(v.toFixed(3));
 
 /** The element id for a shape, prefixed so several logos can share a page. */
-export const shapeId = (prefix: string | undefined, id: string) =>
-  prefix ? `${prefix}-${id}` : undefined;
+export const shapeId = (prefix: string | undefined, id: string) => (prefix ? `${prefix}-${id}` : undefined);
 
 /** Props shared by every standalone logo component. */
 export interface SvgFrameProps {

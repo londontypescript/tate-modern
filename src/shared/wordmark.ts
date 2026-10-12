@@ -90,12 +90,7 @@ function crossbarJoin(glyph: PlacedGlyph, xHeight: number, capHeight: number): S
   const { crossbarProbe, overlap, fallbackWidth } = flourishJoins;
   const midXHeight = glyph.baseline - xHeight / 2;
   return (
-    crossbarRight(
-      flattenCommands(glyph.commands),
-      midXHeight,
-      crossbarProbe * capHeight,
-      overlap * capHeight,
-    ) ?? {
+    crossbarRight(flattenCommands(glyph.commands), midXHeight, crossbarProbe * capHeight, overlap * capHeight) ?? {
       origin: { x: glyph.bounds.maxX - overlap * capHeight, y: glyph.baseline - xHeight },
       thickness: fallbackWidth * capHeight,
       top: glyph.baseline - xHeight,

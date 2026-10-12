@@ -21,11 +21,11 @@ The logo began as a React Three Fiber sculpture made for an earlier version of t
 
 Each concept is its own renderer of the same idea, sharing one palette and one wordmark:
 
-| Concept | What it is | Exports |
-| --- | --- | --- |
-| **Flat** | Translucent squares rotated about a faceted tile, as pure 2D SVG. Refined against ChatGPT's version. | SVG (the files in `public/assets/`) |
-| **3D** | The original sculpture in React Three Fiber, with real lights and reflections. | PNG |
-| **Projected** | The 3D slabs drawn as flat SVG, shaded with three.js's own lighting maths: a vector logo with the sculpture's depth. | SVG |
+| Concept       | What it is                                                                                                           | Exports                             |
+| ------------- | -------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| **Flat**      | Translucent squares rotated about a faceted tile, as pure 2D SVG. Refined against ChatGPT's version.                 | SVG (the files in `public/assets/`) |
+| **3D**        | The original sculpture in React Three Fiber, with real lights and reflections.                                       | PNG                                 |
+| **Projected** | The 3D slabs drawn as flat SVG, shaded with three.js's own lighting maths: a vector logo with the sculpture's depth. | SVG                                 |
 
 The TypeScript source is the design: the SVGs in `public/assets/` are generated from it, never edited by hand.
 
