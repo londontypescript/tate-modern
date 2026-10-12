@@ -24,6 +24,10 @@ The flat concept has:
     - **Stretch from square** (0-0.3): makes each sheet a rectangle, up to this fraction wider and as much shorter (or the other way), so its average side stays the same.
     - **Shift off centre** (0-20, where the tile is 100 wide): moves each sheet's centre by up to this much across and, separately, up or down. Each sheet still turns about its own centre.
     - **Variation seed** (1-999): picks which random variation you get. The same seed always gives the same emblem; changing the number of layers keeps the existing sheets' variation and adds new sheets after them.
+  - Halo: a soft navy shadow under the tile, so it looks lifted off the sheets, as in the ChatGPT original. It is the tile's outline moved left and down, solid, with a soft edge all round, so it is strongest on the left and bottom and faint on the top and right. It is drawn with gradients only (no SVG filters), between the sheets and the tile, and stays still while the sheets turn. Off (strength 0) by default.
+    - **Halo strength** (0-1): how dark the shadow is where the tile's outline would be; 0 turns the halo off.
+    - **Halo reach** (0-40, where the tile is 100 wide): how far the soft edge spreads beyond that outline; 0 also turns it off.
+    - **Shadow offset** (0-20): how far the shadow moves left and, by the same amount, down.
   - TS tile: letter size, margins, letter spacing.
   - Wordmark and layout: gap, line spacing, letter spacing, condense letters, flourish scale.
   - Animation: speed and speed variation.
@@ -38,7 +42,7 @@ The flat concept has:
   - **Save as new:** stores the current settings under a name you type; that configuration is then the one being edited.
   - **Save changes:** writes the current settings back to the loaded configuration. It's enabled when there are unsaved changes.
   - **Load, Rename, Delete:** load and delete ask for confirmation when work would be lost.
-  - Saved configurations from older versions still load: fields added to the config since then take their defaults, except the sheet variation, which stays off, so an older configuration looks as it did even if the defaults later turn variation on. Values that aren't sensible numbers (for example from a hand-edited file) fall back to the defaults, and every number is kept within its slider's range.
+  - Saved configurations from older versions still load: fields added to the config since then take their defaults, except the sheet variation and the halo, which stay off, so an older configuration looks as it did even if the defaults later turn them on. Values that aren't sensible numbers (for example from a hand-edited file) fall back to the defaults, and every number is kept within its slider's range.
 
 Saved configurations live only in this browser; they aren't shared and don't change the generated assets. To make a configuration the official logo, copy its values into `defaultLogoConfig` in `src/concepts/flat/engine/config.ts` and run `pnpm generate:assets`. (Flat configurations saved in the original playground still load: the storage key is unchanged.)
 
