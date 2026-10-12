@@ -5,5 +5,6 @@ export * from './config';
 export * from './geometry';
 export * from './bounds';
 export * from './sanitize';
+export * from './halo';
 export * from './animation';
 export * from './motion';

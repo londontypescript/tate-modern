@@ -127,6 +127,32 @@ export interface FacetShading {
   left: number;
 }
 
+/**
+ * A soft navy shadow under the tile, so it looks lifted off the sheets: the
+ * tile's outline moved left and down, solid, with a soft edge all round.
+ */
+export interface HaloConfig {
+  /** Opacity of the shadow's solid part, where its soft edge starts (0 = no halo). */
+  strength: number;
+  /** How far the soft edge spreads, in emblem units (0 = no halo). */
+  reach: number;
+  /** How far the shadow moves left and, equally, down, in emblem units. */
+  offset: number;
+}
+
+/**
+ * The halo switched off: the emblem is exactly what it was before it
+ * existed. Configurations saved before then take these values.
+ */
+export const neutralHalo: HaloConfig = { strength: 0, reach: 14, offset: 5 };
+
+/** The range each halo field may take; the studio's sliders and the engine both use it. */
+export const haloRanges: Record<keyof HaloConfig, { min: number; max: number }> = {
+  strength: { min: 0, max: 1 },
+  reach: { min: 0, max: 40 },
+  offset: { min: 0, max: 20 },
+};
+
 export interface TileConfig {
   size: number;
   cornerRadius: number;
@@ -142,6 +168,8 @@ export interface TileConfig {
   textOffsetY: number;
   /** Extra space between letters, in ems. */
   letterSpacing: number;
+  /** The shadow under the tile; it belongs to the tile, so it never moves with the sheets. */
+  halo: HaloConfig;
 }
 
 interface LayoutConfig {
@@ -201,6 +229,8 @@ export const defaultLogoConfig: LogoConfig = {
     textOffsetX: 0.07,
     textOffsetY: 0.06,
     letterSpacing: -0.01,
+    // The halo is off (neutral), so the approved logo is unchanged.
+    halo: { strength: 0, reach: 14, offset: 5 },
   },
   wordmark: defaultWordmarkConfig,
   layout: {
