@@ -36,14 +36,14 @@ export interface ProjectedFace {
 }
 
 /** The tile lettering, mapped onto the front slab's face by an affine transform. */
-export interface ProjectedLettering {
+interface ProjectedLettering {
   type: 'lettering';
   /** SVG `matrix(a b c d e f)` from the 100-unit lettering tile to the face. */
   matrix: readonly [number, number, number, number, number, number];
   colour: string;
 }
 
-export type ProjectedItem = ProjectedFace | ProjectedLettering;
+type ProjectedItem = ProjectedFace | ProjectedLettering;
 
 export interface ProjectedEmblem {
   /** Faces and lettering in paint order, back to front. */
@@ -74,9 +74,9 @@ function sceneLights(lighting: ProjectedConfig['lighting']): DirectionalLight[] 
  */
 function toWorld(p: Vec3, placement: SlabPlacement, spin: number, config: ProjectedConfig): Vec3 {
   const { stack } = config;
-  let q = mul(p, placement.scale as Vec3);
+  let q = mul(p, placement.scale);
   q = rotateZ(q, placement.rotation + spin);
-  q = add(q, placement.position as Vec3);
+  q = add(q, placement.position);
   q = scale(q, stack.scale);
   q = rotateY(q, stack.tiltY * DEG);
   return rotateX(q, stack.tiltX * DEG);

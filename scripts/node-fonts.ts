@@ -6,7 +6,7 @@ const require = createRequire(import.meta.url);
 
 async function readFont(role: FontRole): Promise<ArrayBuffer> {
   const bytes = await readFile(require.resolve(fontFiles[role]));
-  return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
+  return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
 }
 
 /** Loads the logo fonts from node_modules (generator script and tests). */

@@ -20,8 +20,8 @@ const EPSILON = 1e-6;
 
 export type Rgb = Vec3;
 
-export const srgbToLinear = (c: number) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
-export const linearToSrgb = (c: number) => (c <= 0.0031308 ? c * 12.92 : 1.055 * c ** (1 / 2.4) - 0.055);
+const srgbToLinear = (c: number) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+const linearToSrgb = (c: number) => (c <= 0.0031308 ? c * 12.92 : 1.055 * c ** (1 / 2.4) - 0.055);
 
 export function hexToLinear(hex: string): Rgb {
   const n = Number.parseInt(hex.replace('#', '').padEnd(6, '0').slice(0, 6), 16);

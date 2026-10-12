@@ -92,6 +92,9 @@ function Lights({ lighting }: { lighting: LightingConfig }) {
 function CameraRig({ camera: config }: { camera: CameraConfig }) {
   const camera = useThree((s) => s.camera) as PerspectiveCamera;
   useEffect(() => {
+    // react-three-fiber hands out the live three.js camera, which is mutable by
+    // design: moving it in an effect is the library's own pattern.
+    // eslint-disable-next-line react-hooks/immutability
     camera.fov = config.fov;
     camera.position.set(0, 0, config.distance);
     camera.lookAt(0, 0, 0);
@@ -153,10 +156,13 @@ export function StackScene({ config, font, animate, orbit, onCaptureReady }: Sta
             key={placement.index}
             ref={(mesh) => {
               meshes.current[i] = mesh;
+              // Set here rather than as a prop, which would read the spin ref
+              // during render. The callback is new on every render, so this
+              // runs on each commit and a re-render mid-spin doesn't snap back.
+              if (mesh) mesh.rotation.z = placement.rotation + (spin.current[i] ?? 0);
             }}
             geometry={geometry}
             position={placement.position as [number, number, number]}
-            rotation={[0, 0, placement.rotation + (spin.current[i] ?? 0)]}
             scale={placement.scale as [number, number, number]}
           >
             <meshStandardMaterial

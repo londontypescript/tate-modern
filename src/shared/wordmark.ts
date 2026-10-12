@@ -18,12 +18,12 @@ import {
  * Typographic lengths (letter spacing, line spacing, indents) are in ems.
  */
 
-export interface WordmarkRun {
+interface WordmarkRun {
   text: string;
   colour: string;
 }
 
-export interface WordmarkLine {
+interface WordmarkLine {
   runs: readonly WordmarkRun[];
   /** Horizontal indent of the line, in ems. */
   indent: number;

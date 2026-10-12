@@ -76,7 +76,7 @@ export interface TileConfig {
   letterSpacing: number;
 }
 
-export interface LayoutConfig {
+interface LayoutConfig {
   /** Gap between the rosette and the wordmark, in tile widths. */
   horizontalGap: number;
   background: string;

@@ -6,7 +6,7 @@ import { defaultLogoConfig, type LogoConfig } from './engine';
  * comparison with the ChatGPT original. Kept verbatim, colours included, so
  * later changes to the defaults and palette can always be compared with it.
  */
-export const mvpLogoConfig: LogoConfig = {
+const mvpLogoConfig: LogoConfig = {
   emblem: {
     layerCount: 6,
     rotationIncrement: 15,

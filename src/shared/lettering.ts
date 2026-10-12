@@ -13,7 +13,7 @@ export interface TileLetteringOptions {
 }
 
 /** The tile's "TS", as in the flat concept's defaults. */
-export const defaultTileLettering: TileLetteringOptions = {
+const defaultTileLettering: TileLetteringOptions = {
   text: 'TS',
   textScale: 0.35,
   offsetX: 0.07,
