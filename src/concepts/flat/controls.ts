@@ -1,5 +1,5 @@
 import type { SliderControl } from '../../studio/ui';
-import type { LogoConfig } from './engine';
+import { MAX_LAYERS, variationRanges, type LogoConfig } from './engine';
 
 const emblem = <K extends keyof LogoConfig['emblem']>(key: K) => ({
   get: (c: LogoConfig) => c.emblem[key] as number,
@@ -18,7 +18,7 @@ export const controlGroups: { title: string; controls: SliderControl<LogoConfig>
   {
     title: 'Squares',
     controls: [
-      { label: 'Number of layers', min: 1, max: 16, step: 1, ...emblem('layerCount') },
+      { label: 'Number of layers', min: 1, max: MAX_LAYERS, step: 1, ...emblem('layerCount') },
       { label: 'Rotation increment', min: 0, max: 45, step: 0.5, unit: '°', ...emblem('rotationIncrement') },
       { label: 'Initial rotation', min: 0, max: 90, step: 0.5, unit: '°', ...emblem('initialRotation') },
       { label: 'Square size', min: 100, max: 200, step: 1, ...emblem('squareSize') },
@@ -28,6 +28,16 @@ export const controlGroups: { title: string; controls: SliderControl<LogoConfig>
       { label: 'Fade across each square', min: 0, max: 1, step: 0.01, ...emblem('fade') },
       { label: 'Fade turn per square', min: 0, max: 180, step: 0.5, unit: '°', ...emblem('fadeTurn') },
       { label: 'First fade direction', min: 0, max: 360, step: 1, unit: '°', ...emblem('fadeAngle') },
+    ],
+  },
+  {
+    title: 'Sheet variation',
+    controls: [
+      { label: 'Uneven angles', step: 0.5, unit: '°', ...variationRanges.rotationJitter, ...emblem('rotationJitter') },
+      { label: 'Uneven sizes', step: 0.01, ...variationRanges.sizeJitter, ...emblem('sizeJitter') },
+      { label: 'Stretch from square', step: 0.01, ...variationRanges.aspectJitter, ...emblem('aspectJitter') },
+      { label: 'Shift off centre', step: 0.5, ...variationRanges.offsetJitter, ...emblem('offsetJitter') },
+      { label: 'Variation seed', step: 1, ...variationRanges.seed, ...emblem('seed') },
     ],
   },
   {

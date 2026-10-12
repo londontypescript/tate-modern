@@ -21,6 +21,12 @@ const mvpLogoConfig: LogoConfig = {
     fadeTurn: 137.5,
     fadeAngle: 0,
     fadeColour: '#4fb0fa',
+    // Sheet variation came later; off, so the MVP stays exactly as approved.
+    rotationJitter: 0,
+    sizeJitter: 0,
+    aspectJitter: 0,
+    offsetJitter: 0,
+    seed: 1,
   },
   tile: {
     size: 100,

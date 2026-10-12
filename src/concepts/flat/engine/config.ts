@@ -44,9 +44,46 @@ export interface EmblemConfig {
   fadeAngle: number;
   /** Colour at each square's clear edge. */
   fadeColour: string;
+  /** Largest random turn added to each sheet, in degrees (0 = the even steps above). */
+  rotationJitter: number;
+  /** Largest random change in each sheet's size, as a fraction of it. */
+  sizeJitter: number;
+  /** How far each sheet may stretch from a square: width × (1 + a), height × (1 − a). */
+  aspectJitter: number;
+  /** Largest random shift of each sheet's centre on each axis, in emblem units. */
+  offsetJitter: number;
+  /** Picks the random variation; the same seed always gives the same emblem. */
+  seed: number;
 }
 
 export type BlendMode = 'normal' | 'multiply';
+
+/** The sheet variation fields, which are random by seed. */
+export type VariationConfig = Pick<
+  EmblemConfig,
+  'rotationJitter' | 'sizeJitter' | 'aspectJitter' | 'offsetJitter' | 'seed'
+>;
+
+/**
+ * Variation switched off: the emblem is exactly what it was before these
+ * fields existed. Configurations saved before then take these values.
+ */
+export const neutralVariation: VariationConfig = {
+  rotationJitter: 0,
+  sizeJitter: 0,
+  aspectJitter: 0,
+  offsetJitter: 0,
+  seed: 1,
+};
+
+/** The range each variation field may take; the studio's sliders and the engine both use it. */
+export const variationRanges: Record<keyof VariationConfig, { min: number; max: number }> = {
+  rotationJitter: { min: 0, max: 20 },
+  sizeJitter: { min: 0, max: 0.3 },
+  aspectJitter: { min: 0, max: 0.3 },
+  offsetJitter: { min: 0, max: 20 },
+  seed: { min: 1, max: 999 },
+};
 
 /** Shading of each facet: >0 lightens (white overlay), <0 darkens (navy). */
 export interface FacetShading {
@@ -116,6 +153,11 @@ export const defaultLogoConfig: LogoConfig = {
     fadeTurn: 137.5,
     fadeAngle: 0,
     fadeColour: palette.sheetSky,
+    rotationJitter: 0,
+    sizeJitter: 0,
+    aspectJitter: 0,
+    offsetJitter: 0,
+    seed: 1,
   },
   tile: {
     size: 100,

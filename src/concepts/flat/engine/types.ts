@@ -7,25 +7,34 @@
  */
 import type { Box, PathShape, Point, WordmarkModel } from '../../../shared';
 
-/** One translucent background square, centred on the emblem origin. */
-export interface SquareLayer {
+/**
+ * One translucent background sheet: a rounded rectangle, square unless the
+ * variation stretches it, centred on (x, y) (the emblem origin unless the
+ * variation shifts it).
+ */
+export interface SheetLayer {
   id: string;
   /** Paint order: 0 is drawn first (furthest back). */
   index: number;
-  size: number;
-  /** Static rotation about the emblem origin. */
+  width: number;
+  height: number;
+  /** Centre of the sheet, which it turns about. */
+  x: number;
+  y: number;
+  /** Static rotation about the sheet's own centre. */
   rotation: number;
+  /** Already limited to half the smaller side. */
   cornerRadius: number;
   fill: string;
   opacity: number;
   blendMode: 'normal' | 'multiply';
-  /** A fade across the square, in its own (rotating) frame; none when uniform. */
+  /** A fade across the sheet, in its own (moving, turning) frame; none when uniform. */
   fade?: LayerFade;
 }
 
-/** Linear fade across a square, from `fill` at full strength to `colour`. */
+/** Linear fade across a sheet, from `fill` at full strength to `colour`. */
 interface LayerFade {
-  /** Direction towards the clear edge, in degrees, in the square's frame. */
+  /** Direction towards the clear edge, in degrees, in the sheet's frame. */
   angle: number;
   /** Opacity lost by the clear edge (0..1). */
   strength: number;
@@ -47,11 +56,11 @@ export interface TileModel {
 }
 
 export interface EmblemModel {
-  layers: SquareLayer[];
+  layers: SheetLayer[];
   tile: TileModel;
   /** Tight bounds of the static composition. */
   bounds: Box;
-  /** Bounds that contain every layer at any rotation (for animation). */
+  /** Bounds that contain every sheet at any rotation about its centre (for animation). */
   rotationSafeBounds: Box;
 }
 

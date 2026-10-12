@@ -1,12 +1,28 @@
 import type { AnimationConfig } from './config';
+import type { SheetLayer } from './types';
 
 /**
- * Pure rotation-over-time maths for the background squares. Geometry says
- * where each square starts; these functions say how it moves from there.
+ * Pure rotation-over-time maths for the background sheets. Geometry says
+ * where each sheet starts; these functions say how it moves from there.
  */
 
-/** Squares look identical every 90°. */
-const SYMMETRY = 90;
+/** The turn after which a sheet looks the same again, in degrees. */
+export type Symmetry = 90 | 180 | 360;
+
+/** A length as the SVG writes it (three decimals, like `num`). */
+const written = (v: number) => Number(v.toFixed(3));
+
+/**
+ * A sheet's true symmetry: an unfaded square repeats every 90°, an unfaded
+ * rectangle every 180°, and a faded sheet only after a full turn, since its
+ * fade points one way. "Square" means equal sides as written to the SVG, so
+ * a difference too small to be drawn doesn't change how it settles.
+ */
+export function layerSymmetry(layer: Pick<SheetLayer, 'width' | 'height' | 'fade'>): Symmetry {
+  if (layer.fade) return 360;
+  return written(layer.width) === written(layer.height) ? 90 : 180;
+}
+
 const GOLDEN = 0.6180339887498949;
 
 /**
@@ -29,28 +45,34 @@ export function advanceRotations(rotations: readonly number[], velocities: reado
 
 /**
  * Smallest rotation that takes `from` to a pose visually identical to `to`,
- * using the square's 90° symmetry. Always within [-45, 45).
+ * for a sheet with the given symmetry. Always within [-symmetry/2, symmetry/2).
  */
-export function symmetricDelta(from: number, to: number): number {
-  const d = (((to - from) % SYMMETRY) + SYMMETRY) % SYMMETRY;
-  return d >= SYMMETRY / 2 ? d - SYMMETRY : d;
+export function symmetricDelta(from: number, to: number, symmetry: Symmetry): number {
+  const d = (((to - from) % symmetry) + symmetry) % symmetry;
+  return d >= symmetry / 2 ? d - symmetry : d;
 }
 
 export const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
 
 /**
- * Rotations part-way through settling back to the static composition.
- * At progress 1 the result is exactly `targets`.
+ * Rotations part-way through settling back to the static composition. Each
+ * sheet glides the short way round its own symmetry, so it arrives at a
+ * pose that already looks like its static one. At progress 1 the result is
+ * exactly `targets`.
  */
-export function settleRotations(from: readonly number[], targets: readonly number[], progress: number): number[] {
+export function settleRotations(
+  from: readonly number[],
+  targets: readonly number[],
+  symmetries: readonly Symmetry[],
+  progress: number,
+): number[] {
   if (progress >= 1) return [...targets];
   const e = easeInOutCubic(Math.max(0, progress));
   return targets.map((target, i) => {
     const start = from[i] ?? target;
-    const delta = symmetricDelta(start, target);
-    return start + delta * e;
+    return start + symmetricDelta(start, target, symmetries[i] ?? 360) * e;
   });
 }
 
-/** How long the squares take to glide back to their static pose, in seconds. */
+/** How long the sheets take to glide back to their static pose, in seconds. */
 export const SETTLE_DURATION = 1.4;

@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { usePresets, type Preset, type StarterConfig } from './presets';
+import { usePresets, type DeepPartial, type Preset, type StarterConfig } from './presets';
 import type { ConceptState } from './useConceptState';
 import { Button, Panel } from './ui';
 
@@ -28,14 +28,21 @@ export function PresetsPanel<T>({
   storageKey,
   state,
   starters = [],
+  fillMissing,
 }: {
   /** localStorage key for this concept's saved configurations. */
   storageKey: string;
   state: ConceptState<T>;
   starters?: readonly StarterConfig<T>[];
+  /** Values for fields an older saved configuration lacks, used instead of the defaults. */
+  fillMissing?: NoInfer<DeepPartial<T>>;
 }) {
   const { config, baseline, activeId, setActiveId: onActiveChange } = state;
-  const { presets, storageFailed, create, update, rename, remove } = usePresets(storageKey, state.defaults);
+  const { presets, storageFailed, create, update, rename, remove } = usePresets(
+    storageKey,
+    state.defaults,
+    fillMissing,
+  );
   const [newName, setNewName] = useState('');
   const [renaming, setRenaming] = useState<{ id: string; name: string } | null>(null);
 
