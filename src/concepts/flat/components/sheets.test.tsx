@@ -109,6 +109,14 @@ describe('sheets as written to the SVG', () => {
         const svg = renderToStaticMarkup(
           <TypeScriptMark emblem={logo.emblem} rotations={rotations} framing="rotation-safe" idPrefix="t" />,
         );
+        const sheets = writtenSheets(svg);
+        expect(sheets).toHaveLength(logo.emblem.layers.length);
+        logo.emblem.layers.forEach((layer, i) => {
+          // Each sheet is drawn at the angle asked for, still at its own centre.
+          const t = parseTransform(sheets[i]?.attrs.transform ?? '');
+          const written = (v: number) => Number(v.toFixed(3));
+          expect([t.x, t.y, t.rotation]).toEqual([written(layer.x), written(layer.y), written(rotations[i] ?? NaN)]);
+        });
         expectContained(svg, `seed ${seed} step ${step}`);
       }
     }
