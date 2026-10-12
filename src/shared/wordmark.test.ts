@@ -37,6 +37,19 @@ describe('wordmark', () => {
   });
 });
 
+describe('condensing', () => {
+  it('narrows the letters by the requested factor without changing their height', () => {
+    const glyphs = (condense: number) =>
+      buildWordmark({ ...defaultWordmarkConfig, condense, flourishScale: 0 }, fonts.serif, 100);
+    const wide = glyphs(1);
+    const narrow = glyphs(0.8);
+    const width = (w: typeof wide) => w.bounds.maxX - w.bounds.minX;
+    expect(width(narrow) / width(wide)).toBeCloseTo(0.8, 1);
+    expect(narrow.bounds.minY).toBeCloseTo(wide.bounds.minY);
+    expect(narrow.bounds.maxY).toBeCloseTo(wide.bounds.maxY);
+  });
+});
+
 describe('curl flourishes', () => {
   it('mirror each other horizontally', () => {
     const base = { origin: { x: 0, y: 0 }, rootWidth: 2, capHeight: 50, scale: 1 };

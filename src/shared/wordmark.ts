@@ -35,13 +35,15 @@ export interface WordmarkConfig {
   lineSpacing: number;
   /** Extra space between letters, in ems. */
   letterSpacing: number;
+  /** Horizontal scale of the letters (1 = as drawn, below 1 condenses). */
+  condense: number;
   /** Size of the L flourish and the t terminal (1 = approved size). */
   flourishScale: number;
 }
 
 export const defaultWordmarkConfig: WordmarkConfig = {
   lines: [
-    { indent: 0.1, runs: [{ text: 'London', colour: palette.ink }] },
+    { indent: 0.21, runs: [{ text: 'London', colour: palette.ink }] },
     {
       indent: 0,
       runs: [
@@ -50,8 +52,9 @@ export const defaultWordmarkConfig: WordmarkConfig = {
       ],
     },
   ],
-  lineSpacing: 0.8,
-  letterSpacing: -0.03,
+  lineSpacing: 0.72,
+  letterSpacing: -0.06,
+  condense: 0.92,
   flourishScale: 1,
 };
 
@@ -120,6 +123,7 @@ export function buildWordmark(config: WordmarkConfig, font: Font, fontSize: numb
         baseline: baselines[lineIndex] as number,
         fontSize,
         letterSpacing: config.letterSpacing,
+        widthScale: config.condense,
         previous,
       });
       for (const glyph of layout.glyphs) placed.push({ glyph, colour: run.colour });

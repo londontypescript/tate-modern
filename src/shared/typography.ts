@@ -29,6 +29,12 @@ export interface TextRunOptions {
   letterSpacing: number;
   /** Glyph preceding the run, so kerning carries across colour changes. */
   previous?: Glyph;
+  /**
+   * Horizontal scale of the letterforms and their spacing (1 = as drawn,
+   * below 1 condenses). Applied to the outlines themselves, so strokes
+   * measured from them (for the flourishes) are already condensed.
+   */
+  widthScale?: number;
 }
 
 export const emptyBox = (): Box => ({
@@ -78,29 +84,49 @@ export function xHeightRatio(font: Font): number {
  * font's kerning and the requested letter spacing.
  */
 export function layoutTextRun(font: Font, text: string, options: TextRunOptions): TextRunLayout {
-  const { fontSize, baseline, letterSpacing } = options;
+  const { fontSize, baseline, letterSpacing, widthScale = 1 } = options;
   const scale = fontSize / font.unitsPerEm;
   const glyphs: PlacedGlyph[] = [];
   let x = options.x;
   let previous = options.previous;
 
   for (const [i, glyph] of font.stringToGlyphs(text).entries()) {
-    if (previous) x += font.getKerningValue(previous, glyph) * scale;
+    if (previous) x += font.getKerningValue(previous, glyph) * scale * widthScale;
     const path = glyph.getPath(x, baseline, fontSize);
+    const commands = widthScale === 1 ? path.commands : scaleCommandsX(path.commands, x, widthScale);
     const bb = path.getBoundingBox();
+    const sx = (v: number) => x + (v - x) * widthScale;
     glyphs.push({
       char: text[i] ?? '',
       x,
       baseline,
-      d: commandsToPathData(path.commands),
-      commands: path.commands,
-      bounds: { minX: bb.x1, minY: bb.y1, maxX: bb.x2, maxY: bb.y2 },
+      d: commandsToPathData(commands),
+      commands,
+      bounds: { minX: sx(bb.x1), minY: bb.y1, maxX: sx(bb.x2), maxY: bb.y2 },
     });
-    x += (glyph.advanceWidth ?? 0) * scale + letterSpacing * fontSize;
+    x += ((glyph.advanceWidth ?? 0) * scale + letterSpacing * fontSize) * widthScale;
     previous = glyph;
   }
 
   return { glyphs, endX: x };
+}
+
+/** Scales outline commands horizontally about `originX`. */
+export function scaleCommandsX(commands: readonly PathCommand[], originX: number, k: number): PathCommand[] {
+  const sx = (v: number) => originX + (v - originX) * k;
+  return commands.map((c) => {
+    switch (c.type) {
+      case 'M':
+      case 'L':
+        return { ...c, x: sx(c.x) };
+      case 'Q':
+        return { ...c, x1: sx(c.x1), x: sx(c.x) };
+      case 'C':
+        return { ...c, x1: sx(c.x1), x2: sx(c.x2), x: sx(c.x) };
+      case 'Z':
+        return c;
+    }
+  });
 }
 
 export function lastGlyph(font: Font, text: string): Glyph | undefined {

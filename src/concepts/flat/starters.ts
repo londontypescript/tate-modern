@@ -1,11 +1,10 @@
-import { palette } from '../../shared';
 import type { StarterConfig } from '../../studio/presets';
 import { defaultLogoConfig, type LogoConfig } from './engine';
 
 /**
  * The first flat logo, as approved on 11 October 2026 and exported for the
- * comparison with the ChatGPT original. Kept verbatim so later changes to
- * the defaults can always be compared against it.
+ * comparison with the ChatGPT original. Kept verbatim, colours included, so
+ * later changes to the defaults and palette can always be compared with it.
  */
 export const mvpLogoConfig: LogoConfig = {
   emblem: {
@@ -16,16 +15,16 @@ export const mvpLogoConfig: LogoConfig = {
     sizeTaper: 0,
     cornerRadius: 1.6,
     opacity: 0.32,
-    colours: [palette.sheetBlue, palette.sheetSky],
+    colours: ['#1a8cf5', '#4fb0fa'],
     blendMode: 'normal',
   },
   tile: {
     size: 100,
     cornerRadius: 0.8,
-    colour: palette.tileBlue,
+    colour: '#1592f2',
     facets: { apexX: 0.53, apexY: 0.38, top: 0.34, right: -0.04, bottom: -0.14, left: 0.1 },
     text: 'TS',
-    textColour: palette.white,
+    textColour: '#ffffff',
     textScale: 0.32,
     textOffsetX: 0.07,
     textOffsetY: 0.06,
@@ -38,15 +37,16 @@ export const mvpLogoConfig: LogoConfig = {
         indent: 0,
         runs: [
           { text: 'Type', colour: '#0e0e10' },
-          { text: 'Script', colour: palette.blue },
+          { text: 'Script', colour: '#1275ec' },
         ],
       },
     ],
     lineSpacing: 0.8,
     letterSpacing: -0.03,
+    condense: 1,
     flourishScale: 1,
   },
-  layout: { horizontalGap: 0.14, background: palette.cream },
+  layout: { horizontalGap: 0.14, background: '#fcf6e9' },
   animation: { speed: 1, baseVelocity: 4, variation: 0.6, alternateDirection: false },
 };
 

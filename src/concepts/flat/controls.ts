@@ -49,6 +49,7 @@ export const controlGroups: { title: string; controls: SliderControl<LogoConfig>
       },
       { label: 'Line spacing', min: 0.6, max: 1.2, step: 0.01, unit: 'em', ...wordmark('lineSpacing') },
       { label: 'Letter spacing', min: -0.08, max: 0.08, step: 0.005, unit: 'em', ...wordmark('letterSpacing') },
+      { label: 'Condense letters', min: 0.7, max: 1.1, step: 0.01, unit: '×', ...wordmark('condense') },
       { label: 'Flourish scale', min: 0, max: 2, step: 0.05, ...wordmark('flourishScale') },
     ],
   },
