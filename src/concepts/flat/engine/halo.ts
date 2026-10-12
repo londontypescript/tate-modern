@@ -137,9 +137,11 @@ export function buildHalo(tile: Pick<TileConfig, 'size' | 'cornerRadius' | 'halo
   // rather than from the corner: the two differ by at most `lapAlong` in
   // distance, and the curve's steepest stretch loses 1.75 / reach of level per
   // unit, so reach / 64 (or 0.5 once the reach passes 32) keeps the error
-  // within 1.75 / 64 < 1 / 32 of the strength.
+  // within 1.75 / 64 < 1 / 32 of the strength. It is rounded down to the
+  // written precision, so writing it never lengthens it past that budget; a
+  // reach under 0.064 gets no lap along its edges at all.
   const lapIn = Math.min(0.5, a);
-  const lapAlong = Math.min(0.5, reach / 64);
+  const lapAlong = Math.floor(Math.min(0.5, reach / 64) * 1000) / 1000;
   const [inL, inR, inT, inB] = writtenAll(x1 + lapIn, x2 - lapIn, y1 + lapIn, y2 - lapIn);
   const [alongL, alongR, alongT, alongB] = writtenAll(x1 - lapAlong, x2 + lapAlong, y1 - lapAlong, y2 + lapAlong);
   const rect = (minX: number, minY: number, maxX: number, maxY: number): Box => ({ minX, minY, maxX, maxY });

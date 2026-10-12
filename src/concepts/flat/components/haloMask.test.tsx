@@ -24,7 +24,12 @@ const shapes: [HaloConfig, number][] = [
   [{ strength: 0.5, reach: 13.37, offset: 7.77 }, 3.333],
   // More decimals than are written, so every line and depth is rounded.
   [{ strength: 0.45, reach: 13.3717, offset: 7.7777 }, 3.33333],
+  // The top-left corner's depths are written 16.706 across and 16.705 down.
+  [{ strength: 0.45, reach: 13.3717, offset: 7.77782 }, 3.33333],
   [{ strength: 1, reach: 0.5, offset: 0 }, 0],
+  // So thin a reach that a lap rounded up to the written precision would overshoot its budget.
+  [{ strength: 1, reach: 0.1, offset: 0 }, 0],
+  [{ strength: 1, reach: 0.1, offset: 3.3 }, 0.8],
   [{ strength: 1, reach: 40, offset: 20 }, 12],
   [{ strength: 0.6, reach: 21.1, offset: 0.3 }, 0],
 ];
@@ -174,7 +179,7 @@ describe('the halo’s written geometry', () => {
         expect(Math.abs(arc.rx - arc.ry), label).toBeLessThanOrEqual(0.001 + 1e-9);
         const g = grads.get(`lts-halo-${corner}`)?.attrs ?? {};
         expect([Number(g.cx), Number(g.cy)], label).toEqual([arc.from.x, arc.from.y]);
-        expect(Math.abs(Number(g.r) - arc.rx), label).toBeLessThanOrEqual(0.001 + 1e-9);
+        expect(Number(g.r), label).toBe(Math.max(arc.rx, arc.ry));
         // The arc's extremes: its ends on the box's edges, its middle outward from the core corner.
         const mid = {
           x: arc.from.x + Math.sign(arc.start.x - arc.from.x) * arc.rx * Math.SQRT1_2,

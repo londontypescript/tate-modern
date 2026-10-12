@@ -72,6 +72,7 @@ describe('buildHalo', () => {
     // More decimals than are written, so every line and depth is rounded.
     [{ strength: 0.45, reach: 13.3717, offset: 7.7777 }, 3.33333],
     [{ strength: 1, reach: 0.5, offset: 0.5 }, 0],
+    [{ strength: 1, reach: 0.1, offset: 0 }, 0],
   ];
 
   it('places every piece about the tile moved left and down, on four written lines each way', () => {
@@ -147,8 +148,10 @@ describe('buildHalo', () => {
         const [before, after] = across
           ? [rect.minY - paint.minY, paint.maxY - rect.maxY]
           : [rect.minX - paint.minX, paint.maxX - rect.maxX];
-        expect(Math.abs(before - lapAlong), side).toBeLessThanOrEqual(0.001 + 1e-9);
-        expect(Math.abs(after - lapAlong), side).toBeLessThanOrEqual(0.001 + 1e-9);
+        // Rounded down as written, so never longer than its budget.
+        const written = Math.floor(lapAlong * 1000) / 1000;
+        expect(Number(before.toFixed(6)), side).toBe(written);
+        expect(Number(after.toFixed(6)), side).toBe(written);
         const outer = {
           left: paint.minX - rect.minX,
           right: paint.maxX - rect.maxX,
