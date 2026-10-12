@@ -14,15 +14,15 @@ The emblem descends from a Three.js sculpture of bevelled translucent blue slabs
 
 ## Quick start
 
-Requires Node 22 or later.
+Requires Node 24 or later and pnpm.
 
 ```bash
-npm install
-npm run dev              # the studio at http://localhost:5173
-npm run generate:assets  # regenerate public/assets/*.svg
-npm test                 # unit tests (Vitest)
-npm run typecheck        # strict TypeScript check
-npm run build            # regenerate assets, type-check, build the studio into dist/
+pnpm install
+pnpm dev              # the studio at http://localhost:5173
+pnpm generate:assets  # regenerate public/assets/*.svg
+pnpm test             # unit tests (Vitest)
+pnpm typecheck        # strict TypeScript check
+pnpm build            # regenerate assets, type-check, build the studio into dist/
 ```
 
 ## Generated assets
@@ -48,7 +48,7 @@ Each square, facet and glyph is its own element with an `lts-…` id, for exampl
 
 ## Using the studio
 
-`npm run dev` opens the studio (a development tool, not part of the eventual website):
+`pnpm dev` opens the studio (a development tool, not part of the eventual website):
 
 - **Concept switcher:** the tabs in the header. The open concept is kept in the URL hash (for example `#flat`), so reloads and links keep it. Concepts load on demand.
 - **Compare with a reference:** shows one of the reference images in `public/references/` beside the previews: the ChatGPT original, the two Three.js concepts and the flat MVP export. The choice is remembered in this browser.
@@ -74,11 +74,11 @@ The flat concept has:
   - **Load, Rename, Delete:** load and delete ask for confirmation when work would be lost.
   - Saved configurations from older versions still load: fields added to the config since then take their defaults.
 
-Saved configurations live only in this browser; they aren't shared and don't change the generated assets. To make a configuration the official logo, copy its values into `defaultLogoConfig` in `src/concepts/flat/engine/config.ts` and run `npm run generate:assets`. (Flat configurations saved in the original playground still load: the storage key is unchanged.)
+Saved configurations live only in this browser; they aren't shared and don't change the generated assets. To make a configuration the official logo, copy its values into `defaultLogoConfig` in `src/concepts/flat/engine/config.ts` and run `pnpm generate:assets`. (Flat configurations saved in the original playground still load: the storage key is unchanged.)
 
 ### The 3D concept
 
-`npm run dev`, then the **3D** tab. It renders the prototype's sculpture with react-three-fiber:
+`pnpm dev`, then the **3D** tab. It renders the prototype's sculpture with react-three-fiber:
 
 - **Starting points** recreate the arrangements found in the original code: the visible stack in `londontypescript/site` (30 slabs, each turned 0.15 rad, grown 0.1 and pushed back 0.2), its scrambled final state, the hidden second group ("Turned deck"), the same stack with studio reflections, and the earlier seven-slab experiment from `chaquejour` (September 2025).
 - **Controls:** the stack (count, turn, scale, depth, drift, tilt), the slab (thickness and chamfer), the material (colour, metalness, roughness, opacity), the lighting (ambient, the two key lights from the right and their direction, the fill light), environment reflections (drei's `Environment` presets, Poly Haven HDRIs fetched from a CDN on first use), camera and spin speed.
@@ -88,7 +88,7 @@ Saved configurations live only in this browser; they aren't shared and don't cha
 
 ### The projected concept
 
-`npm run dev`, then the **Projected** tab. It takes the 3D concept's settings (the same starting points and sliders, minus environment reflections) and draws them as polygons:
+`pnpm dev`, then the **Projected** tab. It takes the 3D concept's settings (the same starting points and sliders, minus environment reflections) and draws them as polygons:
 
 - **Compare with the live 3D render:** shows the projected emblem beside the real react-three-fiber render of the same settings, framed identically. The two should match.
 - **Drawing:** gradients across faces (on by default; a face's highlight varies across it in perspective), see-through back faces, exposure, and the wordmark's size and gap in the lockup.
@@ -181,11 +181,11 @@ logo.emblem.layers; // SquareLayer[]: size, rotation, cornerRadius, fill, opacit
 
 #### Export
 
-`renderLogoSvg(variant, model)` renders the components with React's `renderToStaticMarkup`. The studio's download buttons and `scripts/generate-assets.ts` both call it, so previews and files can never drift apart. `npm run build` regenerates the assets before building.
+`renderLogoSvg(variant, model)` renders the components with React's `renderToStaticMarkup`. The studio's download buttons and `scripts/generate-assets.ts` both call it, so previews and files can never drift apart. `pnpm build` regenerates the assets before building.
 
 ### Fonts
 
-Both fonts are SIL Open Font License 1.1, installed from `@fontsource` and pinned by `package-lock.json`. Each environment loads the bytes its own way and hands them to `parseLogoFonts`:
+Both fonts are SIL Open Font License 1.1, installed from `@fontsource` and pinned by `pnpm-lock.yaml`. Each environment loads the bytes its own way and hands them to `parseLogoFonts`:
 
 - **Browser:** Vite URL imports, in `src/shared/react/fonts.browser.ts`. (Components that also render in Node import the specific `shared/react` files they need, never its index, which includes this browser-only loader.)
 - **Node:** the file system, in `scripts/node-fonts.ts`.
@@ -207,7 +207,7 @@ For static pages, simply use the generated files in `public/assets/`.
 
 ## Tests
 
-`npm test` covers:
+`pnpm test` covers:
 
 - **Geometry:** layer rotations, palette cycling, size taper, the closed-form bounds and their 90° symmetry, and the rotation-safe radius.
 - **Animation:** distinct deterministic speeds, integration, shortest symmetric settling, and the easing.
