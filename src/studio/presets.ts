@@ -31,7 +31,7 @@ export type DeepPartial<T> = T extends readonly unknown[]
  * the config after a preset was saved get their default, or their value in
  * `missing` when it has one: a concept passes `missing` for fields whose
  * default may change, so older saved configurations keep looking as they
- * did. Fields whose type no longer matches are ignored.
+ * did. A saved value of the wrong type is ignored and filled the same way.
  */
 export function mergeWithDefaults<T>(defaults: T, saved: unknown, missing?: NoInfer<DeepPartial<T>>): T {
   if (isPlainObject(defaults)) {
@@ -44,11 +44,12 @@ export function mergeWithDefaults<T>(defaults: T, saved: unknown, missing?: NoIn
     }
     return out as T;
   }
-  if (saved === undefined && missing !== undefined && typeof missing === typeof defaults) return missing as T;
-  if (Array.isArray(defaults)) {
-    return (Array.isArray(saved) && saved.length === defaults.length ? saved : defaults) as T;
-  }
-  return (typeof saved === typeof defaults ? saved : defaults) as T;
+  const usable = Array.isArray(defaults)
+    ? Array.isArray(saved) && saved.length === defaults.length
+    : typeof saved === typeof defaults;
+  if (usable) return saved as T;
+  // A field that is absent or unusable takes its `missing` value when it has one.
+  return (missing !== undefined && typeof missing === typeof defaults ? missing : defaults) as T;
 }
 
 /**

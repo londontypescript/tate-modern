@@ -72,6 +72,11 @@ describe('filling fields older saved configurations lack', () => {
     { id: 'new', name: 'New', config: { emblem: { rotationJitter: 4, seed: 12 } } },
     { id: 'bare', name: 'No emblem', config: { layout: { horizontalGap: 0.2 } } },
     { id: 'odd', name: 'Emblem not an object', config: { emblem: 5 } },
+    {
+      id: 'bad',
+      name: 'Malformed variation',
+      config: { emblem: { rotationJitter: null, seed: 'bad', sizeJitter: 0.1 } },
+    },
   ]);
 
   /** Loads through `usePresets`, as the presets panel does, from a fake localStorage. */
@@ -100,8 +105,13 @@ describe('filling fields older saved configurations lack', () => {
 
     it(`gives missing variation fields their neutral values, through ${path}`, () => {
       const [old, , bare, odd] = configs();
-      expect(configs()).toHaveLength(4);
+      expect(configs()).toHaveLength(5);
       for (const config of [old, bare, odd]) expect(variationOf(config as LogoConfig)).toEqual(neutralVariation);
+    });
+
+    it(`gives malformed saved variation values their neutral values too, through ${path}`, () => {
+      const malformed = configs()[4] as LogoConfig;
+      expect(variationOf(malformed)).toEqual({ ...neutralVariation, sizeJitter: 0.1 });
     });
 
     it(`keeps saved variation values, through ${path}`, () => {
@@ -124,5 +134,7 @@ describe('filling fields older saved configurations lack', () => {
     const merged = mergeWithDefaults(defaults, { emblem: { layerCount: 3 } });
     expect(variationOf(merged)).toEqual(variationOf(defaults));
     expect(mergeWithDefaults(defaults, 'nonsense')).toBe(defaults);
+    const malformed = mergeWithDefaults(defaults, { emblem: { rotationJitter: null, seed: 'bad' } });
+    expect([malformed.emblem.rotationJitter, malformed.emblem.seed]).toEqual([9, 77]);
   });
 });
