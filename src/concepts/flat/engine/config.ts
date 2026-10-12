@@ -85,6 +85,37 @@ export const variationRanges: Record<keyof VariationConfig, { min: number; max: 
   seed: { min: 1, max: 999 },
 };
 
+/** The emblem's other numeric fields, those that predate the variation. */
+type PlainEmblemNumber =
+  | 'layerCount'
+  | 'rotationIncrement'
+  | 'initialRotation'
+  | 'squareSize'
+  | 'sizeTaper'
+  | 'cornerRadius'
+  | 'opacity'
+  | 'fade'
+  | 'fadeTurn'
+  | 'fadeAngle';
+
+/**
+ * The range each of those fields may take. The studio's sliders read them
+ * and the engine clamps to them, so a saved configuration (which came from
+ * the sliders) is never changed, while a hand-edited one can't overflow.
+ */
+export const emblemRanges: Record<PlainEmblemNumber, { min: number; max: number }> = {
+  layerCount: { min: 0, max: 16 },
+  rotationIncrement: { min: 0, max: 45 },
+  initialRotation: { min: 0, max: 90 },
+  squareSize: { min: 100, max: 200 },
+  sizeTaper: { min: -0.4, max: 0.4 },
+  cornerRadius: { min: 0, max: 12 },
+  opacity: { min: 0.05, max: 1 },
+  fade: { min: 0, max: 1 },
+  fadeTurn: { min: 0, max: 180 },
+  fadeAngle: { min: 0, max: 360 },
+};
+
 /** Shading of each facet: >0 lightens (white overlay), <0 darkens (navy). */
 export interface FacetShading {
   /** Shared facet vertex, as a fraction of the tile (0..1 from top-left). */

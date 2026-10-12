@@ -2,7 +2,14 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { loadLogoFontsFromDisk } from '../../../../scripts/node-fonts';
 import { unionBox, type LogoFonts } from '../../../shared';
-import { buildLogo, defaultLogoConfig, type EmblemConfig, type LogoConfig, type SheetLayer } from '../engine';
+import {
+  buildLogo,
+  defaultLogoConfig,
+  emblemRanges,
+  type EmblemConfig,
+  type LogoConfig,
+  type SheetLayer,
+} from '../engine';
 import { LondonTypeScriptLogo } from './LondonTypeScriptLogo';
 import { renderLogoSvg } from './renderSvg';
 import { elements, parseTransform, viewBox, writtenRectBox } from './svgParse';
@@ -55,6 +62,25 @@ describe('sheets as written to the SVG', () => {
     }
     // The sweep includes bounds that sit right by a rounding step of the viewBox.
     expect(nearBoundary).toBeGreaterThan(5);
+  });
+
+  it('stay inside the viewBox at the largest accepted sizes, where rounding the angle moves corners most', () => {
+    const { squareSize, sizeTaper } = emblemRanges;
+    for (let seed = 1; seed <= 60; seed++) {
+      const config = withEmblem({
+        ...strong,
+        seed,
+        layerCount: 16,
+        squareSize: squareSize.max,
+        sizeTaper: sizeTaper.min,
+        cornerRadius: 0,
+        initialRotation: 0.0005 + seed * 0.0137,
+        rotationIncrement: 0.0049,
+      });
+      const logo = buildLogo(config, fonts);
+      expectContained(renderLogoSvg('mark', logo), `seed ${seed} largest mark`);
+      expectContained(renderLogoSvg('logo', logo), `seed ${seed} largest logo`);
+    }
   });
 
   it('are framed tightly: the static viewBox is no bigger than what is drawn', () => {

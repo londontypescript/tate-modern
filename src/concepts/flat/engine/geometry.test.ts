@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { defaultLogoConfig, neutralVariation, type EmblemConfig } from './config';
+import { clampCornerRadius } from './bounds';
 import { generateFacets, generateLayers } from './geometry';
 import { Channel, sample } from './random';
 import type { SheetLayer } from './types';
@@ -104,8 +105,14 @@ describe('sheet variation', () => {
   });
 
   it('clamps the corner radius to half the smaller side', () => {
-    const layers = generateLayers({ ...base, aspectJitter: 0.3, cornerRadius: 500 });
-    for (const l of layers) expect(l.cornerRadius).toBe(Math.min(l.width, l.height) / 2);
+    expect(clampCornerRadius(10, 40)).toBe(5);
+    expect(clampCornerRadius(10, -1)).toBe(0);
+    // Within the sliders' ranges the smallest sheet still holds the largest radius.
+    const layers = generateLayers({ ...base, sizeTaper: 0.4, sizeJitter: 0.3, aspectJitter: 0.3, cornerRadius: 12 });
+    for (const l of layers) {
+      expect(l.cornerRadius).toBe(12);
+      expect(l.cornerRadius).toBeLessThanOrEqual(Math.min(l.width, l.height) / 2);
+    }
   });
 
   it('places a neutral sheet exactly at the origin, never at -0', () => {

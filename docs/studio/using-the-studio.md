@@ -38,7 +38,7 @@ The flat concept has:
   - **Save as new:** stores the current settings under a name you type; that configuration is then the one being edited.
   - **Save changes:** writes the current settings back to the loaded configuration. It's enabled when there are unsaved changes.
   - **Load, Rename, Delete:** load and delete ask for confirmation when work would be lost.
-  - Saved configurations from older versions still load: fields added to the config since then take their defaults, except the sheet variation, which stays off, so an older configuration looks as it did even if the defaults later turn variation on. Values that aren't sensible numbers (for example from a hand-edited file) fall back to the defaults, and the variation is kept within the sliders' ranges.
+  - Saved configurations from older versions still load: fields added to the config since then take their defaults, except the sheet variation, which stays off, so an older configuration looks as it did even if the defaults later turn variation on. Values that aren't sensible numbers (for example from a hand-edited file) fall back to the defaults, and every number is kept within its slider's range.
 
 Saved configurations live only in this browser; they aren't shared and don't change the generated assets. To make a configuration the official logo, copy its values into `defaultLogoConfig` in `src/concepts/flat/engine/config.ts` and run `pnpm generate:assets`. (Flat configurations saved in the original playground still load: the storage key is unchanged.)
 
