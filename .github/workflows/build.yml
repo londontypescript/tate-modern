@@ -1,0 +1,49 @@
+# The studio's own check. temple-bar's gate runs typecheck, lint, format:check
+# and test, but never builds, and the build is what a TypeScript or dependency
+# change breaks first: it regenerates the assets, type-checks and bundles.
+name: build
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    # A ruleset requires a check with exactly this name.
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
+
+      - name: Install Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      # The generated SVGs are committed; a build that changes, adds or
+      # recreates one means the configuration and the committed assets have
+      # drifted apart. Untracked files count: a deleted asset comes back as one.
+      - name: Assets match the configuration
+        run: |
+          changes="$(git status --porcelain --untracked-files=all -- public/assets)"
+          if [ -n "$changes" ]; then echo "$changes"; exit 1; fi

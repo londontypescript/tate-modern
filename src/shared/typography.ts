@@ -53,7 +53,7 @@ export function unionBox(a: Box, b: Box): Box {
   };
 }
 
-export function boxOfPoints(points: readonly Point[]): Box {
+function boxOfPoints(points: readonly Point[]): Box {
   return points.reduce<Box>((box, p) => unionBox(box, { minX: p.x, minY: p.y, maxX: p.x, maxY: p.y }), emptyBox());
 }
 
@@ -109,7 +109,7 @@ export function layoutTextRun(font: Font, text: string, options: TextRunOptions)
 }
 
 /** Scales outline commands horizontally about `originX`. */
-export function scaleCommandsX(commands: readonly PathCommand[], originX: number, k: number): PathCommand[] {
+function scaleCommandsX(commands: readonly PathCommand[], originX: number, k: number): PathCommand[] {
   const sx = (v: number) => originX + (v - originX) * k;
   return commands.map((c) => {
     switch (c.type) {
@@ -124,10 +124,6 @@ export function scaleCommandsX(commands: readonly PathCommand[], originX: number
         return c;
     }
   });
-}
-
-export function lastGlyph(font: Font, text: string): Glyph | undefined {
-  return font.stringToGlyphs(text).at(-1);
 }
 
 /** Ink bounds of a set of placed glyphs. */
@@ -146,7 +142,7 @@ export function glyphBounds(glyphs: readonly PlacedGlyph[]): Box {
  * away from the letter and +y down; the origin is the centre of the stroke
  * being continued.
  */
-export const curlShape = {
+const curlShape = {
   /**
    * Cubic Bézier centreline P0..P3. P0→P1 is horizontal so the curl leaves
    * in the direction of the stroke it continues, with flush edges.
@@ -202,7 +198,7 @@ const fmt = (n: number) => (Number(n.toFixed(PRECISION)) + 0).toString();
  * Serialises glyph outline commands. (opentype.js's own `toPathData` drops
  * the separator before values that round from negative to zero.)
  */
-export function commandsToPathData(commands: readonly PathCommand[]): string {
+function commandsToPathData(commands: readonly PathCommand[]): string {
   return commands
     .map((c) => {
       switch (c.type) {
@@ -220,11 +216,11 @@ export function commandsToPathData(commands: readonly PathCommand[]): string {
     .join('');
 }
 
-export function polygonPath(points: readonly Point[]): string {
+function polygonPath(points: readonly Point[]): string {
   return `M${points.map((p) => `${fmt(p.x)} ${fmt(p.y)}`).join('L')}Z`;
 }
 
-export function circlePath(centre: Point, r: number): string {
+function circlePath(centre: Point, r: number): string {
   const { x, y } = centre;
   return `M${fmt(x - r)} ${fmt(y)}A${fmt(r)} ${fmt(r)} 0 1 0 ${fmt(x + r)} ${fmt(y)}A${fmt(r)} ${fmt(r)} 0 1 0 ${fmt(x - r)} ${fmt(y)}Z`;
 }

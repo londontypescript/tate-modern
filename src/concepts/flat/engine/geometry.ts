@@ -150,7 +150,7 @@ export function generateFacets(
 }
 
 /** Outlines of the tile lettering, flush to the bottom-right margins. */
-export function generateLettering(config: TileConfig, font: Font, x: number, y: number): PathShape[] {
+function generateLettering(config: TileConfig, font: Font, x: number, y: number): PathShape[] {
   const { size } = config;
   const fontSize = (config.textScale * size) / capHeightRatio(font);
   const baseline = y + size - config.textOffsetY * size;
@@ -168,7 +168,7 @@ export function generateLettering(config: TileConfig, font: Font, x: number, y: 
   }));
 }
 
-export function generateTile(config: TileConfig, font: Font): TileModel {
+function generateTile(config: TileConfig, font: Font): TileModel {
   const x = -config.size / 2;
   const y = -config.size / 2;
   return {
@@ -186,7 +186,7 @@ export function generateTile(config: TileConfig, font: Font): TileModel {
 // Emblem
 // ---------------------------------------------------------------------------
 
-export function buildEmblem(emblem: EmblemConfig, tile: TileConfig, sans: Font): EmblemModel {
+function buildEmblem(emblem: EmblemConfig, tile: TileConfig, sans: Font): EmblemModel {
   const layers = generateLayers(emblem);
   const tileBox = squareBox(tile.size / 2);
   const safe = layers.reduce((r, l) => Math.max(r, rotationSafeRadius(l.size, l.cornerRadius)), 0);

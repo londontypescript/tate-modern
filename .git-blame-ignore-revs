@@ -1,0 +1,5 @@
+# Commits that only reformatted code; `git blame` skips them when
+# blame.ignoreRevsFile points here (GitHub does this automatically).
+
+# style: format with Prettier (#3)
+7a29575ebf13daf9663d8bf396c8273e96d33187

@@ -8,7 +8,7 @@ import type { Point } from './types';
 
 export type Contour = Point[];
 
-export interface Interval {
+interface Interval {
   start: number;
   end: number;
 }
@@ -82,10 +82,10 @@ function scan(contours: readonly Contour[], axis: 'x' | 'y', at: number): Interv
 }
 
 /** Inside intervals along the horizontal line at `y`, left to right. */
-export const scanRow = (contours: readonly Contour[], y: number) => scan(contours, 'x', y);
+const scanRow = (contours: readonly Contour[], y: number) => scan(contours, 'x', y);
 
 /** Inside intervals along the vertical line at `x`, top to bottom. */
-export const scanColumn = (contours: readonly Contour[], x: number) => scan(contours, 'y', x);
+const scanColumn = (contours: readonly Contour[], x: number) => scan(contours, 'y', x);
 
 /** Where a flourish leaves a horizontal stroke such as a serif or crossbar. */
 export interface StrokeJoin {

@@ -94,12 +94,12 @@ export interface LetteringConfig {
   colour: string;
 }
 
-export interface MotionConfig {
+interface MotionConfig {
   /** Turn rate of the front slab in degrees per second; slab n turns n + 1 times as fast. */
   speed: number;
 }
 
-export interface SceneLayoutConfig {
+interface SceneLayoutConfig {
   background: string;
   /** Show the shared wordmark beside the render. */
   wordmark: boolean;

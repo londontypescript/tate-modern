@@ -29,7 +29,7 @@ export interface ProjectedConfig extends ThreeConfig {
   projection: ProjectionConfig;
 }
 
-export const defaultProjectionConfig: ProjectionConfig = {
+const defaultProjectionConfig: ProjectionConfig = {
   gradients: true,
   gradientThreshold: 0.02,
   backFaces: false,

@@ -46,6 +46,10 @@ pnpm build            # regenerate assets, type-check, build the studio
 - [How the concepts work](docs/studio/concepts.md): the geometry, animation, projection and shading behind each concept, and the shared typography.
 - [Code layout](docs/studio/architecture.md): the project structure, adding a concept, fonts and tests.
 
+## Contributing
+
+Changes reach `main` through pull requests only, and every one passes the same checks locally and in CI: type-checking, linting, formatting, tests and the build. The repo runs on [temple-bar](https://github.com/londontypescript/temple-bar), London TypeScript's workflow for people and AI agents alike; [AGENTS.md](AGENTS.md) holds the rules. `pnpm install` switches on the git hooks; `pnpm gate` runs the checks and `pnpm build` the build.
+
 ## Why "Tate Modern"
 
 London TypeScript's repositories are named after London landmarks. Tate Modern is London's gallery for modern and experimental art, and this repo is where the meetup's experiments live: prototype designs, tried side by side, that the rest of London TypeScript eventually adopts.

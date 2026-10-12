@@ -104,19 +104,19 @@ export function usePresets<T>(storageKey: string, defaults: T) {
     presets,
     storageFailed,
     /** Saves a new preset and returns its id. */
-    create(name: string, config: T): string {
+    create: (name: string, config: T): string => {
       const id = newId();
       commit([...presets, { id, name, config, savedAt: now() }]);
       return id;
     },
     /** Overwrites a preset's configuration. */
-    update(id: string, config: T) {
+    update: (id: string, config: T) => {
       commit(presets.map((p) => (p.id === id ? { ...p, config, savedAt: now() } : p)));
     },
-    rename(id: string, name: string) {
+    rename: (id: string, name: string) => {
       commit(presets.map((p) => (p.id === id ? { ...p, name } : p)));
     },
-    remove(id: string) {
+    remove: (id: string) => {
       commit(presets.filter((p) => p.id !== id));
     },
   };

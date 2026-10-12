@@ -24,7 +24,7 @@ export interface SquareLayer {
 }
 
 /** Linear fade across a square, from `fill` at full strength to `colour`. */
-export interface LayerFade {
+interface LayerFade {
   /** Direction towards the clear edge, in degrees, in the square's frame. */
   angle: number;
   /** Opacity lost by the clear edge (0..1). */

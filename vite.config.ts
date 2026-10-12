@@ -11,5 +11,8 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
+    // Only the project's own folders: agents' worktrees (.temple-bar/,
+    // .claude/worktrees/) hold whole copies of the repo, tests included.
+    include: ['src/**/*.test.{ts,tsx}', 'scripts/**/*.test.ts'],
   },
 });
