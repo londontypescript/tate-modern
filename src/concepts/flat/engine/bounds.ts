@@ -34,7 +34,11 @@ export function sheetHalfExtents(width: number, height: number, cornerRadius: nu
   return { hx: a * cos + b * sin + r, hy: a * sin + b * cos + r };
 }
 
-/** Distance from a sheet's centre to its furthest point, which bounds it at every angle. */
+/**
+ * Distance from a sheet's centre to its furthest point, which bounds it at
+ * every angle. A square keeps the `a * SQRT2` it always used: `Math.hypot`
+ * isn't required to round the same way on every JavaScript engine.
+ */
 export function sheetSafeRadius(width: number, height: number, cornerRadius: number): number {
   const { a, b, r } = straightHalves(width, height, cornerRadius);
   return (a === b ? a * Math.SQRT2 : Math.hypot(a, b)) + r;
