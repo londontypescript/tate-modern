@@ -7,6 +7,7 @@ The emblem descends from a Three.js sculpture of bevelled translucent blue slabs
 | Concept | What it is | Status |
 | --- | --- | --- |
 | **Flat** (`src/concepts/flat`) | Translucent squares rotated about a faceted tile: pure 2D SVG. The first MVP, refined against the ChatGPT original. | Working; produces `public/assets/` |
+| **3D** (`src/concepts/three`) | The original React Three Fiber sculpture, ported from the March 2026 prototype: bevelled metal slabs, real lights and reflections. For heroes and high-resolution stills. | Working; exports PNG |
 
 > **The TypeScript source code is the design.** The SVG files in `public/assets/` are build artefacts. Never edit them by hand; change the configuration (for the flat concept, `src/concepts/flat/engine/config.ts`) and regenerate them.
 
@@ -74,6 +75,16 @@ The flat concept has:
 
 Saved configurations live only in this browser; they aren't shared and don't change the generated assets. To make a configuration the official logo, copy its values into `defaultLogoConfig` in `src/concepts/flat/engine/config.ts` and run `npm run generate:assets`. (Flat configurations saved in the original playground still load: the storage key is unchanged.)
 
+### The 3D concept
+
+`npm run dev`, then the **3D** tab. It renders the prototype's sculpture with react-three-fiber:
+
+- **Starting points** recreate the arrangements found in the original code: the visible stack in `londontypescript/site` (30 slabs, each turned 0.15 rad, grown 0.1 and pushed back 0.2), its scrambled final state, the hidden second group ("Turned deck"), the same stack with studio reflections, and the earlier seven-slab experiment from `chaquejour` (September 2025).
+- **Controls:** the stack (count, turn, scale, depth, drift, tilt), the slab (thickness and chamfer), the material (colour, metalness, roughness, opacity), the lighting (ambient, the two key lights from the right and their direction, the fill light), environment reflections (drei's `Environment` presets, Poly Haven HDRIs fetched from a CDN on first use), camera and spin speed.
+- **"TS" on the front slab:** the same lettering as the flat tile, cut from the shared sans font.
+- **Wordmark beside it:** the shared wordmark, for judging a lockup.
+- **Download PNG** at 1×, 2× or 4× the preview's resolution, on white, cream, black or a transparent background.
+
 ## How it works
 
 The code is split three ways:
@@ -83,6 +94,15 @@ The code is split three ways:
 - **`src/studio/`:** the shell. The concept registry (`concepts.ts`), the switcher, the shared two-column layout, reference comparison, saved configurations and UI building blocks.
 
 To add a concept, create `src/concepts/<name>/`, export a page component that renders `<StudioLayout previews={…} controls={…} />`, and register it in `src/studio/concepts.ts`.
+
+### The 3D concept's code
+
+- `config.ts`: typed parameters; the defaults are the prototype's own numbers.
+- `stack.ts`: framework-free placement of each slab (position, turn, scale, opacity), tested in `stack.test.ts`.
+- `Scene.tsx`: the react-three-fiber scene: slab geometry (`ExtrudeGeometry` with the prototype's bevel settings), lights, environment, lettering and the still capture.
+- `ThreeStudio.tsx`, `controls.ts`, `starters.ts`: the studio page.
+
+three.js loads only when the 3D concept is opened.
 
 ### The flat concept
 
@@ -174,6 +194,7 @@ For static pages, simply use the generated files in `public/assets/`.
 - **Layout:** the tile aligns with the top of "London" and the baseline of "TypeScript" at several sizes; the emblem–wordmark gap; and the flourishes mirroring each other and joining their strokes.
 - **Export:** identical output on every run; valid standalone documents with no `<text>` or images; every square present as its own element.
 - **Saved configurations:** parsing corrupt storage, and merging older saved configurations with current defaults.
+- **3D stack:** the prototype's placement of each slab, drift and opacity falloff, the scrambled angles, and the slab's chamfer measurements.
 
 ## Project structure
 
@@ -182,6 +203,7 @@ src/
   shared/              palette, fonts, typography, wordmark (framework-free)
     react/             SVG frame, wordmark renderer, browser font loading
   concepts/
+    three/             3D concept: config, stack maths, R3F scene, studio page
     flat/
       engine/          config, geometry, animation (framework-free)
       components/      React renderers, animation hook, SVG export

@@ -20,4 +20,10 @@ export const concepts: readonly Concept[] = [
     summary: 'Translucent squares rotated about a faceted tile: pure 2D SVG, the first MVP.',
     Component: lazy(() => import('../concepts/flat/FlatStudio')),
   },
+  {
+    id: 'three',
+    name: '3D',
+    summary: 'The original React Three Fiber sculpture: bevelled metal slabs, lit and rendered in real 3D.',
+    Component: lazy(() => import('../concepts/three/ThreeStudio')),
+  },
 ];

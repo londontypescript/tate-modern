@@ -116,3 +116,57 @@ export function Button({
     </button>
   );
 }
+
+export function Select<T extends string>({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: T;
+  options: readonly T[];
+  onChange: (value: T) => void;
+}) {
+  return (
+    <label className="mt-3 flex items-center justify-between gap-2 text-sm text-stone-700">
+      {label}
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value as T)}
+        className="rounded-md border border-stone-300 bg-white px-2 py-1 text-sm"
+      >
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+export function ColourInput({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="mt-3 flex items-center justify-between gap-2 text-sm text-stone-700">
+      {label}
+      <span className="flex items-center gap-2">
+        <span className="font-mono text-xs text-stone-500">{value}</span>
+        <input
+          type="color"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="h-7 w-10 cursor-pointer rounded border border-stone-300 bg-white"
+        />
+      </span>
+    </label>
+  );
+}
