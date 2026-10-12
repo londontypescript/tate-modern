@@ -32,6 +32,18 @@ export interface EmblemConfig {
    * every overlap gets deeper. `normal` is plain alpha compositing.
    */
   blendMode: BlendMode;
+  /**
+   * How much each square fades across its own surface (0 = uniform, 1 =
+   * from full strength at one edge to clear at the other). Fading sheets
+   * make the overlaps vary, so the layers seem to weave in and out.
+   */
+  fade: number;
+  /** How far the fade direction turns from one square to the next, in degrees. */
+  fadeTurn: number;
+  /** Direction of the first square's fade (towards its clear edge), in degrees. */
+  fadeAngle: number;
+  /** Colour at each square's clear edge. */
+  fadeColour: string;
 }
 
 export type BlendMode = 'normal' | 'multiply';
@@ -100,6 +112,10 @@ export const defaultLogoConfig: LogoConfig = {
     opacity: 0.4,
     colours: [palette.sheetBlue, palette.sheetSky],
     blendMode: 'multiply',
+    fade: 0,
+    fadeTurn: 137.5,
+    fadeAngle: 0,
+    fadeColour: palette.sheetSky,
   },
   tile: {
     size: 100,

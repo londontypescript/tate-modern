@@ -25,6 +25,9 @@ export const controlGroups: { title: string; controls: SliderControl<LogoConfig>
       { label: 'Size taper', min: -0.4, max: 0.4, step: 0.01, ...emblem('sizeTaper') },
       { label: 'Corner radius', min: 0, max: 12, step: 0.1, ...emblem('cornerRadius') },
       { label: 'Layer opacity', min: 0.05, max: 1, step: 0.01, ...emblem('opacity') },
+      { label: 'Fade across each square', min: 0, max: 1, step: 0.01, ...emblem('fade') },
+      { label: 'Fade turn per square', min: 0, max: 180, step: 0.5, unit: '°', ...emblem('fadeTurn') },
+      { label: 'First fade direction', min: 0, max: 360, step: 1, unit: '°', ...emblem('fadeAngle') },
     ],
   },
   {

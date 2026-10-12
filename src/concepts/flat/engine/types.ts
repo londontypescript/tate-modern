@@ -19,6 +19,18 @@ export interface SquareLayer {
   fill: string;
   opacity: number;
   blendMode: 'normal' | 'multiply';
+  /** A fade across the square, in its own (rotating) frame; none when uniform. */
+  fade?: LayerFade;
+}
+
+/** Linear fade across a square, from `fill` at full strength to `colour`. */
+export interface LayerFade {
+  /** Direction towards the clear edge, in degrees, in the square's frame. */
+  angle: number;
+  /** Opacity lost by the clear edge (0..1). */
+  strength: number;
+  /** Colour at the clear edge. */
+  colour: string;
 }
 
 /** The stationary central tile, axis-aligned and centred on the origin. */

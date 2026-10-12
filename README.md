@@ -55,7 +55,7 @@ The flat concept has:
 
 - **Previews:** the complete logo on the reference's cream background, a static emblem, and an animation preview.
 - **Sliders:**
-  - Squares: layer count, rotation increment, initial rotation, size, size taper, corner radius, opacity.
+  - Squares: layer count, rotation increment, initial rotation, size, size taper, corner radius, opacity, and the fade across each square (strength, turn per square, first direction).
   - TS tile: letter size, margins, letter spacing.
   - Wordmark and layout: gap, line spacing, letter spacing, condense letters, flourish scale.
   - Animation: speed and speed variation.
@@ -116,6 +116,7 @@ logo.emblem.layers; // SquareLayer[]: size, rotation, cornerRadius, fill, opacit
 
 - **Background squares** (`generateLayers`): `layerCount` squares share a centre. Square *i* is rotated `initialRotation + i × rotationIncrement`. The approved logo uses 6 squares at 15° steps from 7.5°, which makes it mirror-symmetric. Each square is 1.58 × the tile wide, with a very small corner radius.
 - **Transparency:** the squares are translucent and overlap with `multiply` blending, like tinted glass: every overlap gets deeper, so the centre darkens to royal blue around the tile while the tips stay light. The shades come from the overlaps themselves and update as the squares rotate. (`blendMode: 'normal'` gives plain alpha compositing instead.)
+- **Fades** (`fade`, off by default): each square can fade across its own surface, from its colour at full strength on one edge to `fadeColour` and near-transparency on the other. The direction turns by `fadeTurn` from one square to the next, so overlaps vary instead of stacking into a uniform disc, and the layers seem to weave in and out as in the reference. Each fade is a `linearGradient` in the square's own frame, so it turns with the square when animated.
 - **Bounds:** worked out in closed form. A rounded square rotated by θ reaches `(s/2 − r)(|cos θ| + |sin θ|) + r` from its centre. This gives a tight `viewBox` for static output, and a "rotation-safe" frame for animation so nothing clips.
 - **Central tile** (`generateTile`): an opaque square with four translucent white or navy triangles meeting at an off-centre point (`facets.apexX/apexY`). This produces the folded facets without tracing anything. The facet paths follow the rounded corners exactly.
 - **"TS" lettering:** set in Open Sans ExtraBold. Its cap height is `textScale` × the tile, and it's placed against the bottom-right margins (`textOffsetX/Y`).

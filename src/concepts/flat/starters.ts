@@ -17,6 +17,10 @@ export const mvpLogoConfig: LogoConfig = {
     opacity: 0.32,
     colours: ['#1a8cf5', '#4fb0fa'],
     blendMode: 'normal',
+    fade: 0,
+    fadeTurn: 137.5,
+    fadeAngle: 0,
+    fadeColour: '#4fb0fa',
   },
   tile: {
     size: 100,

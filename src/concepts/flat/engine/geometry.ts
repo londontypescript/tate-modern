@@ -45,6 +45,14 @@ export function generateLayers(config: EmblemConfig): SquareLayer[] {
     fill: colours[index % colours.length] as string,
     opacity: config.opacity,
     blendMode: config.blendMode,
+    fade:
+      config.fade > 0
+        ? {
+            angle: (((config.fadeAngle + index * config.fadeTurn) % 360) + 360) % 360,
+            strength: Math.min(config.fade, 1),
+            colour: config.fadeColour,
+          }
+        : undefined,
     };
   });
 }

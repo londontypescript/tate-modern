@@ -1,11 +1,14 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { loadLogoFontsFromDisk } from '../../../../scripts/node-fonts';
+import type { LogoFonts } from '../../../shared';
 import { buildLogo, defaultLogoConfig, type LogoModel } from '../engine';
 import { renderLogoSvg, svgVariants } from './renderSvg';
 
+let fonts: LogoFonts;
 let logo: LogoModel;
 beforeAll(async () => {
-  logo = buildLogo(defaultLogoConfig, await loadLogoFontsFromDisk());
+  fonts = await loadLogoFontsFromDisk();
+  logo = buildLogo(defaultLogoConfig, fonts);
 });
 
 describe('renderLogoSvg', () => {
@@ -36,5 +39,15 @@ describe('renderLogoSvg', () => {
   it('adds a background only when asked', () => {
     expect(renderLogoSvg('logo', logo)).not.toContain('#fcf6e9');
     expect(renderLogoSvg('logo', logo, { background: '#fcf6e9' })).toContain('fill="#fcf6e9"');
+  });
+
+  it('fills fading squares with their own gradient, and uniform ones with flat colour', () => {
+    expect(renderLogoSvg('mark', logo)).not.toContain('<linearGradient');
+    const faded = buildLogo({ ...defaultLogoConfig, emblem: { ...defaultLogoConfig.emblem, fade: 0.8 } }, fonts);
+    const svg = renderLogoSvg('mark', faded);
+    const ids = [...svg.matchAll(/<linearGradient id="([^"]+)"/g)].map((m) => m[1]);
+    expect(ids).toHaveLength(faded.emblem.layers.length);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const id of ids) expect(svg).toContain(`fill="url(#${id})"`);
   });
 });
