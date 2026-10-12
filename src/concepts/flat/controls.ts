@@ -1,5 +1,5 @@
 import type { SliderControl } from '../../studio/ui';
-import { emblemRanges, variationRanges, type LogoConfig } from './engine';
+import { emblemRanges, haloRanges, variationRanges, type HaloConfig, type LogoConfig } from './engine';
 
 const emblem = <K extends keyof LogoConfig['emblem']>(key: K) => ({
   get: (c: LogoConfig) => c.emblem[key] as number,
@@ -8,6 +8,10 @@ const emblem = <K extends keyof LogoConfig['emblem']>(key: K) => ({
 const tile = <K extends keyof LogoConfig['tile']>(key: K) => ({
   get: (c: LogoConfig) => c.tile[key] as number,
   set: (c: LogoConfig, v: number) => ({ ...c, tile: { ...c.tile, [key]: v } }),
+});
+const halo = (key: keyof HaloConfig) => ({
+  get: (c: LogoConfig) => c.tile.halo[key],
+  set: (c: LogoConfig, v: number) => ({ ...c, tile: { ...c.tile, halo: { ...c.tile.halo, [key]: v } } }),
 });
 const wordmark = <K extends keyof LogoConfig['wordmark']>(key: K) => ({
   get: (c: LogoConfig) => c.wordmark[key] as number,
@@ -50,6 +54,14 @@ export const controlGroups: { title: string; controls: SliderControl<LogoConfig>
       { label: 'Stretch from square', step: 0.01, ...variationRanges.aspectJitter, ...emblem('aspectJitter') },
       { label: 'Shift off centre', step: 0.5, ...variationRanges.offsetJitter, ...emblem('offsetJitter') },
       { label: 'Variation seed', step: 1, ...variationRanges.seed, ...emblem('seed') },
+    ],
+  },
+  {
+    title: 'Halo',
+    controls: [
+      { label: 'Halo strength', step: 0.01, ...haloRanges.strength, ...halo('strength') },
+      { label: 'Halo reach', step: 0.5, ...haloRanges.reach, ...halo('reach') },
+      { label: 'Shadow offset', step: 0.5, ...haloRanges.offset, ...halo('offset') },
     ],
   },
   {

@@ -1,6 +1,7 @@
 import { useId } from 'react';
 import type { EmblemModel, SheetLayer } from '../engine';
 import { SvgFrame, num, shapeId, type SvgFrameProps } from '../../../shared/react/SvgFrame';
+import { TypeScriptHalo } from './TypeScriptHalo';
 import { TypeScriptTile } from './TypeScriptTile';
 
 /**
@@ -52,9 +53,9 @@ export interface MarkShapesProps {
  * <rect>, turned with an SVG `rotate()` attribute (not CSS
  * transform-origin), which behaves identically in every browser.
  *
- * Fade gradients need ids that no other logo on the page shares: exports
- * use their `idPrefix`, and a live logo without one takes its own from
- * React, so each sheet's id only has to be unique within its logo.
+ * Fade and halo gradients need ids that no other logo on the page shares:
+ * exports use their `idPrefix`, and a live logo without one takes its own
+ * from React, so each gradient's id only has to be unique within its logo.
  */
 export function MarkShapes({ emblem, rotations, idPrefix }: MarkShapesProps) {
   const ownId = `lts${idSafe(useId())}`;
@@ -89,6 +90,8 @@ export function MarkShapes({ emblem, rotations, idPrefix }: MarkShapesProps) {
           );
         })}
       </g>
+      {/* Outside the sheets' isolated group, with normal blending: it darkens the sheets beneath and stays still. */}
+      {emblem.halo && <TypeScriptHalo halo={emblem.halo} gradientPrefix={idPrefix ?? ownId} idPrefix={idPrefix} />}
       <TypeScriptTile tile={emblem.tile} idPrefix={idPrefix} />
     </g>
   );

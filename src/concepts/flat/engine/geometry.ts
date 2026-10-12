@@ -12,6 +12,7 @@ import {
 } from '../../../shared';
 import type { EmblemConfig, FacetShading, LogoConfig, TileConfig } from './config';
 import { clampCornerRadius, layersBounds, rotationSafeLayersBounds } from './bounds';
+import { buildHalo } from './halo';
 import { Channel, sample, type ChannelKey } from './random';
 import { sanitizeEmblemConfig } from './sanitize';
 import type { EmblemModel, LogoModel, SheetLayer, TileModel } from './types';
@@ -168,11 +169,15 @@ function buildEmblem(emblem: EmblemConfig, tile: TileConfig, sans: Font): Emblem
   const layers = generateLayers(emblem);
   const half = tile.size / 2;
   const tileBox = { minX: -half, minY: -half, maxX: half, maxY: half };
+  const halo = buildHalo(tile);
+  // The tile and its halo stay still, so both framings hold them as they are.
+  const still = halo ? unionBox(tileBox, halo.box) : tileBox;
   return {
     layers,
     tile: generateTile(tile, sans),
-    bounds: unionBox(layersBounds(layers), tileBox),
-    rotationSafeBounds: unionBox(rotationSafeLayersBounds(layers), tileBox),
+    ...(halo && { halo }),
+    bounds: unionBox(layersBounds(layers), still),
+    rotationSafeBounds: unionBox(rotationSafeLayersBounds(layers), still),
   };
 }
 

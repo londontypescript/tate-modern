@@ -55,3 +55,34 @@ export function writtenRectBox(rect: Record<string, string>): Box {
   }
   return box;
 }
+
+/**
+ * The points a path of absolute `M`, `H`, `V` and `A` commands visits, as
+ * written. For the halo's pieces (rectangles, and quarter discs whose arcs
+ * stay within one axis-aligned quadrant) their box is the piece's box.
+ */
+export function pathPoints(d: string): { x: number; y: number }[] {
+  const points: { x: number; y: number }[] = [];
+  let [x, y] = [NaN, NaN];
+  for (const [, command, args = ''] of d.matchAll(/([MHVAZ])([^MHVAZ]*)/g)) {
+    const values = args
+      .trim()
+      .split(/[\s,]+/)
+      .filter(Boolean)
+      .map(Number);
+    if (command === 'Z') continue;
+    if (command === 'M') [x = NaN, y = NaN] = values;
+    else if (command === 'H') x = values[0] ?? NaN;
+    else if (command === 'V') y = values[0] ?? NaN;
+    else if (command === 'A') [x, y] = [values[5] ?? NaN, values[6] ?? NaN];
+    points.push({ x, y });
+  }
+  return points;
+}
+
+export const pointsBox = (points: readonly { x: number; y: number }[]): Box => ({
+  minX: Math.min(...points.map((p) => p.x)),
+  minY: Math.min(...points.map((p) => p.y)),
+  maxX: Math.max(...points.map((p) => p.x)),
+  maxY: Math.max(...points.map((p) => p.y)),
+});

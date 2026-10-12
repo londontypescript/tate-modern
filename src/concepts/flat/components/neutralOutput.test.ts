@@ -3,14 +3,14 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { loadLogoFontsFromDisk } from '../../../../scripts/node-fonts';
 import type { LogoFonts } from '../../../shared';
 import { parsePresets } from '../../../studio/presets';
-import { buildLogo, defaultLogoConfig, neutralVariation, type LogoConfig } from '../engine';
+import { buildLogo, defaultLogoConfig, neutralHalo, neutralVariation, type LogoConfig } from '../engine';
 import { flatStarters } from '../starters';
 import { renderLogoSvg, svgVariants } from './renderSvg';
 
 /**
  * The fixtures were rendered by the code before sheet variation existed
- * (commit f470180), so these tests prove the variation controls change
- * nothing while they are off. Never regenerate them from newer code.
+ * (commit f470180), so these tests prove the variation and halo controls
+ * change nothing while they are off. Never regenerate them from newer code.
  */
 const fixture = (name: string) => readFileSync(new URL(`./__fixtures__/${name}`, import.meta.url), 'utf8');
 const savedConfigs = JSON.parse(fixture('configs.json')) as Record<string, unknown>;
@@ -66,6 +66,36 @@ describe('output with sheet variation off', () => {
   it('renders identically for every seed while the variation is off', () => {
     for (const seed of [1, 2, 500, 999]) {
       expectFixtures('default', { ...defaultLogoConfig, emblem: { ...defaultLogoConfig.emblem, seed } });
+    }
+  });
+});
+
+describe('output with the halo off', () => {
+  const withHalo = (halo: LogoConfig['tile']['halo']): LogoConfig => ({
+    ...defaultLogoConfig,
+    tile: { ...defaultLogoConfig.tile, halo },
+  });
+
+  it('sets the halo explicitly to neutral in the defaults and the MVP starter', () => {
+    expect(defaultLogoConfig.tile.halo).toEqual(neutralHalo);
+    for (const starter of flatStarters) expect(starter.config.tile.halo).toEqual(neutralHalo);
+  });
+
+  it('renders byte-identically, with bounds unchanged, when the strength is 0 whatever the reach', () => {
+    for (const reach of [0.5, 14, 40]) {
+      const config = withHalo({ strength: 0, reach, offset: 20 });
+      expect(buildLogo(config, fonts).emblem.bounds).toEqual(buildLogo(defaultLogoConfig, fonts).emblem.bounds);
+      expectFixtures('default', config);
+    }
+  });
+
+  it('renders byte-identically, with bounds unchanged, when the reach is 0 whatever the strength', () => {
+    for (const strength of [0.01, 0.5, 1]) {
+      const config = withHalo({ strength, reach: 0, offset: 20 });
+      const logo = buildLogo(config, fonts);
+      expect(logo.emblem.halo).toBeUndefined();
+      expect(logo.emblem.rotationSafeBounds).toEqual(buildLogo(defaultLogoConfig, fonts).emblem.rotationSafeBounds);
+      expectFixtures('default', config);
     }
   });
 });

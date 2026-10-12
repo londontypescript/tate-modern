@@ -13,18 +13,18 @@ import {
   type SvgVariant,
 } from './components';
 import { controlGroups } from './controls';
-import { buildLogo, defaultLogoConfig, neutralVariation, type BlendMode } from './engine';
+import { buildLogo, defaultLogoConfig, neutralHalo, neutralVariation, type BlendMode } from './engine';
 import { flatStarters } from './starters';
 
 /** Kept from the original playground, so configurations saved there still load. */
 const PRESETS_KEY = 'lts-logo:presets:v1';
 
 /**
- * Configurations saved before the sheet variation existed get it switched
- * off, not the current defaults, so they keep looking as they did whatever
- * the defaults become.
+ * Configurations saved before the sheet variation or the halo existed get
+ * them switched off, not the current defaults, so they keep looking as
+ * they did whatever the defaults become.
  */
-const fillMissing = { emblem: neutralVariation };
+export const fillMissing = { emblem: neutralVariation, tile: { halo: neutralHalo } };
 
 function download(variant: SvgVariant, svg: string) {
   const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));

@@ -6,6 +6,7 @@
  * in degrees, positive clockwise (the SVG `rotate()` convention).
  */
 import type { Box, PathShape, Point, WordmarkModel } from '../../../shared';
+import type { HaloModel } from './halo';
 
 /**
  * One translucent background sheet: a rounded rectangle, square unless the
@@ -58,6 +59,8 @@ export interface TileModel {
 export interface EmblemModel {
   layers: SheetLayer[];
   tile: TileModel;
+  /** The soft shadow under the tile, drawn between the sheets and the tile; absent when off. */
+  halo?: HaloModel;
   /** Tight bounds of the static composition. */
   bounds: Box;
   /** Bounds that contain every sheet at any rotation about its centre (for animation). */

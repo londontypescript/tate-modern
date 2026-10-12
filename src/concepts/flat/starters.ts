@@ -39,6 +39,8 @@ const mvpLogoConfig: LogoConfig = {
     textOffsetX: 0.07,
     textOffsetY: 0.06,
     letterSpacing: -0.01,
+    // The halo came later; off, so the MVP stays exactly as approved.
+    halo: { strength: 0, reach: 14, offset: 5 },
   },
   wordmark: {
     lines: [
