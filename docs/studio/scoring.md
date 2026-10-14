@@ -20,8 +20,9 @@ starts with it, and `--json` carries it as `provenance.validation`.
   rerun the renderer acceptance.
 
 `<configs.json>` is a list of `{ "label": …, "config": … }` with every field of a flat configuration written out
-(`scripts/score/examples.json` is one). A value the engine would clamp, round or replace (an opacity out of range, an
-empty palette) is refused, so a score is always of the configuration given.
+(`scripts/score/examples.json` is one). A value the engine's sanitizer would clamp, round or replace (an opacity out of
+range, an empty palette) is refused, so a score is of the configuration given. The one exception: a corner radius
+over half its shape's side draws as half the side.
 
 ## What it compares
 

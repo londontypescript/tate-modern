@@ -1,9 +1,12 @@
 /**
  * Checks a list of `{ label, config }` candidates before anything is drawn:
  * every field a flat `LogoConfig` needs, of the right kind, nothing extra,
- * nothing filled in, nothing the engine would change. The engine quietly
- * clamps or defaults a bad value, and a score of something other than what
- * was asked for is worse than an error.
+ * nothing filled in, nothing the engine's sanitizer would change. The
+ * engine quietly clamps or defaults a bad value, and a score of something
+ * other than what was asked for is worse than an error. One clamp is left:
+ * a corner radius over half its shape's side draws as half the side (fully
+ * rounded), which for a sheet depends on its jittered size, so it can't be
+ * checked here.
  */
 import { sanitizeLogoConfig, type LogoConfig } from '../../src/concepts/flat/engine';
 import { differences } from './scope';
