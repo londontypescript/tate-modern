@@ -4,16 +4,7 @@ import { parsePresets } from '../../studio/presets';
 import { controlGroups } from './controls';
 import { fillMissing } from './FlatStudio';
 import { flatStarters } from './starters';
-import {
-  getAt,
-  missing,
-  numberPaths,
-  numericLeaves,
-  pathName,
-  untrusted,
-  withLeaf,
-  type LeafPath,
-} from './testing/numericLeaves';
+import { getAt, missing, numberPaths, numericLeaves, pathName, untrusted, withLeaf } from './testing/numericLeaves';
 import { advanceRotations, layerVelocities } from './engine/animation';
 import { defaultLogoConfig, type LogoConfig } from './engine/config';
 import { generateLayers } from './engine/geometry';
@@ -21,7 +12,7 @@ import { sanitizeLogoConfig } from './engine/sanitize';
 
 const clamp = (v: number, min: number, max: number) => Math.min(Math.max(v, min), max);
 /** The emblem and the halo were checked first (#20, #22); their own tests cover what each bad value becomes. */
-const checkedBefore = (path: LeafPath) => path[0] === 'emblem' || path[1] === 'halo';
+const checkedBefore = ([first, second]: readonly unknown[]) => first === 'emblem' || second === 'halo';
 
 const fixtures = JSON.parse(
   readFileSync(new URL('./components/__fixtures__/configs.json', import.meta.url), 'utf8'),

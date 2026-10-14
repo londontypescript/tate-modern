@@ -44,7 +44,7 @@ export function sanitizeEmblemConfig(config: EmblemConfig): EmblemConfig {
     const { min, max } = emblemRanges[key];
     out[key] = clamp(finite(out[key]) ? out[key] : defaultLogoConfig.emblem[key], min, max);
   }
-  // Whole numbers round to the nearest, here and only here, so the slider shows what is drawn.
+  // The whole numbers (this and the seed) round to the nearest here and nowhere else, so a slider shows what is drawn.
   out.layerCount = Math.round(out.layerCount);
   for (const key of jitters) {
     const { min, max } = variationRanges[key];
