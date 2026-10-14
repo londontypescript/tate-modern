@@ -27,6 +27,9 @@ const expectFixtures = (name: string, config: LogoConfig) => {
   }
 };
 
+// Later starters turn the variation and the halo on; the MVP must not.
+const mvp = flatStarters.find((s) => s.name.startsWith('MVP'))!;
+
 const variationOf = ({ emblem }: LogoConfig) => ({
   rotationJitter: emblem.rotationJitter,
   sizeJitter: emblem.sizeJitter,
@@ -38,7 +41,7 @@ const variationOf = ({ emblem }: LogoConfig) => ({
 describe('output with sheet variation off', () => {
   it('sets the variation explicitly to neutral in the defaults and the MVP starter', () => {
     expect(variationOf(defaultLogoConfig)).toEqual(neutralVariation);
-    for (const starter of flatStarters) expect(variationOf(starter.config)).toEqual(neutralVariation);
+    expect(variationOf(mvp.config)).toEqual(neutralVariation);
   });
 
   it('renders the approved defaults byte-identically', () => {
@@ -46,8 +49,7 @@ describe('output with sheet variation off', () => {
   });
 
   it('renders the MVP starter byte-identically', () => {
-    const mvp = flatStarters.find((s) => s.name.startsWith('MVP'));
-    expectFixtures('mvp', mvp!.config);
+    expectFixtures('mvp', mvp.config);
   });
 
   it('renders configurations saved before variation existed byte-identically, whatever the defaults', () => {
@@ -78,7 +80,7 @@ describe('output with the halo off', () => {
 
   it('sets the halo explicitly to neutral in the defaults and the MVP starter', () => {
     expect(defaultLogoConfig.tile.halo).toEqual(neutralHalo);
-    for (const starter of flatStarters) expect(starter.config.tile.halo).toEqual(neutralHalo);
+    expect(mvp.config.tile.halo).toEqual(neutralHalo);
   });
 
   it('renders byte-identically, with bounds unchanged, when the strength is 0 whatever the reach', () => {

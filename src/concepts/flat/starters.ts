@@ -62,7 +62,36 @@ const mvpLogoConfig: LogoConfig = {
   animation: { speed: 1, baseVelocity: 4, variation: 0.6, alternateDirection: false },
 };
 
+/**
+ * A starting point closer to the ChatGPT original than the defaults: one
+ * strong fade shared by every sheet, sheets varied by seed so the
+ * arrangement looks irregular rather than formulaic, and the halo lifting
+ * the tile. Built on the defaults, which stay as approved.
+ */
+const irregularSheets: LogoConfig = {
+  ...defaultLogoConfig,
+  emblem: {
+    ...defaultLogoConfig.emblem,
+    squareSize: 175,
+    opacity: 0.5,
+    fade: 0.55,
+    fadeTurn: 0,
+    fadeAngle: 315,
+    rotationJitter: 12,
+    sizeJitter: 0.15,
+    aspectJitter: 0.12,
+    offsetJitter: 8,
+    seed: 7,
+  },
+  tile: { ...defaultLogoConfig.tile, halo: { strength: 0.4, reach: 14, offset: 5 } },
+};
+
 export const flatStarters: readonly StarterConfig<LogoConfig>[] = [
   { name: 'Current defaults', description: 'The approved flat logo in config.ts', config: defaultLogoConfig },
   { name: 'MVP (11 Oct)', description: 'The first flat logo, before the comparison fixes', config: mvpLogoConfig },
+  {
+    name: 'Irregular (14 Oct)',
+    description: 'Bigger, stronger irregular sheets with a fade and the halo',
+    config: irregularSheets,
+  },
 ];
