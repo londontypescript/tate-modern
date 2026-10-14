@@ -63,10 +63,10 @@ const mvpLogoConfig: LogoConfig = {
 };
 
 /**
- * Candidates the maintainer picked on 14 October 2026 from a contact sheet
- * beside the ChatGPT original (#8): the first fade calibration (a strong,
- * even fade towards the top left), irregular sheets and the halo, built on
- * the current defaults. Starting points only; the defaults are unchanged.
+ * Starting points closer to the ChatGPT original than the defaults: one
+ * strong fade shared by every sheet, sheets varied by seed so the
+ * arrangement looks irregular rather than formulaic, and the halo lifting
+ * the tile. Built on the defaults, which stay as approved.
  */
 const irregularSheets = (squareSize: number, opacity: number): LogoConfig => ({
   ...defaultLogoConfig,
