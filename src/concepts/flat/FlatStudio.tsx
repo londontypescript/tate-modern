@@ -2,7 +2,7 @@ import { use, useMemo, useState } from 'react';
 import { loadLogoFonts, usePrefersReducedMotion } from '../../shared/react';
 import { PresetsPanel } from '../../studio/PresetsPanel';
 import { StudioLayout } from '../../studio/StudioLayout';
-import { Button, Panel, Slider, Toggle } from '../../studio/ui';
+import { Button, Panel, Toggle } from '../../studio/ui';
 import { useConceptState } from '../../studio/useConceptState';
 import {
   LondonTypeScriptLogo,
@@ -12,7 +12,6 @@ import {
   useLayerRotations,
   type SvgVariant,
 } from './components';
-import { controlGroups } from './controls';
 import {
   buildLogo,
   defaultLogoConfig,
@@ -21,6 +20,7 @@ import {
   sanitizeLogoConfig,
   type BlendMode,
 } from './engine';
+import { SliderPanels } from './SliderPanels';
 import { flatStarters } from './starters';
 
 /** Kept from the original playground, so configurations saved there still load. */
@@ -54,8 +54,8 @@ export default function FlatStudio() {
   };
   const reducedMotion = usePrefersReducedMotion();
 
-  // The configuration as the engine reads it: what is drawn and what the
-  // sliders show. `config` itself, and so what is saved, stays as it was.
+  // The configuration as the engine reads it, which is what is drawn (the
+  // sliders read it the same way). `config` itself, and so what is saved, stays as it was.
   const used = useMemo(() => sanitizeLogoConfig(config), [config]);
   const logo = useMemo(() => buildLogo(used, fonts), [used, fonts]);
   const rotations = useLayerRotations(logo.emblem.layers, used.animation, animating);
@@ -144,20 +144,7 @@ export default function FlatStudio() {
 
       <PresetsPanel storageKey={PRESETS_KEY} state={state} starters={flatStarters} fillMissing={fillMissing} />
 
-      {controlGroups.map((group) => (
-        <Panel key={group.title} title={group.title}>
-          <div className="space-y-3">
-            {group.controls.map((control) => (
-              <Slider
-                key={control.label}
-                control={control}
-                value={control.get(used)}
-                onChange={(v) => setConfig((c) => control.set(c, v))}
-              />
-            ))}
-          </div>
-        </Panel>
-      ))}
+      <SliderPanels config={config} setConfig={setConfig} />
     </>
   );
 
