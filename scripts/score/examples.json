@@ -1,12 +1,12 @@
 [
   {
-    "label": "irregular",
+    "label": "frozen",
     "config": {
       "emblem": {
         "layerCount": 6,
         "rotationIncrement": 15,
         "initialRotation": 7.5,
-        "squareSize": 175,
+        "squareSize": 150,
         "sizeTaper": 0,
         "cornerRadius": 1.6,
         "opacity": 0.5,
@@ -95,7 +95,7 @@
         "layerCount": 6,
         "rotationIncrement": 15,
         "initialRotation": 7.5,
-        "squareSize": 175,
+        "squareSize": 150,
         "sizeTaper": 0,
         "cornerRadius": 1.6,
         "opacity": 0.5,

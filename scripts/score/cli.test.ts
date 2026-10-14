@@ -30,7 +30,7 @@ describe('pnpm score', () => {
   });
 
   it('exits 2 when no candidate is eligible', () => {
-    const { config } = acceptanceCandidates.find((c) => c.label === 'irregular') ?? {};
+    const { config } = acceptanceCandidates.find((c) => c.label === 'frozen') ?? {};
     // No sheets at all: the silhouette is far below any floor.
     const tileOnly = { ...config, emblem: { ...config?.emblem, layerCount: 0 } };
     const run = cli(file([{ label: 'tile only', config: tileOnly }]));
