@@ -63,17 +63,17 @@ const mvpLogoConfig: LogoConfig = {
 };
 
 /**
- * Starting points closer to the ChatGPT original than the defaults: one
+ * A starting point closer to the ChatGPT original than the defaults: one
  * strong fade shared by every sheet, sheets varied by seed so the
  * arrangement looks irregular rather than formulaic, and the halo lifting
  * the tile. Built on the defaults, which stay as approved.
  */
-const irregularSheets = (squareSize: number, opacity: number): LogoConfig => ({
+const irregularSheets: LogoConfig = {
   ...defaultLogoConfig,
   emblem: {
     ...defaultLogoConfig.emblem,
-    squareSize,
-    opacity,
+    squareSize: 175,
+    opacity: 0.5,
     fade: 0.55,
     fadeTurn: 0,
     fadeAngle: 315,
@@ -84,19 +84,14 @@ const irregularSheets = (squareSize: number, opacity: number): LogoConfig => ({
     seed: 7,
   },
   tile: { ...defaultLogoConfig.tile, halo: { strength: 0.4, reach: 14, offset: 5 } },
-});
+};
 
 export const flatStarters: readonly StarterConfig<LogoConfig>[] = [
   { name: 'Current defaults', description: 'The approved flat logo in config.ts', config: defaultLogoConfig },
   { name: 'MVP (11 Oct)', description: 'The first flat logo, before the comparison fixes', config: mvpLogoConfig },
   {
-    name: 'Irregular, bold (14 Oct)',
-    description: 'Bigger, stronger irregular sheets with a fade and the halo',
-    config: irregularSheets(175, 0.5),
-  },
-  {
     name: 'Irregular (14 Oct)',
-    description: 'Irregular sheets at the default size, with a fade and the halo',
-    config: irregularSheets(158, 0.4),
+    description: 'Bigger, stronger irregular sheets with a fade and the halo',
+    config: irregularSheets,
   },
 ];
