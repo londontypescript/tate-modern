@@ -1,4 +1,5 @@
 import type { AnimationConfig } from './config';
+import { sanitizeAnimation } from './sanitize';
 import type { SheetLayer } from './types';
 
 /**
@@ -29,8 +30,12 @@ const GOLDEN = 0.6180339887498949;
  * Angular velocity of each layer in degrees per second. Speeds are spread
  * around `baseVelocity` with a golden-ratio sequence so neighbours never
  * move in lockstep, and the result is deterministic for a given count.
+ * Every caller (the studio, `useLayerRotations`, `AnimatedTypeScriptMark`)
+ * comes through here, so the speeds are checked here: a saved `1e400`
+ * would otherwise turn every sheet to Infinity.
  */
-export function layerVelocities(count: number, config: AnimationConfig): number[] {
+export function layerVelocities(count: number, input: AnimationConfig): number[] {
+  const config = sanitizeAnimation(input);
   return Array.from({ length: count }, (_, i) => {
     const spread = ((i * GOLDEN) % 1) * 2 - 1; // in [-1, 1)
     const direction = config.alternateDirection && i % 2 === 1 ? -1 : 1;

@@ -172,6 +172,60 @@ export interface TileConfig {
   halo: HaloConfig;
 }
 
+type Range = { min: number; max: number };
+
+/**
+ * The ranges the engine keeps the tile's, the wordmark's, the layout's and
+ * the animation's numbers in. A field with a slider takes the slider's
+ * range, and the slider reads it from here. A field without one gets a
+ * range wide enough that no configuration made so far changes, with the
+ * reason beside it: it is there so a hand-edited value can't overflow.
+ */
+export const tileRanges: Record<
+  'size' | 'cornerRadius' | 'textScale' | 'textOffsetX' | 'textOffsetY' | 'letterSpacing',
+  Range
+> = {
+  // No slider. The tile sets the units (100 wide); a tenth to ten times that keeps every framing finite.
+  size: { min: 10, max: 1000 },
+  // No slider. Up to a round tile at the usual size; the drawing limits it to half the size anyway.
+  cornerRadius: { min: 0, max: 50 },
+  textScale: { min: 0.15, max: 0.5 },
+  textOffsetX: { min: 0, max: 0.3 },
+  textOffsetY: { min: 0, max: 0.3 },
+  letterSpacing: { min: -0.1, max: 0.1 },
+};
+
+/** No sliders. The apex is a point on the tile; a shade is an overlay's opacity either way, and past ±1 it draws as ±1. */
+export const facetRanges: Record<keyof FacetShading, Range> = {
+  apexX: { min: 0, max: 1 },
+  apexY: { min: 0, max: 1 },
+  top: { min: -1, max: 1 },
+  right: { min: -1, max: 1 },
+  bottom: { min: -1, max: 1 },
+  left: { min: -1, max: 1 },
+};
+
+/** No slider. Each wordmark line's indent, within an em either way ("London" is indented 0.21 em today). */
+export const lineIndentRange: Range = { min: -1, max: 1 };
+
+export const wordmarkRanges: Record<'lineSpacing' | 'letterSpacing' | 'condense' | 'flourishScale', Range> = {
+  lineSpacing: { min: 0.6, max: 1.2 },
+  letterSpacing: { min: -0.08, max: 0.08 },
+  condense: { min: 0.7, max: 1.1 },
+  flourishScale: { min: 0, max: 2 },
+};
+
+export const layoutRanges: Record<'horizontalGap', Range> = {
+  horizontalGap: { min: 0, max: 0.6 },
+};
+
+export const animationRanges: Record<'speed' | 'baseVelocity' | 'variation', Range> = {
+  speed: { min: 0, max: 5 },
+  // No slider. Up to a full turn a second at speed 1; the direction comes from "alternate", never from a sign.
+  baseVelocity: { min: 0, max: 360 },
+  variation: { min: 0, max: 1 },
+};
+
 interface LayoutConfig {
   /** Gap between the rosette and the wordmark, in tile widths. */
   horizontalGap: number;

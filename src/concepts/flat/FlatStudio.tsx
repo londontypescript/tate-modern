@@ -2,7 +2,7 @@ import { use, useMemo, useState } from 'react';
 import { loadLogoFonts, usePrefersReducedMotion } from '../../shared/react';
 import { PresetsPanel } from '../../studio/PresetsPanel';
 import { StudioLayout } from '../../studio/StudioLayout';
-import { Button, Panel, Slider, Toggle } from '../../studio/ui';
+import { Button, Panel, Toggle } from '../../studio/ui';
 import { useConceptState } from '../../studio/useConceptState';
 import {
   LondonTypeScriptLogo,
@@ -12,8 +12,15 @@ import {
   useLayerRotations,
   type SvgVariant,
 } from './components';
-import { controlGroups } from './controls';
-import { buildLogo, defaultLogoConfig, neutralHalo, neutralVariation, type BlendMode } from './engine';
+import {
+  buildLogo,
+  defaultLogoConfig,
+  neutralHalo,
+  neutralVariation,
+  sanitizeLogoConfig,
+  type BlendMode,
+} from './engine';
+import { SliderPanels } from './SliderPanels';
 import { flatStarters } from './starters';
 
 /** Kept from the original playground, so configurations saved there still load. */
@@ -47,8 +54,11 @@ export default function FlatStudio() {
   };
   const reducedMotion = usePrefersReducedMotion();
 
-  const logo = useMemo(() => buildLogo(config, fonts), [config, fonts]);
-  const rotations = useLayerRotations(logo.emblem.layers, config.animation, animating);
+  // The configuration as the engine reads it, which is what is drawn (the
+  // sliders read it the same way). `config` itself, and so what is saved, stays as it was.
+  const used = useMemo(() => sanitizeLogoConfig(config), [config]);
+  const logo = useMemo(() => buildLogo(used, fonts), [used, fonts]);
+  const rotations = useLayerRotations(logo.emblem.layers, used.animation, animating);
   const cream = { backgroundColor: config.layout.background };
 
   const exportSvg = (variant: SvgVariant) =>
@@ -134,20 +144,7 @@ export default function FlatStudio() {
 
       <PresetsPanel storageKey={PRESETS_KEY} state={state} starters={flatStarters} fillMissing={fillMissing} />
 
-      {controlGroups.map((group) => (
-        <Panel key={group.title} title={group.title}>
-          <div className="space-y-3">
-            {group.controls.map((control) => (
-              <Slider
-                key={control.label}
-                control={control}
-                value={control.get(config)}
-                onChange={(v) => setConfig((c) => control.set(c, v))}
-              />
-            ))}
-          </div>
-        </Panel>
-      ))}
+      <SliderPanels config={config} setConfig={setConfig} />
     </>
   );
 
