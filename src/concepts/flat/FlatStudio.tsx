@@ -13,7 +13,14 @@ import {
   type SvgVariant,
 } from './components';
 import { controlGroups } from './controls';
-import { buildLogo, defaultLogoConfig, neutralHalo, neutralVariation, type BlendMode } from './engine';
+import {
+  buildLogo,
+  defaultLogoConfig,
+  neutralHalo,
+  neutralVariation,
+  sanitizeLogoConfig,
+  type BlendMode,
+} from './engine';
 import { flatStarters } from './starters';
 
 /** Kept from the original playground, so configurations saved there still load. */
@@ -47,8 +54,11 @@ export default function FlatStudio() {
   };
   const reducedMotion = usePrefersReducedMotion();
 
-  const logo = useMemo(() => buildLogo(config, fonts), [config, fonts]);
-  const rotations = useLayerRotations(logo.emblem.layers, config.animation, animating);
+  // The configuration as the engine reads it: what is drawn and what the
+  // sliders show. `config` itself, and so what is saved, stays as it was.
+  const used = useMemo(() => sanitizeLogoConfig(config), [config]);
+  const logo = useMemo(() => buildLogo(used, fonts), [used, fonts]);
+  const rotations = useLayerRotations(logo.emblem.layers, used.animation, animating);
   const cream = { backgroundColor: config.layout.background };
 
   const exportSvg = (variant: SvgVariant) =>
@@ -141,7 +151,7 @@ export default function FlatStudio() {
               <Slider
                 key={control.label}
                 control={control}
-                value={control.get(config)}
+                value={control.get(used)}
                 onChange={(v) => setConfig((c) => control.set(c, v))}
               />
             ))}

@@ -3,7 +3,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { loadLogoFontsFromDisk } from '../../../../scripts/node-fonts';
 import type { LogoFonts } from '../../../shared';
 import { parsePresets } from '../../../studio/presets';
-import { buildLogo, defaultLogoConfig, type HaloConfig, type LogoConfig } from '../engine';
+import { buildHalo, buildLogo, defaultLogoConfig, tileRanges, type HaloConfig, type LogoConfig } from '../engine';
 import { fillMissing } from '../FlatStudio';
 import { LondonTypeScriptLogo } from './LondonTypeScriptLogo';
 import { renderLogoSvg, svgVariants } from './renderSvg';
@@ -248,11 +248,20 @@ describe('halo inputs from untrusted saved configurations', () => {
     }
   });
 
-  it('draw no halo for a tile size that is not a finite positive number', () => {
-    for (const size of [JSON.parse('1e400') as number, NaN, -100, 0]) {
+  it('draw the halo of the tile as checked when the saved tile size is not a finite positive number', () => {
+    // The tile's size is checked with every other number: one that isn't
+    // finite takes the default, one below its range the smallest size.
+    const usual = buildLogo(withHalo(on, {}, { layerCount: 2 }), fonts).emblem.halo;
+    for (const size of [JSON.parse('1e400') as number, NaN]) {
+      expect(buildLogo(withHalo(on, { size }, { layerCount: 2 }), fonts).emblem.halo, `size ${size}`).toEqual(usual);
+    }
+    for (const size of [-100, 0]) {
       const logo = buildLogo(withHalo(on, { size }, { layerCount: 2 }), fonts);
-      expect(logo.emblem.halo, `size ${size}`).toBeUndefined();
-      expect(renderLogoSvg('mark', logo)).not.toContain('halo');
+      expect(logo.emblem.tile.size, `size ${size}`).toBe(tileRanges.size.min);
+      expect(logo.emblem.halo, `size ${size}`).toEqual(
+        buildHalo({ size: tileRanges.size.min, cornerRadius: 0.8, halo: on }),
+      );
+      expect(renderLogoSvg('mark', logo)).not.toMatch(/NaN|Infinity/);
     }
   });
 });
