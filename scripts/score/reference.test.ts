@@ -51,6 +51,9 @@ describe('the committed reference', () => {
   it('still follows from mark.png: the tile measures the same and the regions redraw exactly', () => {
     expect(measureTile(mark)).toEqual(registration.tile);
     const redrawn = buildRegions(mark, registration);
-    expect(Buffer.from(redrawn.data).equals(Buffer.from(regions.data))).toBe(true);
+    expect(
+      Buffer.from(redrawn.data).equals(Buffer.from(regions.data)),
+      'regions.png no longer follows from mark.png',
+    ).toBe(true);
   });
 });

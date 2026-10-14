@@ -6,9 +6,9 @@ import { isForeground, packedColours, Region, type Reference } from './reference
 
 describe('isForeground', () => {
   it('is strictly greater than 2.0: below and exactly 2.0 are background, above is foreground', () => {
-    expect(isForeground(1.999)).toBe(false);
-    expect(isForeground(2.0)).toBe(false);
-    expect(isForeground(2.001)).toBe(true);
+    expect(isForeground(1.999), 'just under 2.0 is background').toBe(false);
+    expect(isForeground(2.0), 'exactly 2.0 is background: the threshold is strictly greater').toBe(false);
+    expect(isForeground(2.001), 'just over 2.0 is foreground').toBe(true);
   });
 });
 
