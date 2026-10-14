@@ -7,22 +7,29 @@
  * against the ChatGPT original (exit 1 on invalid input, 2 when none is
  * eligible). `--json` prints the ranking with its provenance.
  *
+ *   pnpm score --sheet <configs.json> <folder>
  *   pnpm score --make-reference <decoded original.png>
  *   pnpm score --acceptance <evidence folder>
  *
- * remake the committed reference (see reference/README.md) and run the
- * renderer acceptance against the installed Google Chrome (see
+ * write a true-scale contact sheet of the configurations, remake the
+ * committed reference (see reference/README.md) and run the renderer
+ * acceptance against the installed Google Chrome (see
  * docs/studio/scoring.md).
+ *
+ * The ranking is not validated against the maintainer's eye; see
+ * `validation` in parameters.ts.
  */
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { runAcceptance } from './acceptance';
 import { decodePng, encodePng } from './image';
+import { validation } from './parameters';
 import { provenance } from './provenance';
 import type { Ranking, Scored } from './rank';
 import { referenceDir } from './reference';
 import { makeReference } from './referenceMake';
 import { createScorer } from './scorer';
+import { writeSheet } from './sheet';
 import { parseCandidates } from './validate';
 
 async function writeReference(decoded: string) {
@@ -55,21 +62,32 @@ function rankingTable(ranking: Ranking): string {
       .map((c, i) => c.padEnd(widths[i] ?? 0))
       .join('  ')
       .trimEnd();
-  const out = [line(header), ...rows.map(line)];
+  const out = [validation, '', line(header), ...rows.map(line)];
   if (ranking.noneEligible) out.push('no candidate is eligible');
   for (const c of ranking.ineligible) out.push(`ineligible  ${c.label}: ${c.score.reason ?? ''}`);
   return out.join('\n');
 }
 
-async function score(file: string, asJson: boolean) {
-  let candidates;
+/** The candidates in a file, or undefined (exit 1) after saying why not. */
+async function readCandidates(file: string) {
   try {
-    candidates = parseCandidates(JSON.parse(await readFile(file, 'utf8')));
+    return parseCandidates(JSON.parse(await readFile(file, 'utf8')));
   } catch (error) {
     console.error(`${file}: ${(error as Error).message}`);
     process.exitCode = 1;
-    return;
+    return undefined;
   }
+}
+
+async function sheet(file: string, folder: string) {
+  const candidates = await readCandidates(file);
+  if (!candidates) return;
+  console.log(await writeSheet(await createScorer(), candidates, folder));
+}
+
+async function score(file: string, asJson: boolean) {
+  const candidates = await readCandidates(file);
+  if (!candidates) return;
   const scorer = await createScorer();
   const ranking = scorer.rank(candidates);
   if (asJson) {
@@ -83,8 +101,10 @@ async function score(file: string, asJson: boolean) {
 }
 
 const args = process.argv.slice(2);
-const [first, second] = args;
-if (first === '--make-reference' && second) {
+const [first, second, third] = args;
+if (first === '--sheet' && second && third) {
+  await sheet(second, third);
+} else if (first === '--make-reference' && second) {
   await writeReference(second);
 } else if (first === '--acceptance' && second) {
   process.exitCode = (await runAcceptance(second)) ? 0 : 1;
@@ -93,6 +113,7 @@ if (first === '--make-reference' && second) {
 } else {
   console.error(
     'usage: pnpm score <configs.json> [--json]\n' +
+      '       pnpm score --sheet <configs.json> <folder>\n' +
       '       pnpm score --make-reference <decoded original.png>\n' +
       '       pnpm score --acceptance <evidence folder>',
   );

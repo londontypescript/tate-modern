@@ -34,6 +34,7 @@ describe('pnpm score', () => {
     // No sheets at all: outside the colour scope, so ineligible.
     const tileOnly = { ...config, emblem: { ...config?.emblem, layerCount: 0 } };
     const run = cli(file([{ label: 'tile only', config: tileOnly }]));
+    expect(run.stdout).toMatch(/^NOT VALIDATED/);
     expect(run.stdout).toMatch(/no candidate is eligible/);
     expect(run.status).toBe(2);
   }, 30_000);
@@ -43,7 +44,9 @@ describe('pnpm score', () => {
     const run = cli(file([frozen]), '--json');
     expect(run.status).toBe(0);
     const out = JSON.parse(run.stdout) as { provenance: Record<string, unknown> };
+    expect(out.provenance.validation).toMatch(/^NOT VALIDATED/);
     expect(Object.keys(out.provenance)).toEqual([
+      'validation',
       'renderer',
       'decoder',
       'node',

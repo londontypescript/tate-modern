@@ -1,8 +1,26 @@
 # Scoring the flat emblem
 
-`pnpm score <configs.json> [--json]` ranks flat logo configurations by how close their static mark's colours are to
-the ChatGPT original. It exists so that P2 of [the 0.3.0 plan](../plans/0.3.0.md) can search colours and show the
-maintainer only the best two or three. The code is in `scripts/score/`.
+`scripts/score/` is diagnostic tooling for comparing the flat emblem with the ChatGPT original at true scale. It
+was built to rank colours for P2 of [the 0.3.0 plan](../plans/0.3.0.md); the maintainer chose the look by eye
+instead.
+
+**The ranking is not validated against the maintainer's eye.** At Checkpoint B (14 October 2026) the maintainer
+ordered eight colourings K, W, R, then five tied; the score ordered them H W P F R C M K: Spearman's ρ −0.245
+against a bar of 0.8, mostly from the tile term (ρ −0.71 on its own). Use the scores as diagnostics (how far a
+colour or a size moves from the original, region by region), never to pick a look. Every result says so: the table
+starts with it, and `--json` carries it as `provenance.validation`.
+
+## Commands
+
+- `pnpm score --sheet <configs.json> <folder>`: the day-to-day use. A true-scale contact sheet (`sheet.html`): the
+  original first, then each configuration, every image the same registered canvas at the same width. This is how
+  the Irregular starter's 22% overshoot showed up.
+- `pnpm score <configs.json> [--json]`: the scores and the (unvalidated) ranking; `--json` adds provenance.
+- `pnpm score --make-reference <decoded.png>` and `pnpm score --acceptance <folder>`: remake the reference and
+  rerun the renderer acceptance.
+
+`<configs.json>` is a list of `{ "label": …, "config": … }` with every field of a flat configuration written out
+(`scripts/score/examples.json` is one).
 
 ## What it compares
 
@@ -21,6 +39,9 @@ All in CIEDE2000 (sRGB, D65), pixel by pixel against the reference:
 - `spill`: the sum over the reference's background, divided by the number of sheet pixels.
 - `objective = sheets + spill + wTile × tile`. Lower is closer.
 - `iou`: how much the candidate's silhouette overlaps the original's. **A diagnostic only.**
+
+`scripts/score/expected.json` holds the fixtures' scores as computed on macOS; a test recomputes them on every run
+(CI's Linux included) and fails if a component moves more than 0.05 or a tie group changes.
 
 Candidates within the tie tolerance of their group's best objective are shown as ties. The parameters are frozen in
 `scripts/score/parameters.ts`; `--json` prints them with the versions, hashes and source revision behind a result.

@@ -1,0 +1,162 @@
+{
+  "platform": "darwin arm64",
+  "scores": {
+    "starter-colours": {
+      "sheets": 14.611801635848826,
+      "tile": 9.33451670609202,
+      "spill": 3.1664946692240132,
+      "iou": 0.8646438253951816,
+      "objective": 27.11281301116486,
+      "clipped": false,
+      "eligible": true
+    },
+    "vivid-cyan-normal": {
+      "sheets": 15.155523294917957,
+      "tile": 7.965447064763179,
+      "spill": 3.260882655710955,
+      "iou": 0.8646523706347183,
+      "objective": 26.381853015392092,
+      "clipped": false,
+      "eligible": true
+    },
+    "pale": {
+      "sheets": 17.5368410111523,
+      "tile": 9.250823837193218,
+      "spill": 1.4704655579753445,
+      "iou": 0.8651789370675488,
+      "objective": 28.258130406320866,
+      "clipped": false,
+      "eligible": true
+    },
+    "near-cream-fade": {
+      "sheets": 17.95165318240717,
+      "tile": 9.193720045359392,
+      "spill": 1.9873984019973705,
+      "iou": 0.8136884932554203,
+      "objective": 29.132771629763933,
+      "clipped": false,
+      "eligible": true
+    },
+    "opacity-0.1": {
+      "sheets": 21.05672005441108,
+      "tile": 9.173381368396315,
+      "spill": 0.9962243474702648,
+      "iou": 0.8653764791344586,
+      "objective": 31.22632577027766,
+      "clipped": false,
+      "eligible": true
+    },
+    "opacity-1-white-fade": {
+      "sheets": 19.08793590641336,
+      "tile": 9.211185410616599,
+      "spill": 2.770392224761769,
+      "iou": 0.8649626210199293,
+      "objective": 31.06951354179173,
+      "clipped": false,
+      "eligible": true
+    },
+    "deep-dark-tile": {
+      "sheets": 16.150471010691124,
+      "tile": 14.082781741272095,
+      "spill": 3.2429144112974577,
+      "iou": 0.8646503538283833,
+      "objective": 33.476167163260676,
+      "clipped": false,
+      "eligible": true
+    },
+    "white-fade-light-tile": {
+      "sheets": 18.476742804162665,
+      "tile": 8.62566650847337,
+      "spill": 1.7372771613324087,
+      "iou": 0.8452708995026886,
+      "objective": 28.83968647396844,
+      "clipped": false,
+      "eligible": true
+    },
+    "frozen": {
+      "sheets": 14.611801635848826,
+      "tile": 9.33451670609202,
+      "spill": 3.1664946692240132,
+      "iou": 0.8646438253951816,
+      "objective": 27.11281301116486,
+      "clipped": false,
+      "eligible": true
+    },
+    "frozen-normal-blend": {
+      "sheets": 13.822312779086177,
+      "tile": 8.952316850488987,
+      "spill": 3.1425622245660927,
+      "iou": 0.8646438253951816,
+      "objective": 25.917191854141258,
+      "clipped": false,
+      "eligible": true
+    },
+    "frozen-no-halo": {
+      "sheets": 14.267964029334768,
+      "tile": 9.1637865708355,
+      "spill": 3.1664946692240132,
+      "iou": 0.8646438253951816,
+      "objective": 26.598245269394283,
+      "clipped": false,
+      "eligible": false,
+      "reason": "outside the colour scope: differs from the frozen geometry in tile.halo.strength"
+    },
+    "frozen-no-fade": {
+      "sheets": 20.37813988876776,
+      "tile": 9.794454176715577,
+      "spill": 4.800662100387565,
+      "iou": 0.864528391037399,
+      "objective": 34.9732561658709,
+      "clipped": false,
+      "eligible": false,
+      "reason": "outside the colour scope: differs from the frozen geometry in emblem.fade"
+    },
+    "palette-sheets": {
+      "sheets": 14.016904362001256,
+      "tile": 9.272092262727151,
+      "spill": 3.213233593006719,
+      "iou": 0.8646523706347183,
+      "objective": 26.502230217735125,
+      "clipped": false,
+      "eligible": true
+    },
+    "palette-fade": {
+      "sheets": 17.194243435866202,
+      "tile": 9.56931040635025,
+      "spill": 2.217963447935889,
+      "iou": 0.846333844834836,
+      "objective": 28.98151729015234,
+      "clipped": false,
+      "eligible": true
+    },
+    "palette-tile": {
+      "sheets": 14.62678329700088,
+      "tile": 11.060550057024086,
+      "spill": 3.1664946692240132,
+      "iou": 0.8646438253951816,
+      "objective": 28.85382802324898,
+      "clipped": false,
+      "eligible": true
+    },
+    "mvp": {
+      "sheets": 15.626425095646658,
+      "tile": 9.87104881491608,
+      "spill": 0.8354230060572713,
+      "iou": 0.8763038555319383,
+      "objective": 26.332896916620008,
+      "clipped": false,
+      "eligible": false,
+      "reason": "outside the colour scope: differs from the frozen geometry in emblem.squareSize, emblem.fade, emblem.fadeTurn, emblem.fadeAngle, emblem.rotationJitter, emblem.sizeJitter, emblem.aspectJitter, emblem.offsetJitter, emblem.seed, tile.facets.top, tile.facets.right, tile.facets.bottom, tile.facets.left, tile.textScale, tile.halo.strength, wordmark.lines.0.indent, wordmark.lines.0.runs.0.colour, wordmark.lines.1.runs.0.colour, wordmark.lineSpacing, wordmark.letterSpacing, wordmark.condense"
+    }
+  },
+  "groups": [
+    ["frozen-normal-blend"],
+    ["palette-sheets", "vivid-cyan-normal"],
+    ["frozen", "starter-colours"],
+    ["pale"],
+    ["palette-fade", "palette-tile", "white-fade-light-tile"],
+    ["near-cream-fade"],
+    ["opacity-0.1", "opacity-1-white-fade"],
+    ["deep-dark-tile"]
+  ]
+}

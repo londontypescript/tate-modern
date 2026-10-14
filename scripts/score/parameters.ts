@@ -14,3 +14,13 @@ export const scoreParameters = {
   /** Candidates within this of their group's best objective tie. */
   tieTolerance: 0.25,
 } as const;
+
+/**
+ * What the ranking is worth, printed with every result: it failed the one
+ * test against the maintainer's eye, so it is diagnostic only.
+ */
+export const validation =
+  'NOT VALIDATED against the maintainer’s eye: at Checkpoint B (14 Oct 2026) the ranking disagreed with the ' +
+  'maintainer’s order (Spearman’s ρ −0.245; maintainer K, W, R, then five tied; score H W P F R C M K), mostly ' +
+  'from the tile term (ρ −0.71 alone). Use the scores as diagnostics, never to pick a look; visible damage is ' +
+  'judged by eye.';

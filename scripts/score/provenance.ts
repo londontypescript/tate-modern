@@ -10,6 +10,7 @@ import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fontFiles } from '../../src/shared';
+import { validation } from './parameters';
 import type { Reference } from './reference';
 
 const require = createRequire(import.meta.url);
@@ -54,6 +55,7 @@ export async function provenance(reference: Reference, parameters: object) {
     })),
   );
   return {
+    validation,
     renderer: { '@resvg/resvg-js': await packageVersion('@resvg/resvg-js') },
     decoder: { pngjs: await packageVersion('pngjs') },
     node: process.version,
