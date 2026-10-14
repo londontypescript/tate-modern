@@ -62,6 +62,30 @@ describe('parseCandidates', () => {
     );
   });
 
+  it('refuses a value the engine would clamp or round, instead of scoring something else', () => {
+    const opacity = clone(irregular);
+    opacity.emblem.opacity = -1;
+    expect(() => parseCandidates([{ label: 'a', config: opacity }])).toThrow(
+      /config\.emblem\.opacity: outside the range the engine draws/,
+    );
+    const layers = clone(irregular);
+    layers.emblem.layerCount += 0.5;
+    expect(() => parseCandidates([{ label: 'a', config: layers }])).toThrow(/config\.emblem\.layerCount: outside/);
+  });
+
+  it('refuses an empty palette, which the engine would draw in its fallback blue', () => {
+    const config = clone(irregular);
+    config.emblem.colours = [];
+    expect(() => parseCandidates([{ label: 'a', config }])).toThrow(
+      /config\.emblem\.colours: expected at least one entry/,
+    );
+  });
+
+  it('refuses a field named like an object built-in', () => {
+    const config = JSON.parse(`{"constructor": 1, ${JSON.stringify(clone(irregular)).slice(1)}`) as unknown;
+    expect(() => parseCandidates([{ label: 'a', config }])).toThrow(/config\.constructor: not a field/);
+  });
+
   it('refuses duplicate labels', () => {
     const c = clone(irregular);
     expect(() =>

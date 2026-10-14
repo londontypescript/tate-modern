@@ -195,8 +195,16 @@ export function buildRegions(mark: RgbImage, registration: Registration): RgbIma
   return { width, height, data };
 }
 
+/** The decoded original's size (public/references/chatgpt-original.webp). */
+const ORIGINAL_SIZE = { width: 1808, height: 870 } as const;
+
 /** Everything the reference needs, from the decoded original. */
 export function makeReference(original: RgbImage) {
+  if (original.width !== ORIGINAL_SIZE.width || original.height !== ORIGINAL_SIZE.height) {
+    throw new Error(
+      `the decoded original: expected ${ORIGINAL_SIZE.width} × ${ORIGINAL_SIZE.height}, got ${original.width} × ${original.height}`,
+    );
+  }
   const sampled = sampleBackground(original, SOURCE_CROP, 16);
   const mark = placeCrop(original, sampled.colour);
   const tile = measureTile(mark);

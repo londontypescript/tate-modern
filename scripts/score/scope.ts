@@ -18,9 +18,14 @@ const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'obj
 
 /** The paths at which `config` differs from `base` outside the colour fields, in order. */
 export function outOfScope(config: object, base: object): string[] {
+  return differences(config, base, colourFields);
+}
+
+/** The paths at which `config` differs from `base`, field by field, skipping the paths in `skip`. */
+export function differences(config: object, base: object, skip: readonly string[] = []): string[] {
   const out: string[] = [];
   const walk = (a: unknown, b: unknown, path: string) => {
-    if ((colourFields as readonly string[]).includes(path)) return;
+    if (skip.includes(path)) return;
     if (isObject(a) && isObject(b) && Array.isArray(a) === Array.isArray(b)) {
       const keys = [...new Set([...Object.keys(b), ...Object.keys(a)])];
       for (const key of keys) walk(a[key], b[key], path ? `${path}.${key}` : key);

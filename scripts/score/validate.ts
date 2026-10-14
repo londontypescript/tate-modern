@@ -1,11 +1,12 @@
 /**
  * Checks a list of `{ label, config }` candidates before anything is drawn:
  * every field a flat `LogoConfig` needs, of the right kind, nothing extra,
- * nothing filled in. The engine would quietly clamp or default a bad value,
- * and a score of something other than what was asked for is worse than an
- * error.
+ * nothing filled in, nothing the engine would change. The engine quietly
+ * clamps or defaults a bad value, and a score of something other than what
+ * was asked for is worse than an error.
  */
-import type { LogoConfig } from '../../src/concepts/flat/engine';
+import { sanitizeLogoConfig, type LogoConfig } from '../../src/concepts/flat/engine';
+import { differences } from './scope';
 
 export interface Candidate {
   label: string;
@@ -21,6 +22,8 @@ interface OneOf {
 interface List {
   $list: Spec;
   length?: number;
+  /** Refuse an empty list (the engine draws an empty palette in its fallback blue). */
+  nonEmpty?: true;
 }
 const isOneOf = (spec: object): spec is OneOf => '$oneOf' in spec;
 const isList = (spec: object): spec is List => '$list' in spec;
@@ -37,7 +40,7 @@ const logoConfig: Spec = {
     sizeTaper: 'number',
     cornerRadius: 'number',
     opacity: 'number',
-    colours: { $list: 'colour' },
+    colours: { $list: 'colour', nonEmpty: true },
     blendMode: { $oneOf: ['normal', 'multiply'] },
     fade: 'number',
     fadeTurn: 'number',
@@ -106,12 +109,13 @@ function check(value: unknown, spec: Spec, path: string): void {
     if (spec.length !== undefined && value.length !== spec.length) {
       throw new Error(`${path}: expected ${spec.length} entries`);
     }
+    if (spec.nonEmpty && value.length === 0) throw new Error(`${path}: expected at least one entry`);
     value.forEach((item, i) => check(item, spec.$list, `${path}[${i}]`));
   } else {
     if (!isRecord(value)) throw new Error(`${path}: expected an object`);
     const fields = spec as Record<string, Spec>;
     for (const key of Object.keys(value)) {
-      if (!(key in fields)) throw new Error(`${path}.${key}: not a field of the configuration`);
+      if (!Object.hasOwn(fields, key)) throw new Error(`${path}.${key}: not a field of the configuration`);
     }
     for (const [key, field] of Object.entries(fields)) check(value[key], field, `${path}.${key}`);
   }
@@ -136,6 +140,10 @@ export function parseCandidates(input: unknown): Candidate[] {
     }
     try {
       check(config, logoConfig, 'config');
+      const changed = differences(sanitizeLogoConfig(config as LogoConfig), config as LogoConfig);
+      if (changed.length > 0) {
+        throw new Error(`config.${changed[0]}: outside the range the engine draws (it would be changed)`);
+      }
     } catch (error) {
       throw new Error(`${where} (${label}): ${(error as Error).message}`, { cause: error });
     }

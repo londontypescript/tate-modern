@@ -20,7 +20,8 @@ starts with it, and `--json` carries it as `provenance.validation`.
   rerun the renderer acceptance.
 
 `<configs.json>` is a list of `{ "label": …, "config": … }` with every field of a flat configuration written out
-(`scripts/score/examples.json` is one).
+(`scripts/score/examples.json` is one). A value the engine would clamp, round or replace (an opacity out of range, an
+empty palette) is refused, so a score is always of the configuration given.
 
 ## What it compares
 
@@ -48,8 +49,9 @@ Candidates within the tie tolerance of their group's best objective are shown as
 
 ## What decides eligibility, and what doesn't
 
-P2 searches colours on one frozen geometry (`frozen` in `scripts/score/fixtures.ts`: the Irregular starter with its
-sheets at size 150, the maintainer's choice). A candidate is eligible only if:
+Scores compare colours on one frozen geometry (`frozen` in `scripts/score/fixtures.ts`: the Irregular starter with
+its sheets at size 150, the maintainer's choice), the colour search P2 was planned to run. A candidate is eligible only
+if:
 
 - it differs from `frozen` in nothing but `emblem.colours`, `emblem.fadeColour`, `emblem.opacity`,
   `emblem.blendMode` and `tile.colour`, checked field by field; and
@@ -58,6 +60,12 @@ sheets at size 150, the maintainer's choice). A candidate is eligible only if:
 **The score does not judge visible damage.** A colouring can make the emblem look broken (sheets fading into the
 cream, an opacity extreme) and still score well. That judgement is the maintainer's: at Checkpoint B, and on P2's
 shortlist, always at true registered scale. A real shape guardrail returns if geometry is ever searched.
+
+## Registration
+
+The score is sensitive to where the mark sits, but less than planned: shifting the frozen mark 6 px costs 0.51 (right),
+0.60 (left) and 1.15 (down), but only 0.18 up, within the 0.25 tie tolerance. So a 6 px misregistration upward can tie
+with the registered mark. A test checks only that every 6 px shift scores worse.
 
 ## Renderer acceptance
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { RgbImage } from './image';
-import { edgePosition, fillHoles, sampleBackground } from './referenceMake';
+import { edgePosition, fillHoles, makeReference, sampleBackground } from './referenceMake';
 
 /** A one-channel profile with a step from `from` to `to` at a fractional position. */
 function step(length: number, at: number, from: number, to: number) {
@@ -53,5 +53,12 @@ describe('sampleBackground', () => {
     const sampled = sampleBackground(image, { x: 0, y: 0, width: 4, height: 4 }, 2);
     expect(sampled.colour).toEqual([250, 250, 250]);
     expect(sampled.spread).toBeGreaterThan(2);
+  });
+});
+
+describe('makeReference', () => {
+  it('refuses a decoded original of the wrong size before measuring anything', () => {
+    const image: RgbImage = { width: 1, height: 1, data: new Uint8Array(3) };
+    expect(() => makeReference(image)).toThrow(/expected 1808 × 870, got 1 × 1/);
   });
 });

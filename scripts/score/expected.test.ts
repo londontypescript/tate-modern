@@ -50,6 +50,7 @@ describe('expected scores', () => {
     for (const [label, want] of Object.entries(expected.scores)) {
       const got = scores[label] as Score;
       for (const key of ['sheets', 'tile', 'spill', 'objective', 'iou'] as const) {
+        if (!Number.isFinite(got[key])) off.push(`${label}.${key}: ${got[key]} is not a finite number`);
         if (Math.abs(got[key] - want[key]) > TOLERANCE) off.push(`${label}.${key}: ${got[key]} against ${want[key]}`);
       }
       if (got.eligible !== want.eligible) off.push(`${label}: eligibility changed`);
