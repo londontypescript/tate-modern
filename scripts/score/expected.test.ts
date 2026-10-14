@@ -12,7 +12,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { acceptanceCandidates, checkpointB } from './fixtures';
-import type { Ranking, Score } from './rank';
+import { rankScores, type Ranking, type Score } from './rank';
 import { createScorer } from './scorer';
 
 const file = join(dirname(fileURLToPath(import.meta.url)), 'expected.json');
@@ -33,7 +33,11 @@ let ranking: Ranking;
 beforeAll(async () => {
   const scorer = await createScorer();
   scores = Object.fromEntries(candidates.map(({ label, config }) => [label, scorer.score(config)]));
-  ranking = scorer.rank(candidates);
+  // Ranked from the scores just computed: rendering every candidate twice made this the slowest test in CI.
+  ranking = rankScores(
+    candidates.map(({ label }) => ({ label, score: scores[label] as Score })),
+    scorer.parameters.tieTolerance,
+  );
 }, 60_000);
 
 const groups = (r: Ranking) => r.groups.map((g) => g.map((c) => c.label));
