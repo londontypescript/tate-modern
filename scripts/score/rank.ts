@@ -12,7 +12,7 @@ export interface Score {
   spill: number;
   /** sheets + spill + wTile × tile: lower is closer to the original. */
   objective: number;
-  /** Intersection over union of the candidate's silhouette and the reference's. */
+  /** Intersection over union of the candidate's silhouette and the reference's: a diagnostic only. */
   iou: number;
   /** Whether any of the candidate's art falls outside the canvas. */
   clipped: boolean;

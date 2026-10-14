@@ -211,3 +211,112 @@ export const acceptanceCandidates: readonly { label: string; config: LogoConfig 
   { label: 'palette-tile', config: colourVariant({ ...frozenColours, tileColour: '#0b7be8' }) },
   { label: 'mvp', config: mvp },
 ];
+
+const colouring = (label: string, c: ColourChoice) => ({ label, config: colourVariant(c) });
+
+/**
+ * Fresh P2-style colourings for the renderer acceptance (its second
+ * amendment): combinations of the five colour fields on the frozen
+ * geometry, pale, near-cream and white fades and the opacity extremes
+ * included. Made after that amendment, never tuned to its result.
+ */
+export const acceptanceColourings: readonly { label: string; config: LogoConfig }[] = [
+  colouring('pale-sheets', {
+    colours: ['#7db8f7', '#b5dcff'],
+    fadeColour: '#e3f3ff',
+    opacity: 0.45,
+    blendMode: 'multiply',
+    tileColour: '#1688f0',
+  }),
+  colouring('near-cream-fade', {
+    colours: ['#1678f0', '#5cbcff'],
+    fadeColour: '#fbf3e4',
+    opacity: 0.5,
+    blendMode: 'multiply',
+    tileColour: '#1688f0',
+  }),
+  colouring('white-fade-normal', {
+    colours: ['#1678f0', '#5cbcff'],
+    fadeColour: '#ffffff',
+    opacity: 0.55,
+    blendMode: 'normal',
+    tileColour: '#1688f0',
+  }),
+  colouring('opacity-0.1', {
+    colours: ['#1678f0', '#5cbcff'],
+    fadeColour: '#5cbcff',
+    opacity: 0.1,
+    blendMode: 'multiply',
+    tileColour: '#1688f0',
+  }),
+  colouring('opacity-1-normal', {
+    colours: ['#1678f0', '#5cbcff'],
+    fadeColour: '#5cbcff',
+    opacity: 1,
+    blendMode: 'normal',
+    tileColour: '#1688f0',
+  }),
+  colouring('opacity-1-multiply', {
+    colours: ['#1678f0', '#5cbcff'],
+    fadeColour: '#5cbcff',
+    opacity: 1,
+    blendMode: 'multiply',
+    tileColour: '#1688f0',
+  }),
+  colouring('vivid-cyan', {
+    colours: ['#0090ff', '#00c2ff'],
+    fadeColour: '#7fe0ff',
+    opacity: 0.6,
+    blendMode: 'multiply',
+    tileColour: '#0a84f0',
+  }),
+  colouring('deep-blue', {
+    colours: ['#0b3fb0', '#1d6fe0'],
+    fadeColour: '#5cbcff',
+    opacity: 0.45,
+    blendMode: 'multiply',
+    tileColour: '#1260d8',
+  }),
+  colouring('dark-tile', {
+    colours: ['#1678f0', '#5cbcff'],
+    fadeColour: '#5cbcff',
+    opacity: 0.5,
+    blendMode: 'multiply',
+    tileColour: '#0a5cc8',
+  }),
+  colouring('light-tile', {
+    colours: ['#1678f0', '#5cbcff'],
+    fadeColour: '#9fd8ff',
+    opacity: 0.5,
+    blendMode: 'multiply',
+    tileColour: '#42a8ff',
+  }),
+  colouring('single-hue', {
+    colours: ['#1688f0', '#1688f0'],
+    fadeColour: '#1688f0',
+    opacity: 0.4,
+    blendMode: 'normal',
+    tileColour: '#1688f0',
+  }),
+  colouring('teal-normal', {
+    colours: ['#0aa0d8', '#5cd0f0'],
+    fadeColour: '#c8f0ff',
+    opacity: 0.35,
+    blendMode: 'normal',
+    tileColour: '#1a90e0',
+  }),
+  colouring('pale-white-0.25', {
+    colours: ['#4a9cf5', '#8fd0ff'],
+    fadeColour: '#ffffff',
+    opacity: 0.25,
+    blendMode: 'normal',
+    tileColour: '#1c8cf0',
+  }),
+  colouring('vivid-0.8', {
+    colours: ['#0a6cf0', '#1ab0ff'],
+    fadeColour: '#3cc8ff',
+    opacity: 0.8,
+    blendMode: 'multiply',
+    tileColour: '#1688f0',
+  }),
+];

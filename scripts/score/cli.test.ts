@@ -31,7 +31,7 @@ describe('pnpm score', () => {
 
   it('exits 2 when no candidate is eligible', () => {
     const { config } = acceptanceCandidates.find((c) => c.label === 'frozen') ?? {};
-    // No sheets at all: the silhouette is far below any floor.
+    // No sheets at all: outside the colour scope, so ineligible.
     const tileOnly = { ...config, emblem: { ...config?.emblem, layerCount: 0 } };
     const run = cli(file([{ label: 'tile only', config: tileOnly }]));
     expect(run.stdout).toMatch(/no candidate is eligible/);
@@ -39,8 +39,8 @@ describe('pnpm score', () => {
   }, 30_000);
 
   it('prints provenance with --json', () => {
-    const mvp = acceptanceCandidates.find((c) => c.label === 'mvp');
-    const run = cli(file([mvp]), '--json');
+    const frozen = acceptanceCandidates.find((c) => c.label === 'frozen');
+    const run = cli(file([frozen]), '--json');
     expect(run.status).toBe(0);
     const out = JSON.parse(run.stdout) as { provenance: Record<string, unknown> };
     expect(Object.keys(out.provenance)).toEqual([
