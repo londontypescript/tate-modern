@@ -62,7 +62,41 @@ const mvpLogoConfig: LogoConfig = {
   animation: { speed: 1, baseVelocity: 4, variation: 0.6, alternateDirection: false },
 };
 
+/**
+ * Candidates the maintainer picked on 14 October 2026 from a contact sheet
+ * beside the ChatGPT original (#8): the first fade calibration (a strong,
+ * even fade towards the top left), irregular sheets and the halo, built on
+ * the current defaults. Starting points only; the defaults are unchanged.
+ */
+const irregularSheets = (squareSize: number, opacity: number): LogoConfig => ({
+  ...defaultLogoConfig,
+  emblem: {
+    ...defaultLogoConfig.emblem,
+    squareSize,
+    opacity,
+    fade: 0.55,
+    fadeTurn: 0,
+    fadeAngle: 315,
+    rotationJitter: 12,
+    sizeJitter: 0.15,
+    aspectJitter: 0.12,
+    offsetJitter: 8,
+    seed: 7,
+  },
+  tile: { ...defaultLogoConfig.tile, halo: { strength: 0.4, reach: 14, offset: 5 } },
+});
+
 export const flatStarters: readonly StarterConfig<LogoConfig>[] = [
   { name: 'Current defaults', description: 'The approved flat logo in config.ts', config: defaultLogoConfig },
   { name: 'MVP (11 Oct)', description: 'The first flat logo, before the comparison fixes', config: mvpLogoConfig },
+  {
+    name: 'Irregular, bold (14 Oct)',
+    description: 'Bigger, stronger irregular sheets with a fade and the halo',
+    config: irregularSheets(175, 0.5),
+  },
+  {
+    name: 'Irregular (14 Oct)',
+    description: 'Irregular sheets at the default size, with a fade and the halo',
+    config: irregularSheets(158, 0.4),
+  },
 ];
