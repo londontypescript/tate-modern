@@ -1,0 +1,34 @@
+{
+  "note": "The canvas is the original's pixels x 0–807, y 0–869, copied unchanged to (131, 121) on flat #fef7ea; spill in that padding is measured against the flat colour.",
+  "canvas": {
+    "width": 1120,
+    "height": 1120
+  },
+  "sourceCrop": {
+    "x": 0,
+    "y": 0,
+    "width": 808,
+    "height": 870
+  },
+  "cropAt": {
+    "x": 131,
+    "y": 121
+  },
+  "background": [254, 247, 234],
+  "backgroundSpread": 1.196,
+  "tile": {
+    "x": 390.41,
+    "y": 406.193,
+    "width": 339.364,
+    "height": 308.443
+  },
+  "centre": {
+    "x": 560.092,
+    "y": 560.414
+  },
+  "side": 323.534,
+  "residual": {
+    "x": 7.915,
+    "y": -7.546
+  }
+}
