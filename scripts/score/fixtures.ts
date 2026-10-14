@@ -320,3 +320,68 @@ export const acceptanceColourings: readonly { label: string; config: LogoConfig 
     tileColour: '#1688f0',
   }),
 ];
+
+/**
+ * Checkpoint B's eight colourings on the frozen geometry, spanning P2's
+ * variables: the starter's colours, vivid and pale alternatives, a
+ * near-cream and two white fades, opacity 0.1 and 1.0, both blend modes and
+ * darker and lighter tiles. Made before any was scored.
+ */
+export const checkpointB: readonly { label: string; config: LogoConfig }[] = [
+  colouring('starter-colours', {
+    colours: ['#1678f0', '#5cbcff'],
+    fadeColour: '#5cbcff',
+    opacity: 0.5,
+    blendMode: 'multiply',
+    tileColour: '#1688f0',
+  }),
+  colouring('vivid-cyan-normal', {
+    colours: ['#0a84ff', '#3cc8ff'],
+    fadeColour: '#7fe0ff',
+    opacity: 0.6,
+    blendMode: 'normal',
+    tileColour: '#1592f2',
+  }),
+  colouring('pale', {
+    colours: ['#6aaef5', '#a8d8ff'],
+    fadeColour: '#dff1ff',
+    opacity: 0.4,
+    blendMode: 'multiply',
+    tileColour: '#1688f0',
+  }),
+  colouring('near-cream-fade', {
+    colours: ['#1678f0', '#4fb6ff'],
+    fadeColour: '#f6efe2',
+    opacity: 0.55,
+    blendMode: 'multiply',
+    tileColour: '#1a8cf0',
+  }),
+  colouring('opacity-0.1', {
+    colours: ['#1678f0', '#5cbcff'],
+    fadeColour: '#5cbcff',
+    opacity: 0.1,
+    blendMode: 'multiply',
+    tileColour: '#1688f0',
+  }),
+  colouring('opacity-1-white-fade', {
+    colours: ['#2a8af2', '#7cc8ff'],
+    fadeColour: '#ffffff',
+    opacity: 1,
+    blendMode: 'normal',
+    tileColour: '#1688f0',
+  }),
+  colouring('deep-dark-tile', {
+    colours: ['#0f5ed8', '#3aa0f5'],
+    fadeColour: '#5cbcff',
+    opacity: 0.5,
+    blendMode: 'multiply',
+    tileColour: '#0b6ad8',
+  }),
+  colouring('white-fade-light-tile', {
+    colours: ['#1a80f0', '#60c0ff'],
+    fadeColour: '#ffffff',
+    opacity: 0.45,
+    blendMode: 'normal',
+    tileColour: '#3aa2ff',
+  }),
+];
