@@ -72,4 +72,37 @@ export const untrusted: readonly [string, unknown][] = [
   ['-1e308', -1e308],
   ['-5', -5],
   ['missing', missing],
+  // Wrong types, which must take the default rather than be coerced.
+  ['"300"', '300'],
+  ['true', true],
+  ['null', null],
+  ['[300]', [300]],
+  ['{}', {}],
 ];
+
+/** The values above that aren't finite numbers at all. */
+export const notNumbers = untrusted.filter(([, v]) => typeof v !== 'number' || !Number.isFinite(v));
+
+/**
+ * Configurations whose containers are malformed, each with the paths of the
+ * containers that must come back as their defaults.
+ */
+export const malformedContainers: readonly [string, LogoConfig, LeafPath[]][] = (
+  [
+    ['emblem: null', ['emblem'], null],
+    ['tile: null', ['tile'], null],
+    ['tile: "big"', ['tile'], 'big'],
+    ['tile.facets: null', ['tile', 'facets'], null],
+    ['tile.halo: null', ['tile', 'halo'], null],
+    ['wordmark: null', ['wordmark'], null],
+    ['wordmark.lines missing', ['wordmark', 'lines'], missing],
+    ['wordmark.lines: null', ['wordmark', 'lines'], null],
+    ['wordmark.lines: one line', ['wordmark', 'lines'], [{ indent: 0.3, runs: [] }]],
+    ['wordmark.lines: three lines', ['wordmark', 'lines'], [{}, {}, {}]],
+    ['wordmark.lines: "ab"', ['wordmark', 'lines'], 'ab'],
+    ['wordmark.lines[0]: null', ['wordmark', 'lines', 0], null],
+    ['layout: null', ['layout'], null],
+    ['animation: null', ['animation'], null],
+    ['animation: []', ['animation'], []],
+  ] as const
+).map(([name, path, value]) => [name, withLeaf(path, value), [path]]);

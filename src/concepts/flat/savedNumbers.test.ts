@@ -4,15 +4,34 @@ import { parsePresets } from '../../studio/presets';
 import { controlGroups } from './controls';
 import { fillMissing } from './FlatStudio';
 import { flatStarters } from './starters';
-import { getAt, missing, numberPaths, numericLeaves, pathName, untrusted, withLeaf } from './testing/numericLeaves';
+import {
+  getAt,
+  malformedContainers,
+  missing,
+  notNumbers,
+  numberPaths,
+  numericLeaves,
+  pathName,
+  untrusted,
+  withLeaf,
+} from './testing/numericLeaves';
 import { advanceRotations, layerVelocities } from './engine/animation';
-import { defaultLogoConfig, type LogoConfig } from './engine/config';
+import { defaultLogoConfig, neutralHalo, neutralVariation, type LogoConfig } from './engine/config';
 import { generateLayers } from './engine/geometry';
 import { sanitizeLogoConfig } from './engine/sanitize';
 
 const clamp = (v: number, min: number, max: number) => Math.min(Math.max(v, min), max);
-/** The emblem and the halo were checked first (#20, #22); their own tests cover what each bad value becomes. */
-const checkedBefore = ([first, second]: readonly unknown[]) => first === 'emblem' || second === 'halo';
+/**
+ * What a field that isn't a finite number becomes: its default, except the
+ * sheet variation and the halo, which take their neutral (off) values so a
+ * broken saved value never turns them on, whatever the defaults become.
+ */
+const fallback = (path: readonly (string | number)[]) =>
+  path[1] === 'halo'
+    ? neutralHalo[path[2] as keyof typeof neutralHalo]
+    : path[0] === 'emblem' && (path[1] as string) in neutralVariation
+      ? neutralVariation[path[1] as keyof typeof neutralVariation]
+      : getAt(defaultLogoConfig, path);
 
 const fixtures = JSON.parse(
   readFileSync(new URL('./components/__fixtures__/configs.json', import.meta.url), 'utf8'),
@@ -43,17 +62,26 @@ describe('the inventory of numeric fields', () => {
 });
 
 describe('sanitizeLogoConfig', () => {
-  it('gives a field that is not a finite number its default', () => {
-    for (const [path] of numericLeaves.filter(([p]) => !checkedBefore(p))) {
-      for (const [name, value] of untrusted.filter(([n]) => ['1e400', '-1e400', 'NaN', 'missing'].includes(n))) {
+  it('gives a field that is not a finite number its default, never a coerced value', () => {
+    for (const [path] of numericLeaves) {
+      for (const [name, value] of notNumbers) {
         const used = sanitizeLogoConfig(withLeaf(path, value));
-        expect(getAt(used, path), `${pathName(path)} = ${name}`).toBe(getAt(defaultLogoConfig, path));
+        expect(getAt(used, path), `${pathName(path)} = ${name}`).toBe(fallback(path));
+      }
+    }
+  });
+
+  it('gives a malformed part of the configuration its defaults', () => {
+    for (const [name, config, paths] of malformedContainers) {
+      const used = sanitizeLogoConfig(config);
+      for (const [leaf] of numericLeaves.filter(([p]) => paths.some((c) => c.every((k, i) => p[i] === k)))) {
+        expect(getAt(used, leaf), `${name}: ${pathName(leaf)}`).toBe(fallback(leaf));
       }
     }
   });
 
   it('clamps a finite field to its range, however large or negative', () => {
-    for (const [path, { min, max }] of numericLeaves.filter(([p]) => !checkedBefore(p))) {
+    for (const [path, { min, max }] of numericLeaves) {
       for (const value of [1e308, -1e308, -5]) {
         const used = sanitizeLogoConfig(withLeaf(path, value));
         expect(getAt(used, path), `${pathName(path)} = ${value}`).toBe(clamp(value, min, max));

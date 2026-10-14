@@ -68,8 +68,12 @@ function fitFields<K extends string>(input: unknown, defaults: Record<K, number>
   return out;
 }
 
-function sanitizeTile(tile: TileConfig): TileConfig {
+/** A part of the configuration that isn't an object at all is that part's defaults. */
+const part = <T>(value: T, defaults: T): T => (isObject(value) ? value : defaults);
+
+function sanitizeTile(input: TileConfig): TileConfig {
   const defaults = defaultLogoConfig.tile;
+  const tile = part(input, defaults);
   return {
     ...tile,
     ...fitFields(tile, defaults, tileRanges),
@@ -79,11 +83,14 @@ function sanitizeTile(tile: TileConfig): TileConfig {
 }
 
 /** The wordmark is shared with the other concepts, so the flat engine checks its numbers here, not in it. */
-function sanitizeWordmark(wordmark: LogoConfig['wordmark']): LogoConfig['wordmark'] {
+function sanitizeWordmark(input: LogoConfig['wordmark']): LogoConfig['wordmark'] {
   const defaults = defaultLogoConfig.wordmark;
-  // A saved line that isn't an object at all is the default line.
+  const wordmark = part(input, defaults);
+  // Lines that aren't a pair are the default lines; a saved line that isn't an object is the default line.
+  const lines: unknown = wordmark.lines;
+  const pair = Array.isArray(lines) && lines.length === 2 ? (lines as unknown[]) : defaults.lines;
   const line = (i: 0 | 1) => {
-    const saved: unknown = wordmark.lines[i];
+    const saved = pair[i];
     const from = isObject(saved) ? (saved as unknown as (typeof defaults.lines)[0]) : defaults.lines[i];
     return { ...from, indent: fit(from.indent, defaults.lines[i].indent, lineIndentRange) };
   };
@@ -91,7 +98,8 @@ function sanitizeWordmark(wordmark: LogoConfig['wordmark']): LogoConfig['wordmar
 }
 
 /** Animation settings safe to turn by: a speed that isn't a finite number takes its default, and each is clamped. */
-export function sanitizeAnimation(animation: AnimationConfig): AnimationConfig {
+export function sanitizeAnimation(input: AnimationConfig): AnimationConfig {
+  const animation = part(input, defaultLogoConfig.animation);
   return { ...animation, ...fitFields(animation, defaultLogoConfig.animation, animationRanges) };
 }
 
@@ -105,12 +113,13 @@ export function sanitizeAnimation(animation: AnimationConfig): AnimationConfig {
  * one is never rewritten.
  */
 export function sanitizeLogoConfig(config: LogoConfig): LogoConfig {
+  const layout = part(config.layout, defaultLogoConfig.layout);
   return {
     ...config,
-    emblem: sanitizeEmblemConfig(config.emblem),
+    emblem: sanitizeEmblemConfig(part(config.emblem, defaultLogoConfig.emblem)),
     tile: sanitizeTile(config.tile),
     wordmark: sanitizeWordmark(config.wordmark),
-    layout: { ...config.layout, ...fitFields(config.layout, defaultLogoConfig.layout, layoutRanges) },
+    layout: { ...layout, ...fitFields(layout, defaultLogoConfig.layout, layoutRanges) },
     animation: sanitizeAnimation(config.animation),
   };
 }
