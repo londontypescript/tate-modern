@@ -14,7 +14,7 @@ import type { EmblemConfig, FacetShading, LogoConfig, TileConfig } from './confi
 import { clampCornerRadius, layersBounds, rotationSafeLayersBounds } from './bounds';
 import { buildHalo } from './halo';
 import { Channel, sample, type ChannelKey } from './random';
-import { sanitizeEmblemConfig } from './sanitize';
+import { sanitizeEmblemConfig, sanitizeLogoConfig } from './sanitize';
 import type { EmblemModel, LogoModel, SheetLayer, TileModel } from './types';
 
 // ---------------------------------------------------------------------------
@@ -31,7 +31,8 @@ import type { EmblemModel, LogoModel, SheetLayer, TileModel } from './types';
  */
 export function generateLayers(input: EmblemConfig): SheetLayer[] {
   const config = sanitizeEmblemConfig(input);
-  const count = Math.floor(config.layerCount);
+  // Already a whole number: rounding happens once, in the sanitising.
+  const count = config.layerCount;
   const colours = config.colours.length > 0 ? config.colours : [palette.blue];
   return Array.from({ length: count }, (_, index) => {
     const u = (channel: ChannelKey) => sample(config.seed, index, channel);
@@ -188,9 +189,12 @@ function buildEmblem(emblem: EmblemConfig, tile: TileConfig, sans: Font): Emblem
 /**
  * The complete horizontal logo. The wordmark is sized so that its cap top
  * and last baseline align with the top and bottom edges of the tile, then
- * placed `horizontalGap` tile widths to the right of the rosette.
+ * placed `horizontalGap` tile widths to the right of the rosette. The
+ * configuration may be a hand-edited saved one, so every number is checked
+ * first (`sanitizeLogoConfig`).
  */
-export function buildLogo(config: LogoConfig, fonts: LogoFonts): LogoModel {
+export function buildLogo(input: LogoConfig, fonts: LogoFonts): LogoModel {
+  const config = sanitizeLogoConfig(input);
   const emblem = buildEmblem(config.emblem, config.tile, fonts.sans);
   const placed = placeWordmark(config.wordmark, fonts.serif, {
     emblemBounds: emblem.bounds,

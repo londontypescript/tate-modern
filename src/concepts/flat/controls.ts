@@ -1,5 +1,15 @@
 import type { SliderControl } from '../../studio/ui';
-import { emblemRanges, haloRanges, variationRanges, type HaloConfig, type LogoConfig } from './engine';
+import {
+  animationRanges,
+  emblemRanges,
+  haloRanges,
+  layoutRanges,
+  tileRanges,
+  variationRanges,
+  wordmarkRanges,
+  type HaloConfig,
+  type LogoConfig,
+} from './engine';
 
 const emblem = <K extends keyof LogoConfig['emblem']>(key: K) => ({
   get: (c: LogoConfig) => c.emblem[key] as number,
@@ -67,10 +77,10 @@ export const controlGroups: { title: string; controls: SliderControl<LogoConfig>
   {
     title: 'TS tile',
     controls: [
-      { label: 'Letter size', min: 0.15, max: 0.5, step: 0.005, ...tile('textScale') },
-      { label: 'Right margin', min: 0, max: 0.3, step: 0.005, ...tile('textOffsetX') },
-      { label: 'Bottom margin', min: 0, max: 0.3, step: 0.005, ...tile('textOffsetY') },
-      { label: 'Letter spacing', min: -0.1, max: 0.1, step: 0.005, unit: 'em', ...tile('letterSpacing') },
+      { label: 'Letter size', step: 0.005, ...tileRanges.textScale, ...tile('textScale') },
+      { label: 'Right margin', step: 0.005, ...tileRanges.textOffsetX, ...tile('textOffsetX') },
+      { label: 'Bottom margin', step: 0.005, ...tileRanges.textOffsetY, ...tile('textOffsetY') },
+      { label: 'Letter spacing', step: 0.005, unit: 'em', ...tileRanges.letterSpacing, ...tile('letterSpacing') },
     ],
   },
   {
@@ -78,16 +88,21 @@ export const controlGroups: { title: string; controls: SliderControl<LogoConfig>
     controls: [
       {
         label: 'Emblem–wordmark gap',
-        min: 0,
-        max: 0.6,
         step: 0.01,
+        ...layoutRanges.horizontalGap,
         get: (c) => c.layout.horizontalGap,
         set: (c, v) => ({ ...c, layout: { ...c.layout, horizontalGap: v } }),
       },
-      { label: 'Line spacing', min: 0.6, max: 1.2, step: 0.01, unit: 'em', ...wordmark('lineSpacing') },
-      { label: 'Letter spacing', min: -0.08, max: 0.08, step: 0.005, unit: 'em', ...wordmark('letterSpacing') },
-      { label: 'Condense letters', min: 0.7, max: 1.1, step: 0.01, unit: '×', ...wordmark('condense') },
-      { label: 'Flourish scale', min: 0, max: 2, step: 0.05, ...wordmark('flourishScale') },
+      { label: 'Line spacing', step: 0.01, unit: 'em', ...wordmarkRanges.lineSpacing, ...wordmark('lineSpacing') },
+      {
+        label: 'Letter spacing',
+        step: 0.005,
+        unit: 'em',
+        ...wordmarkRanges.letterSpacing,
+        ...wordmark('letterSpacing'),
+      },
+      { label: 'Condense letters', step: 0.01, unit: '×', ...wordmarkRanges.condense, ...wordmark('condense') },
+      { label: 'Flourish scale', step: 0.05, ...wordmarkRanges.flourishScale, ...wordmark('flourishScale') },
     ],
   },
   {
@@ -95,18 +110,16 @@ export const controlGroups: { title: string; controls: SliderControl<LogoConfig>
     controls: [
       {
         label: 'Speed',
-        min: 0,
-        max: 5,
         step: 0.1,
+        ...animationRanges.speed,
         unit: '×',
         get: (c) => c.animation.speed,
         set: (c, v) => ({ ...c, animation: { ...c.animation, speed: v } }),
       },
       {
         label: 'Speed variation',
-        min: 0,
-        max: 1,
         step: 0.05,
+        ...animationRanges.variation,
         get: (c) => c.animation.variation,
         set: (c, v) => ({ ...c, animation: { ...c.animation, variation: v } }),
       },

@@ -114,9 +114,10 @@ const greyOf = (level: number) =>
 
 /**
  * The halo for a tile centred on the origin, or nothing when it is off
- * (strength or reach 0). The tile's size and corner radius aren't checked
- * anywhere else yet, so a halo is only drawn when the size is finite and
- * positive and the corner radius finite and not negative.
+ * (strength or reach 0). `buildLogo` checks the tile's size and corner
+ * radius, but this is exported and may be called directly, so a halo is
+ * only drawn when the size is finite and positive and the corner radius
+ * finite and not negative.
  */
 export function buildHalo(tile: Pick<TileConfig, 'size' | 'cornerRadius' | 'halo'>): HaloModel | undefined {
   const { strength, reach, offset } = sanitizeHalo(tile.halo);
