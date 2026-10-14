@@ -8,7 +8,6 @@ import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { srgbToLab, type Lab } from './colour';
 import { decodePng, type RgbImage } from './image';
 
 export interface Rect {
@@ -19,6 +18,8 @@ export interface Rect {
 }
 
 export interface Registration {
+  /** What the canvas is, in words: which of the original's pixels, and what fills the rest. */
+  note: string;
   canvas: { width: number; height: number };
   /** The rectangle of the original's pixels copied into the canvas. */
   sourceCrop: Rect;
@@ -43,7 +44,7 @@ export interface Registration {
  * reference background exceeds this. The same rule drew the reference's
  * regions and decides a candidate's silhouette.
  */
-const FOREGROUND_DELTA_E = 2.0;
+export const FOREGROUND_DELTA_E = 2.0;
 
 /** Whether a distance from the background makes a pixel foreground: strictly greater. */
 export const isForeground = (deltaE: number) => deltaE > FOREGROUND_DELTA_E;
@@ -56,7 +57,7 @@ export const regionColours = {
 } as const;
 
 /** Region codes in `Reference.region`. */
-const Region = { background: 0, sheets: 1, tile: 2 } as const;
+export const Region = { background: 0, sheets: 1, tile: 2 } as const;
 
 export const referenceDir = join(dirname(fileURLToPath(import.meta.url)), 'reference');
 
@@ -66,10 +67,8 @@ export interface Reference {
   width: number;
   height: number;
   registration: Registration;
-  /** The background colour in CIELAB. */
-  backgroundLab: Lab;
-  /** CIELAB of every pixel of mark.png, L a b interleaved. */
-  lab: Float64Array;
+  /** Every pixel of mark.png, packed as 0xRRGGBB. */
+  colour: Uint32Array;
   /** The region of every pixel (see `Region`). */
   region: Uint8Array;
   /** Pixels per region. */
@@ -78,23 +77,11 @@ export interface Reference {
   hashes: Record<(typeof referenceFiles)[number], string>;
 }
 
-/** CIELAB of every pixel of an image, L a b interleaved; repeated colours are converted once. */
-function imageLab(image: RgbImage): Float64Array {
-  const out = new Float64Array(image.width * image.height * 3);
-  const cache = new Map<number, Lab>();
-  for (let i = 0, j = 0; j < out.length; i += 3, j += 3) {
-    const r = image.data[i] ?? 0;
-    const g = image.data[i + 1] ?? 0;
-    const b = image.data[i + 2] ?? 0;
-    const key = (r << 16) | (g << 8) | b;
-    let lab = cache.get(key);
-    if (!lab) {
-      lab = srgbToLab(r, g, b);
-      cache.set(key, lab);
-    }
-    out[j] = lab.L;
-    out[j + 1] = lab.a;
-    out[j + 2] = lab.b;
+/** Every pixel's colour packed as 0xRRGGBB, the key the metrics cache distances by. */
+export function packedColours(image: RgbImage): Uint32Array {
+  const out = new Uint32Array(image.width * image.height);
+  for (let p = 0; p < out.length; p++) {
+    out[p] = ((image.data[p * 3] ?? 0) << 16) | ((image.data[p * 3 + 1] ?? 0) << 8) | (image.data[p * 3 + 2] ?? 0);
   }
   return out;
 }
@@ -144,8 +131,7 @@ export async function loadReference(dir = referenceDir): Promise<Reference> {
     width: mark.width,
     height: mark.height,
     registration,
-    backgroundLab: srgbToLab(...registration.background),
-    lab: imageLab(mark),
+    colour: packedColours(mark),
     region,
     counts,
     hashes,

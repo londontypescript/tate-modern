@@ -4,17 +4,22 @@ What `pnpm score` compares candidates against: the ChatGPT original's mark (`pub
 1808 × 870, lossy WebP, SHA-256 `ba40741dc3bf5f4251199020ac606edf6ab8320144558c37f68505430eaf6669`) decoded once into
 lossless files. Tests read only these files.
 
+**In short: the canvas is the original's pixels x 0–807 (y 0–869) copied unchanged to (131, 121) on flat `#fef7ea`.**
+Everything outside that rectangle is synthetic padding of the background colour, and spill there is measured against
+that flat cream, not against real pixels of the original. `registration.json` says the same in its `note`.
+
 - **`mark.png`** (1120 × 1120, 8-bit RGB): the original's pixels from x 0–807 and y 0–869 (the whole height, and
   everything left of the wordmark, which starts at x 816), copied unchanged to (131, 121) on a canvas filled with the
   background colour. The canvas is larger than the crop so a candidate a little bigger than the original isn't clipped:
   the Irregular starter's sheets reach 883 px across at the registered scale, beyond the original's own width
   available before the wordmark. The tile's centre lands near the canvas's centre.
 - **`regions.png`** (same size, exact colours): background `#000000`, sheets `#ff0000`, tile `#0000ff`. The tile is
-  every pixel whose centre lies inside the measured tile (lettering and facets included). Sheets are the other pixels
+  every pixel whose centre lies inside the measured tile (lettering and facets included): a sharp-cornered rectangle,
+  since the original tile's corner radius is a pixel or two at most. Sheets are the other pixels
   whose CIEDE2000 distance from the background colour exceeds 2.0, with the 133 cream pixels they enclose filled in.
   Nothing else was cleaned: every pixel over the threshold outside the main body lies along the emblem's outer edge
   (none is out in the cream), so each counts as a faint sheet edge.
-- **`registration.json`**: the canvas, the crop and where it sits, the background colour, the tile's measured bounds
+- **`registration.json`**: a note saying what the canvas is, the canvas, the crop and where it sits, the background colour, the tile's measured bounds
   in the canvas, its centre, the registered side (the geometric mean of the measured width and height) and the
   residual (how far each edge of that square falls inside the measured tile, per axis; negative is outside).
 

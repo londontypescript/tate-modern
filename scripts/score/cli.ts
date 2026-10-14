@@ -1,15 +1,29 @@
 /**
  * The score's command line:
  *
- *   pnpm score --make-reference <decoded original.png>
+ *   pnpm score <configs.json> [--json]
  *
- * remakes the committed reference (see reference/README.md).
+ * ranks a list of `{ "label": …, "config": … }` flat logo configurations
+ * against the ChatGPT original (exit 1 on invalid input, 2 when none is
+ * eligible). `--json` prints the ranking with its provenance.
+ *
+ *   pnpm score --make-reference <decoded original.png>
+ *   pnpm score --acceptance <evidence folder>
+ *
+ * remake the committed reference (see reference/README.md) and run the
+ * renderer acceptance against the installed Google Chrome (see
+ * docs/studio/scoring.md).
  */
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { runAcceptance } from './acceptance';
 import { decodePng, encodePng } from './image';
+import { provenance } from './provenance';
+import type { Ranking, Scored } from './rank';
 import { referenceDir } from './reference';
 import { makeReference } from './referenceMake';
+import { createScorer } from './scorer';
+import { parseCandidates } from './validate';
 
 async function writeReference(decoded: string) {
   const { mark, regions, registration } = makeReference(decodePng(await readFile(decoded), undefined, decoded));
@@ -19,10 +33,68 @@ async function writeReference(decoded: string) {
   console.log(`wrote ${referenceDir}`);
 }
 
+const f = (v: number) => v.toFixed(3);
+
+/** The ranking as a fixed-width table. */
+function rankingTable(ranking: Ranking): string {
+  const header = ['group', 'label', 'objective', 'sheets', 'tile', 'spill', 'IoU', 'clipped'];
+  const row = (group: string, { label, score: s }: Scored) => [
+    group,
+    label,
+    f(s.objective),
+    f(s.sheets),
+    f(s.tile),
+    f(s.spill),
+    f(s.iou),
+    s.clipped ? 'yes' : 'no',
+  ];
+  const rows = ranking.groups.flatMap((g, i) => g.map((c) => row(String(i + 1), c)));
+  const widths = header.map((h, i) => Math.max(h.length, ...rows.map((r) => (r[i] ?? '').length)));
+  const line = (cells: string[]) =>
+    cells
+      .map((c, i) => c.padEnd(widths[i] ?? 0))
+      .join('  ')
+      .trimEnd();
+  const out = [line(header), ...rows.map(line)];
+  if (ranking.noneEligible) out.push('no candidate is eligible');
+  for (const c of ranking.ineligible) out.push(`ineligible  ${c.label}: ${c.score.reason ?? ''}`);
+  return out.join('\n');
+}
+
+async function score(file: string, asJson: boolean) {
+  let candidates;
+  try {
+    candidates = parseCandidates(JSON.parse(await readFile(file, 'utf8')));
+  } catch (error) {
+    console.error(`${file}: ${(error as Error).message}`);
+    process.exitCode = 1;
+    return;
+  }
+  const scorer = await createScorer();
+  const ranking = scorer.rank(candidates);
+  if (asJson) {
+    console.log(
+      JSON.stringify({ ranking, provenance: await provenance(scorer.reference, scorer.parameters) }, null, 2),
+    );
+  } else {
+    console.log(rankingTable(ranking));
+  }
+  if (ranking.noneEligible) process.exitCode = 2;
+}
+
 const args = process.argv.slice(2);
-if (args[0] === '--make-reference' && args[1]) {
-  await writeReference(args[1]);
+const [first, second] = args;
+if (first === '--make-reference' && second) {
+  await writeReference(second);
+} else if (first === '--acceptance' && second) {
+  process.exitCode = (await runAcceptance(second)) ? 0 : 1;
+} else if (first && !first.startsWith('--') && args.slice(1).every((a) => a === '--json')) {
+  await score(first, args.includes('--json'));
 } else {
-  console.error('usage: pnpm score --make-reference <decoded original.png>');
+  console.error(
+    'usage: pnpm score <configs.json> [--json]\n' +
+      '       pnpm score --make-reference <decoded original.png>\n' +
+      '       pnpm score --acceptance <evidence folder>',
+  );
   process.exitCode = 1;
 }

@@ -202,7 +202,13 @@ export function makeReference(original: RgbImage) {
   const tile = measureTile(mark);
   const side = Math.sqrt(tile.width * tile.height);
   const round = (v: number) => Number(v.toFixed(3));
+  const hex = `#${sampled.colour.map((v) => v.toString(16).padStart(2, '0')).join('')}`;
+  const last = (start: number, length: number) => start + length - 1;
   const registration: Registration = {
+    note:
+      `The canvas is the original's pixels x ${SOURCE_CROP.x}–${last(SOURCE_CROP.x, SOURCE_CROP.width)}, ` +
+      `y ${SOURCE_CROP.y}–${last(SOURCE_CROP.y, SOURCE_CROP.height)}, copied unchanged to (${CROP_AT.x}, ${CROP_AT.y}) ` +
+      `on flat ${hex}; spill in that padding is measured against the flat colour.`,
     canvas: { ...CANVAS },
     sourceCrop: { ...SOURCE_CROP },
     cropAt: { ...CROP_AT },
