@@ -14,8 +14,8 @@ const idSafe = (id: string) => id.replace(/[^A-Za-z0-9_-]/g, '');
  * Exports always pass an `idPrefix`, so the own prefix never reaches a file.
  * React's ids have held characters such as `:` and `«`, which a `url(#…)`
  * would have to escape, so anything outside letters, digits, `_` and `-` is
- * dropped. The hook is called whether or not a
- * prefix is given, as hooks must be.
+ * dropped. The hook is called whether or not a prefix is given, as hooks
+ * must be.
  */
 export function useOwnIdPrefix(idPrefix: string | undefined): string {
   const own = `lts${idSafe(useId())}`;
