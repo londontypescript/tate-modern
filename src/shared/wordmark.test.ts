@@ -96,3 +96,33 @@ describe('flourish joins', () => {
     expect(join!.thickness).toBeLessThan(60);
   });
 });
+
+describe('glyph ids', () => {
+  const ids = (text: string) =>
+    buildWordmark(
+      {
+        ...defaultWordmarkConfig,
+        lines: [{ indent: 0, runs: [{ text, colour: '#000000' }] }, defaultWordmarkConfig.lines[1]],
+        flourishScale: 0,
+      },
+      fonts.serif,
+      80,
+    )
+      .shapes.filter((s) => s.id.startsWith('glyph-0-'))
+      .map((s) => s.id);
+
+  it('name each glyph by its character when it is a letter, a digit, _ or -', () => {
+    expect(ids('Lo9_-')).toEqual(['glyph-0-0-L', 'glyph-0-1-o', 'glyph-0-2-9', 'glyph-0-3-_', 'glyph-0-4--']);
+  });
+
+  it('write any other character as its code point, so the id stays well-formed', () => {
+    expect(ids(' "<é&')).toEqual([
+      'glyph-0-0-u0020',
+      'glyph-0-1-u0022',
+      'glyph-0-2-u003c',
+      'glyph-0-3-u00e9',
+      'glyph-0-4-u0026',
+    ]);
+    for (const id of ids('a b\'c"d<e>f\ng/h:i.j😀')) expect(id).toMatch(/^[A-Za-z][A-Za-z0-9_-]*$/);
+  });
+});
