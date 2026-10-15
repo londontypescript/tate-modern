@@ -16,13 +16,15 @@ beforeAll(async () => {
 const finiteBox = (box: Box) => [box.minX, box.minY, box.maxX, box.maxY].every(Number.isFinite);
 
 describe('the logo from a saved configuration with untrusted numbers', () => {
-  it('builds finite bounds and writes well-formed SVG, whichever field is bad', () => {
-    for (const [path] of numericLeaves) {
+  // One test per field: all of them in one test took close to the default
+  // timeout on a slow runner, and a failure now names the field.
+  for (const [path] of numericLeaves) {
+    it(`builds finite bounds and writes well-formed SVG when ${pathName(path)} is bad`, () => {
       for (const [name, value] of untrusted) {
         expectWellFormed(`${pathName(path)} = ${name}`, withLeaf(path, value));
       }
-    }
-  });
+    });
+  }
 
   it('builds and writes well-formed SVG when a part of the configuration is malformed', () => {
     for (const [name, config] of malformedContainers) expectWellFormed(name, config);
@@ -89,14 +91,15 @@ describe('the studio’s download from a saved configuration with untrusted stri
     }
   };
 
+  // One test per colour and base, as for the numbers: together they ran close to the default timeout.
   for (const [base, config] of bases) {
-    it(`writes only real colours, whichever colour field is bad, with the ${base}`, () => {
-      for (const path of colourLeaves) {
+    for (const path of colourLeaves) {
+      it(`writes only real colours when ${pathName(path)} is bad, with the ${base}`, () => {
         for (const [name, value] of notColours) {
           expectSafeDownloads(`${base}, ${pathName(path)} = ${name}`, withLeaf(path, value, config));
         }
-      }
-    });
+      });
+    }
   }
 
   it('writes one blend declaration and well-formed ids, whatever blend mode or text is saved', () => {
