@@ -76,6 +76,24 @@ describe('output with sheet variation off', () => {
   });
 });
 
+describe('output of the 14 October starters', () => {
+  /*
+   * The `irregular` and `irregular-150` fixtures were rendered by the code at
+   * commit 35261a7, before the defaults changed, from these two starters as
+   * they were built then (spread from the defaults). They pin how the looks
+   * the maintainer chose from drew at the time, so never regenerate them.
+   */
+  const starter = (name: string) => flatStarters.find((s) => s.name === name)!.config;
+
+  it('renders Irregular (14 Oct) byte-identically', () => {
+    expectFixtures('irregular', starter('Irregular (14 Oct)'));
+  });
+
+  it('renders Irregular, 150 (14 Oct) byte-identically', () => {
+    expectFixtures('irregular-150', starter('Irregular, 150 (14 Oct)'));
+  });
+});
+
 describe('output with the halo off', () => {
   const withHalo = (halo: LogoConfig['tile']['halo']): LogoConfig => ({
     ...defaultLogoConfig,
