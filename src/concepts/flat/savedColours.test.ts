@@ -59,6 +59,10 @@ describe('the inventory of string fields', () => {
     }
   });
 
+  it('leaves a string named like an Object method unclassed', () => {
+    for (const name of ['toString', 'constructor', 'hasOwnProperty']) expect(classOf([name]), name).toBeUndefined();
+  });
+
   it('classes only fields the defaults have', () => {
     const found = new Set(stringPaths(defaultLogoConfig).map(fieldName));
     for (const field of classedFields) expect(found.has(field), field).toBe(true);

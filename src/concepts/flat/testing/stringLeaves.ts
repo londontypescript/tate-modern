@@ -31,7 +31,11 @@ const classes: Record<string, StringClass> = {
 /** A path's field, its list positions written as `*`. */
 export const fieldName = (path: LeafPath) => path.map((k) => (typeof k === 'number' ? '*' : k)).join('.');
 
-export const classOf = (path: LeafPath): StringClass | undefined => classes[fieldName(path)];
+// Own fields only: a saved string named like an Object method (`toString`) must still count as unclassed.
+export const classOf = (path: LeafPath): StringClass | undefined => {
+  const field = fieldName(path);
+  return Object.hasOwn(classes, field) ? classes[field] : undefined;
+};
 
 export const classedFields = Object.keys(classes);
 
