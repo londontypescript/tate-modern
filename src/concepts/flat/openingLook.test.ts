@@ -1,5 +1,9 @@
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
+import { PresetsPanel } from '../../studio/PresetsPanel';
 import { parsePresets } from '../../studio/presets';
+import { useConceptState } from '../../studio/useConceptState';
 import { defaultLogoConfig } from './engine';
 import { fillMissing } from './FlatStudio';
 import { flatStarters, irregularSmallerSheets } from './starters';
@@ -36,5 +40,19 @@ describe('the flat studio’s opening look', () => {
       'Irregular (14 Oct)',
       'Irregular, 150 (14 Oct)',
     ]);
+  });
+
+  it('shows the opening starter pressed, and only that one', () => {
+    function Panel() {
+      const state = useConceptState(defaultLogoConfig, irregularSmallerSheets);
+      return createElement(PresetsPanel<typeof defaultLogoConfig>, {
+        storageKey: 'test',
+        state,
+        starters: flatStarters,
+      });
+    }
+    const html = renderToStaticMarkup(createElement(Panel));
+    const pressed = [...html.matchAll(/aria-pressed="true"[^>]*>([^<]*)</g)].map((m) => m[1]);
+    expect(pressed).toEqual(['Irregular, 150 (14 Oct)']);
   });
 });

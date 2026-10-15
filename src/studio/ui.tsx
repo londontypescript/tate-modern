@@ -86,6 +86,7 @@ export function Button({
   danger = false,
   small = false,
   disabled = false,
+  pressed,
   type = 'button',
   children,
 }: {
@@ -93,6 +94,8 @@ export function Button({
   primary?: boolean;
   danger?: boolean;
   small?: boolean;
+  /** For a button that stays selected, such as the starter Reset returns to. */
+  pressed?: boolean;
   disabled?: boolean;
   type?: 'button' | 'submit';
   children: ReactNode;
@@ -102,6 +105,7 @@ export function Button({
       type={type}
       onClick={onClick}
       disabled={disabled}
+      aria-pressed={pressed}
       className={`rounded-md font-medium whitespace-nowrap transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
         small ? 'px-2 py-1 text-xs' : 'px-3 py-1.5 text-sm'
       } ${
@@ -109,7 +113,9 @@ export function Button({
           ? 'bg-blue-600 text-white enabled:hover:bg-blue-700'
           : danger
             ? 'border border-red-200 bg-white text-red-700 enabled:hover:bg-red-50'
-            : 'border border-stone-300 bg-white text-stone-800 enabled:hover:bg-stone-50'
+            : pressed
+              ? 'border border-blue-600 bg-blue-50 text-blue-800 ring-1 ring-blue-600'
+              : 'border border-stone-300 bg-white text-stone-800 enabled:hover:bg-stone-50'
       }`}
     >
       {children}
