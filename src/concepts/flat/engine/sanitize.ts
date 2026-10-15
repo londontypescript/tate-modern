@@ -1,3 +1,4 @@
+import { isHexColour, palette } from '../../../shared';
 import {
   animationRanges,
   defaultLogoConfig,
@@ -10,6 +11,7 @@ import {
   variationRanges,
   wordmarkRanges,
   type AnimationConfig,
+  type BlendMode,
   type EmblemConfig,
   type LogoConfig,
   type TileConfig,
@@ -29,17 +31,43 @@ const jitters = [
 const clamp = (v: number, min: number, max: number) => Math.min(Math.max(v, min), max);
 const finite = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
 
+/** A saved colour as written when it is `#` and six hex digits, else `fallback`. */
+const colour = (value: unknown, fallback: string) => (isHexColour(value) ? value : fallback);
+
+/**
+ * The sheets' colours as saved when every entry is a colour, else the
+ * default list: dropping or repairing single entries would silently change
+ * which colour each sheet takes. Holes count as entries, so a sparse list
+ * can't slip through.
+ */
+function sheetColours(value: unknown): readonly string[] {
+  if (!Array.isArray(value) || value.length === 0) return defaultLogoConfig.emblem.colours;
+  const list = value as unknown[];
+  for (let i = 0; i < list.length; i++) if (!isHexColour(list[i])) return defaultLogoConfig.emblem.colours;
+  return list as string[];
+}
+
+const blendModes: readonly unknown[] = ['normal', 'multiply'] satisfies BlendMode[];
+const blendMode = (value: unknown): BlendMode =>
+  blendModes.includes(value) ? (value as BlendMode) : defaultLogoConfig.emblem.blendMode;
+
 /**
  * An emblem configuration safe to draw. Saved configurations are untrusted
  * (a hand-edited `1e400` arrives as Infinity, and `1e308` is finite but
  * overflows once multiplied), so the engine checks every number itself
  * rather than relying on the sliders: a value that isn't a finite number
  * takes its default, or for the variation its neutral value, and every
- * number is clamped to its slider's range. A configuration made with the
- * sliders comes back with the same values, so its output doesn't change.
+ * number is clamped to its slider's range. The colours and the blend mode
+ * are written into the SVG as given, so they are checked too: a colour that
+ * isn't `#` and six hex digits, or a blend mode other than `normal` or
+ * `multiply`, takes its default. A configuration made with the studio comes
+ * back with the same values, so its output doesn't change.
  */
 export function sanitizeEmblemConfig(config: EmblemConfig): EmblemConfig {
   const out = { ...config };
+  out.colours = sheetColours(config.colours);
+  out.fadeColour = colour(config.fadeColour, defaultLogoConfig.emblem.fadeColour);
+  out.blendMode = blendMode(config.blendMode);
   for (const key of plainNumbers) {
     const { min, max } = emblemRanges[key];
     out[key] = clamp(finite(out[key]) ? out[key] : defaultLogoConfig.emblem[key], min, max);
@@ -77,12 +105,34 @@ function sanitizeTile(input: TileConfig): TileConfig {
   return {
     ...tile,
     ...fitFields(tile, defaults, tileRanges),
+    colour: colour(tile.colour, defaults.colour),
+    textColour: colour(tile.textColour, defaults.textColour),
+    // Drawn as outlines, so any string will do; its characters are made safe where they reach an id.
+    text: typeof tile.text === 'string' ? tile.text : defaults.text,
     facets: fitFields(tile.facets, defaults.facets, facetRanges),
     halo: sanitizeHalo(tile.halo),
   };
 }
 
-/** The wordmark is shared with the other concepts, so the flat engine checks its numbers here, not in it. */
+type WordmarkRun = LogoConfig['wordmark']['lines'][number]['runs'][number];
+
+/**
+ * A wordmark line's runs as saved when they are a non-empty list of objects
+ * with text, else the default line's. A run's colour that isn't `#` and six
+ * hex digits takes the default run's at the same place, or the ink for a
+ * run past the default ones.
+ */
+function lineRuns(value: unknown, defaults: readonly WordmarkRun[]): readonly WordmarkRun[] {
+  if (!Array.isArray(value) || value.length === 0) return defaults;
+  // `Array.from` turns holes into undefined, so a sparse list is refused too.
+  const runs = Array.from(value as unknown[]);
+  if (!runs.every((run) => isObject(run) && typeof run.text === 'string')) return defaults;
+  return (runs as WordmarkRun[]).map((run, i) =>
+    isHexColour(run.colour) ? run : { ...run, colour: defaults[i]?.colour ?? palette.ink },
+  );
+}
+
+/** The wordmark is shared with the other concepts, so the flat engine checks its numbers and colours here, not in it. */
 function sanitizeWordmark(input: LogoConfig['wordmark']): LogoConfig['wordmark'] {
   const defaults = defaultLogoConfig.wordmark;
   const wordmark = part(input, defaults);
@@ -92,7 +142,11 @@ function sanitizeWordmark(input: LogoConfig['wordmark']): LogoConfig['wordmark']
   const line = (i: 0 | 1) => {
     const saved = pair[i];
     const from = isObject(saved) ? (saved as unknown as (typeof defaults.lines)[0]) : defaults.lines[i];
-    return { ...from, indent: fit(from.indent, defaults.lines[i].indent, lineIndentRange) };
+    return {
+      ...from,
+      indent: fit(from.indent, defaults.lines[i].indent, lineIndentRange),
+      runs: lineRuns(from.runs, defaults.lines[i].runs),
+    };
   };
   return { ...wordmark, ...fitFields(wordmark, defaults, wordmarkRanges), lines: [line(0), line(1)] };
 }
@@ -107,10 +161,13 @@ export function sanitizeAnimation(input: AnimationConfig): AnimationConfig {
  * The whole flat configuration as the engine draws it, and as the studio's
  * sliders show it. Every number is checked as the emblem's are: one that
  * isn't finite takes its default (the variation and the halo their neutral
- * values), and each is clamped to its range in `config.ts`. A configuration
- * made with the sliders comes back with the same values, so its output
- * doesn't change; the configuration passed in is never changed, so a saved
- * one is never rewritten.
+ * values), and each is clamped to its range in `config.ts`. Every string
+ * the renderer writes is checked too: a colour that isn't `#` and six hex
+ * digits takes its default, as does a blend mode other than `normal` or
+ * `multiply` and text that isn't a string. A configuration made with the
+ * studio comes back with the same values, so its output doesn't change; the
+ * configuration passed in is never changed, so a saved one is never
+ * rewritten.
  */
 export function sanitizeLogoConfig(config: LogoConfig): LogoConfig {
   const layout = part(config.layout, defaultLogoConfig.layout);
@@ -119,7 +176,11 @@ export function sanitizeLogoConfig(config: LogoConfig): LogoConfig {
     emblem: sanitizeEmblemConfig(part(config.emblem, defaultLogoConfig.emblem)),
     tile: sanitizeTile(config.tile),
     wordmark: sanitizeWordmark(config.wordmark),
-    layout: { ...layout, ...fitFields(layout, defaultLogoConfig.layout, layoutRanges) },
+    layout: {
+      ...layout,
+      ...fitFields(layout, defaultLogoConfig.layout, layoutRanges),
+      background: colour(layout.background, defaultLogoConfig.layout.background),
+    },
     animation: sanitizeAnimation(config.animation),
   };
 }

@@ -1,4 +1,5 @@
 import type { Font } from 'opentype.js';
+import { idChar } from './idChar';
 import { crossbarRight, flattenCommands, horizontalStrokeEnd, type StrokeJoin } from './outline';
 import { palette } from './palette';
 import type { Box, PathShape, Point, WordmarkModel } from './types';
@@ -127,7 +128,7 @@ export function buildWordmark(config: WordmarkConfig, font: Font, fontSize: numb
     }
     lineGlyphs.push(placed);
     placed.forEach(({ glyph, colour }, i) =>
-      shapes.push({ id: `glyph-${lineIndex}-${i}-${glyph.char}`, d: glyph.d, fill: colour }),
+      shapes.push({ id: `glyph-${lineIndex}-${i}-${idChar(glyph.char)}`, d: glyph.d, fill: colour }),
     );
   });
 

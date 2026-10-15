@@ -1,7 +1,9 @@
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
+import { loadLogoFontsFromDisk } from '../../../../scripts/node-fonts';
+import type { LogoFonts } from '../../../shared';
 import { defaultLogoConfig, neutralVariation, type EmblemConfig } from './config';
 import { clampCornerRadius } from './bounds';
-import { generateFacets, generateLayers } from './geometry';
+import { buildLogo, generateFacets, generateLayers } from './geometry';
 import { Channel, sample } from './random';
 import type { SheetLayer } from './types';
 
@@ -22,8 +24,19 @@ describe('generateLayers', () => {
   });
 
   it('cycles the palette from back to front', () => {
-    const layers = generateLayers({ ...emblem, layerCount: 5, colours: ['a', 'b'] });
-    expect(layers.map((l) => l.fill)).toEqual(['a', 'b', 'a', 'b', 'a']);
+    const layers = generateLayers({ ...emblem, layerCount: 5, colours: ['#aaaaaa', '#BBBBBB'] });
+    expect(layers.map((l) => l.fill)).toEqual(['#aaaaaa', '#BBBBBB', '#aaaaaa', '#BBBBBB', '#aaaaaa']);
+  });
+
+  it('draws with the default colours when the list is empty or holds anything but colours', () => {
+    for (const colours of [[], ['#aaaaaa', 'red'], ['url(#x)'], [' #aaaaaa']]) {
+      const layers = generateLayers({ ...emblem, layerCount: 4, colours });
+      const [a, b] = defaultLogoConfig.emblem.colours;
+      expect(
+        layers.map((l) => l.fill),
+        JSON.stringify(colours),
+      ).toEqual([a, b, a, b]);
+    }
   });
 
   it('tapers sizes linearly from the back layer to the front one', () => {
@@ -142,5 +155,29 @@ describe('generateFacets', () => {
   it('follows rounded corners with arcs', () => {
     const facets = generateFacets(-50, -50, 100, 4, shading);
     for (const facet of facets) expect(facet.d.match(/A/g)).toHaveLength(2);
+  });
+});
+
+describe('tile lettering ids', () => {
+  let fonts: LogoFonts;
+  beforeAll(async () => {
+    fonts = await loadLogoFontsFromDisk();
+  });
+  const ids = (text: string) =>
+    buildLogo({ ...defaultLogoConfig, tile: { ...defaultLogoConfig.tile, text } }, fonts).emblem.tile.lettering.map(
+      (l) => l.id,
+    );
+
+  it('name each letter by its character, as they always have', () => {
+    expect(ids('TS')).toEqual(['tile-letter-0-T', 'tile-letter-1-S']);
+  });
+
+  it('write any character outside letters, digits, _ and - as its code point', () => {
+    expect(ids('T "<')).toEqual([
+      'tile-letter-0-T',
+      'tile-letter-1-u0020',
+      'tile-letter-2-u0022',
+      'tile-letter-3-u003c',
+    ]);
   });
 });

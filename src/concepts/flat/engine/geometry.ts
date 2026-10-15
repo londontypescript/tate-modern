@@ -2,6 +2,7 @@ import type { Font } from 'opentype.js';
 import {
   capHeightRatio,
   glyphBounds,
+  idChar,
   layoutTextRun,
   palette,
   placeWordmark,
@@ -33,7 +34,8 @@ export function generateLayers(input: EmblemConfig): SheetLayer[] {
   const config = sanitizeEmblemConfig(input);
   // Already a whole number: rounding happens once, in the sanitising.
   const count = config.layerCount;
-  const colours = config.colours.length > 0 ? config.colours : [palette.blue];
+  // Never empty: the sanitising gives an empty or broken list the default colours.
+  const colours = config.colours;
   return Array.from({ length: count }, (_, index) => {
     const u = (channel: ChannelKey) => sample(config.seed, index, channel);
     const depth = count > 1 ? index / (count - 1) : 0;
@@ -142,7 +144,7 @@ function generateLettering(config: TileConfig, font: Font, x: number, y: number)
     x: right - glyphBounds(measured.glyphs).maxX,
   });
   return placed.glyphs.map((g, i) => ({
-    id: `tile-letter-${i}-${g.char}`,
+    id: `tile-letter-${i}-${idChar(g.char)}`,
     d: g.d,
     fill: config.textColour,
   }));

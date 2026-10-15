@@ -1,4 +1,5 @@
 import { use, useMemo, useState } from 'react';
+import type { LogoFonts } from '../../shared';
 import { loadLogoFonts, usePrefersReducedMotion } from '../../shared/react';
 import { PresetsPanel } from '../../studio/PresetsPanel';
 import { StudioLayout } from '../../studio/StudioLayout';
@@ -19,6 +20,8 @@ import {
   neutralVariation,
   sanitizeLogoConfig,
   type BlendMode,
+  type LogoConfig,
+  type LogoModel,
 } from './engine';
 import { SliderPanels } from './SliderPanels';
 import { flatStarters, irregularSmallerSheets } from './starters';
@@ -32,6 +35,25 @@ const PRESETS_KEY = 'lts-logo:presets:v1';
  * they did whatever the defaults become.
  */
 export const fillMissing = { emblem: neutralVariation, tile: { halo: neutralHalo } };
+
+/**
+ * The configuration as the engine reads it (`used`), and the logo drawn from
+ * it. The studio previews, shows and downloads this one checked
+ * configuration; `config` itself, and so what is saved, stays as it was.
+ */
+export function studioView(config: LogoConfig, fonts: LogoFonts) {
+  const used = sanitizeLogoConfig(config);
+  return { used, logo: buildLogo(used, fonts) };
+}
+
+/** What the Download buttons write: the logo as previewed, on the checked background when asked for. */
+export function studioSvg(
+  { used, logo }: { used: LogoConfig; logo: LogoModel },
+  variant: SvgVariant,
+  withBackground: boolean,
+) {
+  return renderLogoSvg(variant, logo, { background: withBackground ? used.layout.background : undefined });
+}
 
 function download(variant: SvgVariant, svg: string) {
   const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
@@ -56,18 +78,13 @@ export default function FlatStudio() {
   };
   const reducedMotion = usePrefersReducedMotion();
 
-  // The configuration as the engine reads it, which is what is drawn (the
-  // sliders read it the same way). `config` itself, and so what is saved, stays as it was.
-  const used = useMemo(() => sanitizeLogoConfig(config), [config]);
-  const logo = useMemo(() => buildLogo(used, fonts), [used, fonts]);
+  // What is drawn, shown and downloaded, and what the toggles and sliders read, is the checked configuration.
+  const view = useMemo(() => studioView(config, fonts), [config, fonts]);
+  const { used, logo } = view;
   const rotations = useLayerRotations(logo.emblem.layers, used.animation, animating);
-  const cream = { backgroundColor: config.layout.background };
+  const cream = { backgroundColor: used.layout.background };
 
-  const exportSvg = (variant: SvgVariant) =>
-    download(
-      variant,
-      renderLogoSvg(variant, logo, { background: exportBackground ? config.layout.background : undefined }),
-    );
+  const exportSvg = (variant: SvgVariant) => download(variant, studioSvg(view, variant, exportBackground));
 
   const previews = (
     <>
@@ -118,14 +135,14 @@ export default function FlatStudio() {
         </div>
         <Toggle
           label="Alternate rotation directions"
-          checked={config.animation.alternateDirection}
+          checked={used.animation.alternateDirection}
           onChange={(alternateDirection) =>
             setConfig((c) => ({ ...c, animation: { ...c.animation, alternateDirection } }))
           }
         />
         <Toggle
           label="Multiply overlaps (tinted glass)"
-          checked={config.emblem.blendMode === 'multiply'}
+          checked={used.emblem.blendMode === 'multiply'}
           onChange={(on) =>
             setConfig((c) => ({
               ...c,
