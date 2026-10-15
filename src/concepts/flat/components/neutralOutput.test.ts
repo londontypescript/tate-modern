@@ -3,7 +3,8 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { loadLogoFontsFromDisk } from '../../../../scripts/node-fonts';
 import type { LogoFonts } from '../../../shared';
 import { parsePresets } from '../../../studio/presets';
-import { buildLogo, defaultLogoConfig, neutralHalo, neutralVariation, type LogoConfig } from '../engine';
+import { buildLogo, neutralHalo, neutralVariation, type LogoConfig } from '../engine';
+import { defaults12October } from '../frozenLooks';
 import { flatStarters } from '../starters';
 import { renderLogoSvg, svgVariants } from './renderSvg';
 
@@ -12,7 +13,9 @@ import { renderLogoSvg, svgVariants } from './renderSvg';
  * (commit f470180), so these tests prove the variation and halo controls
  * change nothing while they are off. Never regenerate them from newer code.
  * They were written with the fixed id prefix `lts`, before each export took
- * its prefix from its content, so these tests ask for that prefix.
+ * its prefix from its content, so these tests ask for that prefix. The
+ * `default` fixtures are the 12 October defaults, so they are compared with
+ * the frozen copy of those, never with the engine's current defaults.
  */
 const fixture = (name: string) => readFileSync(new URL(`./__fixtures__/${name}`, import.meta.url), 'utf8');
 const savedConfigs = JSON.parse(fixture('configs.json')) as Record<string, unknown>;
@@ -43,13 +46,13 @@ const variationOf = ({ emblem }: LogoConfig) => ({
 });
 
 describe('output with sheet variation off', () => {
-  it('sets the variation explicitly to neutral in the defaults and the MVP starter', () => {
-    expect(variationOf(defaultLogoConfig)).toEqual(neutralVariation);
+  it('sets the variation explicitly to neutral in the 12 October defaults and the MVP starter', () => {
+    expect(variationOf(defaults12October)).toEqual(neutralVariation);
     expect(variationOf(mvp.config)).toEqual(neutralVariation);
   });
 
-  it('renders the approved defaults byte-identically', () => {
-    expectFixtures('default', defaultLogoConfig);
+  it('renders the 12 October defaults byte-identically', () => {
+    expectFixtures('default', defaults12October);
   });
 
   it('renders the MVP starter byte-identically', () => {
@@ -60,8 +63,8 @@ describe('output with sheet variation off', () => {
     // Defaults with the variation on, as they may become: older saved
     // configurations still load, through the real path, with it off.
     const defaults: LogoConfig = {
-      ...defaultLogoConfig,
-      emblem: { ...defaultLogoConfig.emblem, rotationJitter: 6, sizeJitter: 0.1, offsetJitter: 4, seed: 9 },
+      ...defaults12October,
+      emblem: { ...defaults12October.emblem, rotationJitter: 6, sizeJitter: 0.1, offsetJitter: 4, seed: 9 },
     };
     const stored = JSON.stringify(Object.entries(savedConfigs).map(([id, config]) => ({ id, name: id, config })));
     const presets = parsePresets(stored, defaults, { emblem: neutralVariation });
@@ -71,7 +74,7 @@ describe('output with sheet variation off', () => {
 
   it('renders identically for every seed while the variation is off', () => {
     for (const seed of [1, 2, 500, 999]) {
-      expectFixtures('default', { ...defaultLogoConfig, emblem: { ...defaultLogoConfig.emblem, seed } });
+      expectFixtures('default', { ...defaults12October, emblem: { ...defaults12October.emblem, seed } });
     }
   });
 });
@@ -96,19 +99,19 @@ describe('output of the 14 October starters', () => {
 
 describe('output with the halo off', () => {
   const withHalo = (halo: LogoConfig['tile']['halo']): LogoConfig => ({
-    ...defaultLogoConfig,
-    tile: { ...defaultLogoConfig.tile, halo },
+    ...defaults12October,
+    tile: { ...defaults12October.tile, halo },
   });
 
-  it('sets the halo explicitly to neutral in the defaults and the MVP starter', () => {
-    expect(defaultLogoConfig.tile.halo).toEqual(neutralHalo);
+  it('sets the halo explicitly to neutral in the 12 October defaults and the MVP starter', () => {
+    expect(defaults12October.tile.halo).toEqual(neutralHalo);
     expect(mvp.config.tile.halo).toEqual(neutralHalo);
   });
 
   it('renders byte-identically, with bounds unchanged, when the strength is 0 whatever the reach', () => {
     for (const reach of [0.5, 14, 40]) {
       const config = withHalo({ strength: 0, reach, offset: 20 });
-      expect(buildLogo(config, fonts).emblem.bounds).toEqual(buildLogo(defaultLogoConfig, fonts).emblem.bounds);
+      expect(buildLogo(config, fonts).emblem.bounds).toEqual(buildLogo(defaults12October, fonts).emblem.bounds);
       expectFixtures('default', config);
     }
   });
@@ -118,7 +121,7 @@ describe('output with the halo off', () => {
       const config = withHalo({ strength, reach: 0, offset: 20 });
       const logo = buildLogo(config, fonts);
       expect(logo.emblem.halo).toBeUndefined();
-      expect(logo.emblem.rotationSafeBounds).toEqual(buildLogo(defaultLogoConfig, fonts).emblem.rotationSafeBounds);
+      expect(logo.emblem.rotationSafeBounds).toEqual(buildLogo(defaults12October, fonts).emblem.rotationSafeBounds);
       expectFixtures('default', config);
     }
   });

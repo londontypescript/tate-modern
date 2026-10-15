@@ -1,5 +1,6 @@
 import type { StarterConfig } from '../../studio/presets';
-import { defaultLogoConfig, type LogoConfig } from './engine';
+import type { LogoConfig } from './engine';
+import { defaults12October, irregular14October } from './frozenLooks';
 
 /**
  * The first flat logo, as approved on 11 October 2026 and exported for the
@@ -63,51 +64,27 @@ const mvpLogoConfig: LogoConfig = {
 };
 
 /**
- * A starting point closer to the 2D mockup than the defaults: one
- * strong fade shared by every sheet, sheets varied by seed so the
- * arrangement looks irregular rather than formulaic, and the halo lifting
- * the tile. Built on the defaults, which stay as approved.
- */
-const irregularSheets: LogoConfig = {
-  ...defaultLogoConfig,
-  emblem: {
-    ...defaultLogoConfig.emblem,
-    squareSize: 175,
-    opacity: 0.5,
-    fade: 0.55,
-    fadeTurn: 0,
-    fadeAngle: 315,
-    rotationJitter: 12,
-    sizeJitter: 0.15,
-    aspectJitter: 0.12,
-    offsetJitter: 8,
-    seed: 7,
-  },
-  tile: { ...defaultLogoConfig.tile, halo: { strength: 0.4, reach: 14, offset: 5 } },
-};
-
-/**
  * The maintainer's chosen look: the 14 October irregular sheets with the
  * squares a little smaller. The flat studio opens on it (so it is where
  * Reset goes until another starter is picked), while `defaultLogoConfig`
  * stays the engine's default.
  */
 export const irregularSmallerSheets: LogoConfig = {
-  ...irregularSheets,
-  emblem: { ...irregularSheets.emblem, squareSize: 150 },
+  ...irregular14October,
+  emblem: { ...irregular14October.emblem, squareSize: 150 },
 };
 
 export const flatStarters: readonly StarterConfig<LogoConfig>[] = [
   {
     name: 'Original defaults',
     description: 'The approved flat logo in config.ts, still the engine’s defaults',
-    config: defaultLogoConfig,
+    config: defaults12October,
   },
   { name: 'MVP (11 Oct)', description: 'The first flat logo, before the comparison fixes', config: mvpLogoConfig },
   {
     name: 'Irregular (14 Oct)',
     description: 'Bigger, stronger irregular sheets with a fade and the halo',
-    config: irregularSheets,
+    config: irregular14October,
   },
   {
     name: 'Irregular, 150 (14 Oct)',
