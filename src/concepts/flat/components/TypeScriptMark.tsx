@@ -1,6 +1,6 @@
-import { useId } from 'react';
 import type { EmblemModel, SheetLayer } from '../engine';
 import { SvgFrame, num, shapeId, type SvgFrameProps } from '../../../shared/react/SvgFrame';
+import { useOwnIdPrefix } from '../../../shared/react/useOwnIdPrefix';
 import { TypeScriptHalo } from './TypeScriptHalo';
 import { TypeScriptTile } from './TypeScriptTile';
 
@@ -38,9 +38,6 @@ function sheetTransform(layer: SheetLayer, rotation: number) {
   return x === 0 && y === 0 ? rotate : `translate(${x} ${y}) ${rotate}`;
 }
 
-/** Characters safe in an id that a `url(#…)` reference also names. */
-const idSafe = (id: string) => id.replace(/[^A-Za-z0-9_-]/g, '');
-
 export interface MarkShapesProps {
   emblem: EmblemModel;
   /** Current layer rotations; the static composition when omitted. */
@@ -58,8 +55,8 @@ export interface MarkShapesProps {
  * from React, so each gradient's id only has to be unique within its logo.
  */
 export function MarkShapes({ emblem, rotations, idPrefix }: MarkShapesProps) {
-  const ownId = `lts${idSafe(useId())}`;
-  const fades = emblem.layers.map((layer) => layer.fade && `${idPrefix ?? ownId}-fade-${layer.index}`);
+  const gradientPrefix = useOwnIdPrefix(idPrefix);
+  const fades = emblem.layers.map((layer) => layer.fade && `${gradientPrefix}-fade-${layer.index}`);
   return (
     <g id={shapeId(idPrefix, 'emblem')}>
       {fades.some(Boolean) && (
@@ -91,7 +88,7 @@ export function MarkShapes({ emblem, rotations, idPrefix }: MarkShapesProps) {
         })}
       </g>
       {/* Outside the sheets' isolated group, with normal blending: it darkens the sheets beneath and stays still. */}
-      {emblem.halo && <TypeScriptHalo halo={emblem.halo} gradientPrefix={idPrefix ?? ownId} idPrefix={idPrefix} />}
+      {emblem.halo && <TypeScriptHalo halo={emblem.halo} gradientPrefix={gradientPrefix} idPrefix={idPrefix} />}
       <TypeScriptTile tile={emblem.tile} idPrefix={idPrefix} />
     </g>
   );

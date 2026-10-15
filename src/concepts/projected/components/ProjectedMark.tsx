@@ -1,5 +1,6 @@
 import type { Box } from '../../../shared';
 import { SvgFrame, num, shapeId, type SvgFrameProps } from '../../../shared/react/SvgFrame';
+import { useOwnIdPrefix } from '../../../shared/react/useOwnIdPrefix';
 import type { ProjectedEmblem, ProjectedFace } from '../engine';
 
 const pointsAttr = (face: ProjectedFace) => face.points.map((p) => `${num(p.x)},${num(p.y)}`).join(' ');
@@ -7,9 +8,14 @@ const pointsAttr = (face: ProjectedFace) => face.points.map((p) => `${num(p.x)},
 /** Gradient ids are prefixed per drawing, so several can share a page. */
 const gradientId = (prefix: string, face: ProjectedFace) => `${prefix}-${face.id}-shade`;
 
-/** The projected emblem's polygons (and lettering) in paint order. */
+/**
+ * The projected emblem's polygons (and lettering) in paint order. Exports
+ * name every shape with their `idPrefix`; a live drawing without one gives
+ * only its gradients ids, from its own prefix, so two drawings on one page
+ * never paint with each other's shading.
+ */
 export function ProjectedShapes({ emblem, idPrefix }: { emblem: ProjectedEmblem; idPrefix?: string }) {
-  const prefix = idPrefix ?? 'lts-projected';
+  const prefix = useOwnIdPrefix(idPrefix);
   const faces = emblem.items.filter((item): item is ProjectedFace => item.type === 'face');
   return (
     <g id={shapeId(idPrefix, 'emblem')}>

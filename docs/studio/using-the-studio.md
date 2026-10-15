@@ -94,7 +94,7 @@ Each exported SVG, from the studio's Download buttons or from `pnpm generate:ass
 
 **Not covered:** two inline copies of the _same_ file still share ids, since no prefix written into a file can tell its copies apart. They mostly render correctly, but can lose their gradients when the first copy is hidden. For repeated copies, use `<img>` or a CSS background, where each file is its own document; when the markup must be inline, give each copy its own ids with a tool such as SVGO's `prefixIds` or SVGR.
 
-`<img>`, CSS backgrounds and the flat concept's live React components (which take their ids from React's `useId`) were never affected.
+`<img>` and CSS backgrounds were never affected. The live React components of the flat and projected concepts, which the studio draws, take their gradients' ids from React's `useId` when given no `idPrefix`, so several can share a page too: the projected page's live 3D comparison shows two drawings of one emblem, each with its own ids.
 
 These files are build artefacts. Never edit them by hand: change the configuration (for the flat concept, `src/concepts/flat/engine/config.ts`) and run `pnpm generate:assets`.
 
