@@ -17,7 +17,7 @@ export const concepts: readonly Concept[] = [
   {
     id: 'flat',
     name: 'Flat',
-    summary: 'Translucent squares rotated about a faceted tile: pure 2D SVG, the first MVP.',
+    summary: 'Translucent squares rotated about a faceted tile, in pure 2D SVG.',
     Component: lazy(() => import('../concepts/flat/FlatStudio')),
   },
   {

@@ -1,6 +1,6 @@
 # The score's reference
 
-What `pnpm score` compares candidates against: the ChatGPT original's mark (`public/references/chatgpt-original.webp`,
+What `pnpm score` compares candidates against: the 2D mockup's mark (`public/references/flat-mockup.webp`,
 1808 × 870, lossy WebP, SHA-256 `ba40741dc3bf5f4251199020ac606edf6ab8320144558c37f68505430eaf6669`) decoded once into
 lossless files. Tests read only these files.
 
@@ -43,8 +43,8 @@ across and down.
 Tools: `dwebp` 1.6.0 (libwebp, Homebrew) and Node 24.
 
 ```sh
-dwebp public/references/chatgpt-original.webp -o /tmp/chatgpt-original.png
-pnpm score --make-reference /tmp/chatgpt-original.png
+dwebp public/references/flat-mockup.webp -o /tmp/flat-mockup.png
+pnpm score --make-reference /tmp/flat-mockup.png
 pnpm exec prettier --write scripts/score/reference/registration.json
 ```
 

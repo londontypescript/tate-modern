@@ -4,7 +4,7 @@
  *   pnpm score <configs.json> [--json]
  *
  * ranks a list of `{ "label": …, "config": … }` flat logo configurations
- * against the ChatGPT original (exit 1 on invalid input, 2 when none is
+ * against the 2D mockup (exit 1 on invalid input, 2 when none is
  * eligible). `--json` prints the ranking with its provenance.
  *
  *   pnpm score --sheet <configs.json> <folder>

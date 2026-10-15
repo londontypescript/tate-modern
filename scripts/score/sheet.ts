@@ -31,7 +31,7 @@ figcaption{margin-top:6px}
 </style></head><body>
 <p>Every image is the same registered canvas at the same width: true scale, the tile placed identically in each.</p>
 <div class="grid">
-${[figure('original.png', 'The original (ChatGPT)'), ...cells.map((c) => figure(c.file, c.caption))].join('\n')}
+${[figure('original.png', 'The 2D mockup'), ...cells.map((c) => figure(c.file, c.caption))].join('\n')}
 </div>
 </body></html>
 `;

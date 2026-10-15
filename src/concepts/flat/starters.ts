@@ -3,7 +3,7 @@ import { defaultLogoConfig, type LogoConfig } from './engine';
 
 /**
  * The first flat logo, as approved on 11 October 2026 and exported for the
- * comparison with the ChatGPT original. Kept verbatim, colours included, so
+ * comparison with the 2D mockup. Kept verbatim, colours included, so
  * later changes to the defaults and palette can always be compared with it.
  */
 const mvpLogoConfig: LogoConfig = {
@@ -63,7 +63,7 @@ const mvpLogoConfig: LogoConfig = {
 };
 
 /**
- * A starting point closer to the ChatGPT original than the defaults: one
+ * A starting point closer to the 2D mockup than the defaults: one
  * strong fade shared by every sheet, sheets varied by seed so the
  * arrangement looks irregular rather than formulaic, and the halo lifting
  * the tile. Built on the defaults, which stay as approved.

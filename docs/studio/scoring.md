@@ -1,6 +1,6 @@
 # Scoring the flat emblem
 
-`scripts/score/` is diagnostic tooling for comparing the flat emblem with the ChatGPT original at true scale. It
+`scripts/score/` is diagnostic tooling for comparing the flat emblem with the 2D mockup at true scale. It
 was built to rank colours for P2 of [the 0.3.0 plan](../plans/0.3.0.md); the maintainer chose the look by eye
 instead.
 
