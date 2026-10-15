@@ -11,6 +11,8 @@ import { renderLogoSvg, svgVariants } from './renderSvg';
  * The fixtures were rendered by the code before sheet variation existed
  * (commit f470180), so these tests prove the variation and halo controls
  * change nothing while they are off. Never regenerate them from newer code.
+ * They were written with the fixed id prefix `lts`, before each export took
+ * its prefix from its content, so these tests ask for that prefix.
  */
 const fixture = (name: string) => readFileSync(new URL(`./__fixtures__/${name}`, import.meta.url), 'utf8');
 const savedConfigs = JSON.parse(fixture('configs.json')) as Record<string, unknown>;
@@ -23,7 +25,9 @@ beforeAll(async () => {
 const expectFixtures = (name: string, config: LogoConfig) => {
   const logo = buildLogo(config, fonts);
   for (const variant of svgVariants) {
-    expect(renderLogoSvg(variant, logo), `${name}.${variant}.svg`).toBe(fixture(`${name}.${variant}.svg`));
+    expect(renderLogoSvg(variant, logo, { idPrefix: 'lts' }), `${name}.${variant}.svg`).toBe(
+      fixture(`${name}.${variant}.svg`),
+    );
   }
 };
 

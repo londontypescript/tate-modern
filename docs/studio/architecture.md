@@ -12,8 +12,8 @@ To add a concept, create `src/concepts/<name>/`, export a page component that re
 
 ```
 src/
-  shared/              palette, fonts, typography, wordmark (framework-free)
-    react/             SVG frame, wordmark renderer, browser font loading
+  shared/              palette, fonts, typography, wordmark, SHA-256 (framework-free)
+    react/             SVG frame, wordmark renderer, standalone SVG export, browser font loading
   concepts/
     three/             3D concept: config, stack maths, R3F scene, studio page
     projected/         projected concept: engine (projection, shading), SVG components, studio page
@@ -45,7 +45,7 @@ Both fonts are SIL Open Font License 1.1, installed from `@fontsource` and pinne
 - **Geometry:** layer rotations, palette cycling, size taper, the closed-form bounds and their 90° symmetry, and the rotation-safe radius.
 - **Animation:** distinct deterministic speeds, integration, shortest symmetric settling, and the easing.
 - **Layout:** the tile aligns with the top of "London" and the baseline of "TypeScript" at several sizes; the emblem–wordmark gap; and the flourishes mirroring each other and joining their strokes.
-- **Export:** identical output on every run; valid standalone documents with no `<text>` or images; every square present as its own element.
+- **Export:** identical output on every run; valid standalone documents with no `<text>` or images; every square present as its own element; ids taken from each file's content, unique and resolving within their own SVG when different exports share a page; the generated assets matching the studio's download; SHA-256 against published test vectors.
 - **Saved configurations:** parsing corrupt storage, and merging older saved configurations with current defaults.
 - **3D stack:** the prototype's placement of each slab, drift and opacity falloff, the scrambled angles, and the slab's chamfer measurements.
 - **Projection:** the slab faces against `ExtrudeGeometry`'s layout, the colour conversions and tone mapping, metal lit only by its specular lobe, culling, paint order, lettering, gradients, spinning, and deterministic, self-contained SVG output.

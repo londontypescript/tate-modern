@@ -82,7 +82,19 @@ Each file is:
 - **Deterministic:** the same configuration always produces byte-identical files.
 - **Transparent:** no background, so it can sit on anything.
 
-Each square, facet and glyph is its own element with an `lts-…` id, for example `lts-layer-3`.
+Each square, facet and glyph is its own element with an id: `lts-`, the file's own prefix of 32 hex digits, then the shape's name, for example `lts-78ea8feaba35190bc341db321e637e29-layer-3`. To find a shape, look for the name at the end (`-layer-3`). The prefix is the same for every id in one file.
+
+### Ids and pages with several logos
+
+Each exported SVG, from the studio's Download buttons or from `pnpm generate:assets`, takes its id prefix from its own content: the file is drawn once with the plain prefix `lts`, that drawing is hashed (SHA-256) with its concept and variant, and the file is drawn again with `lts-` and 128 bits of the hash. So:
+
+- **Different logos can share a page inline.** Every id in the file carries the prefix (squares, tile, glyphs, gradients, masks), and so does every `url(#…)` that points at one, so a second logo never paints with the first one's fades or halo. The mark, wordmark and complete logo of one design each get their own prefix.
+- **The same file always gets the same ids.** Exporting again, or regenerating the assets, gives byte-identical files, and the studio's download matches `pnpm generate:assets` for the same configuration.
+- **Changing anything changes the ids,** the background included. Don't rely on a shape's full id across versions of the logo; rely on its name.
+
+**Not covered:** two inline copies of the _same_ file still share ids, since no prefix written into a file can tell its copies apart. They mostly render correctly, but can lose their gradients when the first copy is hidden. For repeated copies, use `<img>` or a CSS background, where each file is its own document; when the markup must be inline, give each copy its own ids with a tool such as SVGO's `prefixIds` or SVGR.
+
+`<img>`, CSS backgrounds and the flat concept's live React components (which take their ids from React's `useId`) were never affected.
 
 These files are build artefacts. Never edit them by hand: change the configuration (for the flat concept, `src/concepts/flat/engine/config.ts`) and run `pnpm generate:assets`.
 
