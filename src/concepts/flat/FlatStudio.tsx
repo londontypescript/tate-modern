@@ -44,7 +44,7 @@ function download(variant: SvgVariant, svg: string) {
 export default function FlatStudio() {
   const fonts = use(loadLogoFonts());
   // Saved configurations are still filled in from the engine defaults; only
-  // the opening point and Reset use the chosen look.
+  // the opening point, and so Reset's first target, is the chosen look.
   const state = useConceptState(defaultLogoConfig, irregularSmallerSheets);
   const { config, setConfig } = state;
   const [animating, setAnimating] = useState(false);

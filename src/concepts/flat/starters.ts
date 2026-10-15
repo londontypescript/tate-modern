@@ -88,8 +88,9 @@ const irregularSheets: LogoConfig = {
 
 /**
  * The maintainer's chosen look: the 14 October irregular sheets with the
- * squares a little smaller. The flat studio opens on it and Reset returns
- * to it, while `defaultLogoConfig` stays the engine's default.
+ * squares a little smaller. The flat studio opens on it (so it is where
+ * Reset goes until another starter is picked), while `defaultLogoConfig`
+ * stays the engine's default.
  */
 export const irregularSmallerSheets: LogoConfig = {
   ...irregularSheets,

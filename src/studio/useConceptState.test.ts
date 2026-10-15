@@ -46,6 +46,9 @@ describe('useConceptState', () => {
 
   it('resets to the starter picked since opening, which loading a saved configuration does not move', () => {
     const { last } = run(engine, chosen, [(s) => s.startFrom(other), (s) => s.load(edited, 'saved'), (s) => s.reset()]);
-    expect(last).toMatchObject({ config: other, baseline: other, startingPoint: other, activeId: null });
+    // The same object, not a copy: the pressed starter is found by identity.
+    expect(last.startingPoint).toBe(other);
+    expect(last.config).toBe(other);
+    expect(last).toMatchObject({ baseline: other, activeId: null });
   });
 });
