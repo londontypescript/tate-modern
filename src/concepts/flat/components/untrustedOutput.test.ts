@@ -16,13 +16,15 @@ beforeAll(async () => {
 const finiteBox = (box: Box) => [box.minX, box.minY, box.maxX, box.maxY].every(Number.isFinite);
 
 describe('the logo from a saved configuration with untrusted numbers', () => {
-  it('builds finite bounds and writes well-formed SVG, whichever field is bad', () => {
-    for (const [path] of numericLeaves) {
+  // One test per field: all of them in one test took close to the default
+  // timeout on a slow runner, and a failure now names the field.
+  for (const [path] of numericLeaves) {
+    it(`builds finite bounds and writes well-formed SVG when ${pathName(path)} is bad`, () => {
       for (const [name, value] of untrusted) {
         expectWellFormed(`${pathName(path)} = ${name}`, withLeaf(path, value));
       }
-    }
-  });
+    });
+  }
 
   it('builds and writes well-formed SVG when a part of the configuration is malformed', () => {
     for (const [name, config] of malformedContainers) expectWellFormed(name, config);
