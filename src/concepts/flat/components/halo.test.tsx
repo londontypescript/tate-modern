@@ -30,7 +30,7 @@ const shadowOf = (svg: string) => elements(haloMarkup(svg), 'rect')[0];
 
 describe('the halo as written to the SVG', () => {
   it('is drawn after the sheets, outside their isolated group, with normal blending, before the tile', () => {
-    const svg = renderLogoSvg('mark', buildLogo(withHalo(on), fonts));
+    const svg = renderLogoSvg('mark', buildLogo(withHalo(on), fonts), { idPrefix: 'lts' });
     const layersEnd = svg.indexOf('</g>', svg.indexOf('id="lts-layers"'));
     const halo = svg.indexOf('id="lts-halo"');
     expect(layersEnd).toBeGreaterThan(0);
@@ -63,7 +63,7 @@ describe('the halo as written to the SVG', () => {
         expect(svg, variant).not.toMatch(/<filter|filter=|filter:/);
       }
     }
-    expect(renderLogoSvg('mark', logo)).toContain('lts-halo');
+    expect(renderLogoSvg('mark', logo)).toMatch(/ id="lts-[0-9a-f]{32}-halo"/);
   });
 });
 

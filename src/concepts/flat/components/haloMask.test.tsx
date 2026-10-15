@@ -14,7 +14,8 @@ beforeAll(async () => {
 const on: HaloConfig = { strength: 0.8, reach: 20, offset: 8 };
 const markupFor = (halo: HaloConfig, cornerRadius = 0.8, size = 100) => {
   const config: LogoConfig = { ...defaultLogoConfig, tile: { ...defaultLogoConfig.tile, cornerRadius, size, halo } };
-  return haloMarkup(renderLogoSvg('mark', buildLogo(config, fonts)));
+  // The fixed prefix lets the checks below name each piece.
+  return haloMarkup(renderLogoSvg('mark', buildLogo(config, fonts), { idPrefix: 'lts' }));
 };
 const corners = ['top-left', 'top-right', 'bottom-right', 'bottom-left'];
 const sides = ['left', 'right', 'top', 'bottom'];

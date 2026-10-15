@@ -145,7 +145,7 @@ describe('the fade on a non-square, offset sheet', () => {
   it('lives in the sheet’s own frame, across its smaller side, at its true angle', () => {
     const config = withEmblem({ ...strong, seed: 3, fade: 0.6, fadeAngle: 37, fadeTurn: 0 });
     const logo = buildLogo(config, fonts);
-    const svg = renderLogoSvg('mark', logo);
+    const svg = renderLogoSvg('mark', logo, { idPrefix: 'lts' });
     const gradients = elements(svg, 'linearGradient');
     const sheets = writtenSheets(svg);
     const layer = logo.emblem.layers.find(
@@ -170,7 +170,7 @@ describe('the fade on a non-square, offset sheet', () => {
 
   it('runs edge to edge across a square, as the bounding-box gradient did', () => {
     const logo = buildLogo(withEmblem({ fade: 0.8, fadeAngle: 20, fadeTurn: 137.5 }), fonts);
-    const svg = renderLogoSvg('mark', logo);
+    const svg = renderLogoSvg('mark', logo, { idPrefix: 'lts' });
     const gradients = elements(svg, 'linearGradient');
     logo.emblem.layers.forEach((layer) => {
       const g = gradients.find((x) => x.id === `lts-fade-${layer.index}`) ?? {};
@@ -216,12 +216,12 @@ describe('gradient ids', () => {
     });
   });
 
-  it('keep the lts namespace in exports, one per sheet', () => {
+  it('take the export’s own prefix, one per sheet', () => {
     const svg = renderLogoSvg('mark', buildLogo(withEmblem({ fade: 0.5 }), fonts));
+    const prefix = / id="(lts-[0-9a-f]{32})-emblem"/.exec(svg)?.[1];
+    expect(prefix).toBeDefined();
     expect(elements(svg, 'linearGradient').map((g) => g.id)).toEqual(
-      defaultLogoConfig.emblem.layerCount > 0
-        ? Array.from({ length: defaultLogoConfig.emblem.layerCount }, (_, i) => `lts-fade-${i}`)
-        : [],
+      Array.from({ length: defaultLogoConfig.emblem.layerCount }, (_, i) => `${prefix}-fade-${i}`),
     );
   });
 });

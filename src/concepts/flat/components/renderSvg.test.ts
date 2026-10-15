@@ -32,7 +32,7 @@ describe('renderLogoSvg', () => {
   });
 
   it('keeps every square as its own rotated element', () => {
-    const svg = renderLogoSvg('mark', logo);
+    const svg = renderLogoSvg('mark', logo, { idPrefix: 'lts' });
     for (const layer of logo.emblem.layers) {
       expect(svg).toContain(`id="lts-${layer.id}"`);
       expect(svg).toContain(`transform="rotate(${layer.rotation})"`);

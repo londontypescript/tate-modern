@@ -39,9 +39,10 @@ describe('renderProjectedSvg', () => {
   });
 
   it('includes the lettering and the wordmark only where they belong', () => {
-    expect(renderProjectedSvg('mark', lockup(true))).toContain('id="lts-lettering"');
-    expect(renderProjectedSvg('mark', lockup(false))).not.toContain('id="lts-lettering"');
-    expect(renderProjectedSvg('logo', lockup())).toContain('id="lts-wordmark"');
-    expect(renderProjectedSvg('mark', lockup())).not.toContain('id="lts-wordmark"');
+    const named = { idPrefix: 'lts' };
+    expect(renderProjectedSvg('mark', lockup(true), named)).toContain('id="lts-lettering"');
+    expect(renderProjectedSvg('mark', lockup(false), named)).not.toContain('id="lts-lettering"');
+    expect(renderProjectedSvg('logo', lockup(), named)).toContain('id="lts-wordmark"');
+    expect(renderProjectedSvg('mark', lockup(), named)).not.toContain('id="lts-wordmark"');
   });
 });
