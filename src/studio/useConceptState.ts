@@ -14,7 +14,7 @@ export interface ConceptState<T> {
   /** The saved configuration being edited, if any. */
   activeId: string | null;
   setActiveId: (id: string | null) => void;
-  /** Back to the defaults, unloading any saved configuration. */
+  /** Back to the initial configuration, unloading any saved configuration. */
   reset: () => void;
   /** Starts afresh from a given configuration (a starter). */
   startFrom: (config: T) => void;
@@ -22,9 +22,14 @@ export interface ConceptState<T> {
   load: (config: T, id: string) => void;
 }
 
-export function useConceptState<T>(defaults: T): ConceptState<T> {
-  const [config, setConfig] = useState<T>(defaults);
-  const [baseline, setBaseline] = useState<T>(defaults);
+/**
+ * `defaults` is what saved configurations are filled in from. `initial` is
+ * what the concept opens on and Reset returns to; it differs only when a
+ * concept opens on a chosen look rather than the engine's defaults.
+ */
+export function useConceptState<T>(defaults: T, initial: T = defaults): ConceptState<T> {
+  const [config, setConfig] = useState<T>(initial);
+  const [baseline, setBaseline] = useState<T>(initial);
   const [activeId, setActiveId] = useState<string | null>(null);
   const startFrom = (next: T) => {
     setConfig(next);
@@ -38,7 +43,7 @@ export function useConceptState<T>(defaults: T): ConceptState<T> {
     baseline,
     activeId,
     setActiveId,
-    reset: () => startFrom(defaults),
+    reset: () => startFrom(initial),
     startFrom,
     load: (next, id) => {
       setConfig(next);
