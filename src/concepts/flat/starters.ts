@@ -86,12 +86,32 @@ const irregularSheets: LogoConfig = {
   tile: { ...defaultLogoConfig.tile, halo: { strength: 0.4, reach: 14, offset: 5 } },
 };
 
+/**
+ * The maintainer's chosen look: the 14 October irregular sheets with the
+ * squares a little smaller. The flat studio opens on it (so it is where
+ * Reset goes until another starter is picked), while `defaultLogoConfig`
+ * stays the engine's default.
+ */
+export const irregularSmallerSheets: LogoConfig = {
+  ...irregularSheets,
+  emblem: { ...irregularSheets.emblem, squareSize: 150 },
+};
+
 export const flatStarters: readonly StarterConfig<LogoConfig>[] = [
-  { name: 'Current defaults', description: 'The approved flat logo in config.ts', config: defaultLogoConfig },
+  {
+    name: 'Original defaults',
+    description: 'The approved flat logo in config.ts, still the engine’s defaults',
+    config: defaultLogoConfig,
+  },
   { name: 'MVP (11 Oct)', description: 'The first flat logo, before the comparison fixes', config: mvpLogoConfig },
   {
     name: 'Irregular (14 Oct)',
     description: 'Bigger, stronger irregular sheets with a fade and the halo',
     config: irregularSheets,
+  },
+  {
+    name: 'Irregular, 150 (14 Oct)',
+    description: 'The chosen look: the irregular sheets at size 150; the studio opens on it',
+    config: irregularSmallerSheets,
   },
 ];

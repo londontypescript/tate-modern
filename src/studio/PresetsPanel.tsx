@@ -21,7 +21,8 @@ const savedAtLabel = (iso: string) =>
  * Save, load, rename and delete named configurations in localStorage, plus
  * the read-only starting points a concept ships with. Loading a preset makes
  * it the one being edited; "Save changes" writes the current settings back
- * to it. "New" starts again from the concept's defaults; "Duplicate" saves
+ * to it. The starter Reset and "New" go back to is shown pressed: what the
+ * concept opened on, or the starter picked since. "Duplicate" saves
  * the current settings as a new configuration.
  */
 export function PresetsPanel<T>({
@@ -58,7 +59,7 @@ export function PresetsPanel<T>({
   };
 
   const startNew = () => {
-    if (dirty && !window.confirm('Discard your unsaved changes and start from the defaults?')) return;
+    if (dirty && !window.confirm('Discard your unsaved changes and start again?')) return;
     setRenaming(null);
     state.reset();
   };
@@ -126,7 +127,7 @@ export function PresetsPanel<T>({
           <div className="flex flex-wrap gap-2">
             {starters.map((starter) => (
               <span key={starter.name} title={starter.description}>
-                <Button small onClick={() => startFrom(starter)}>
+                <Button small pressed={starter.config === state.startingPoint} onClick={() => startFrom(starter)}>
                   {starter.name}
                 </Button>
               </span>

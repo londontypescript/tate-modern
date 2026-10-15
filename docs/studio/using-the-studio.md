@@ -13,18 +13,18 @@ pnpm build            # regenerate assets, type-check, build the studio into dis
 - **Concept switcher:** the tabs in the header. The open concept is kept in the URL hash (for example `#flat`), so reloads and links keep it. Concepts load on demand.
 - **Compare with a reference:** shows one of the reference images in `public/references/` beside the previews: the ChatGPT original, the two Three.js concepts and the flat MVP export. The choice is remembered in this browser.
 
-The flat concept has:
+The flat concept opens on `Irregular, 150 (14 Oct)`, the maintainer's chosen look; the engine defaults (`defaultLogoConfig`) are the `Original defaults` starter. It has:
 
 - **Previews:** the complete logo on the reference's cream background, a static emblem, and an animation preview.
 - **Sliders:**
   - Squares: layer count, rotation increment, initial rotation, size, size taper, corner radius, opacity, and the fade across each square (strength, turn per square, first direction).
-  - Sheet variation: random, per-sheet departures from the even rosette, all off (0) by default, so the approved logo doesn't change until you turn them up.
+  - Sheet variation: random, per-sheet departures from the even rosette, all off (0) in the engine defaults (the `Original defaults` starter); the look the studio opens on turns them up.
     - **Uneven angles** (0-20°): turns each sheet by up to this much either way.
     - **Uneven sizes** (0-0.3): grows or shrinks each sheet by up to this fraction, on top of the taper.
     - **Stretch from square** (0-0.3): makes each sheet a rectangle, up to this fraction wider and as much shorter (or the other way), so its average side stays the same.
     - **Shift off centre** (0-20, where the tile is 100 wide): moves each sheet's centre by up to this much across and, separately, up or down. Each sheet still turns about its own centre.
     - **Variation seed** (1-999): picks which random variation you get. The same seed always gives the same emblem; changing the number of layers keeps the existing sheets' variation and adds new sheets after them.
-  - Halo: a soft navy shadow under the tile, so it looks lifted off the sheets, as in the ChatGPT original. It is the tile's outline moved left and down, solid, with a soft edge all round, so it is strongest on the left and bottom and faint on the top and right. It is drawn without SVG filters, as one navy shape seen through a mask of grey gradients, between the sheets and the tile, and stays still while the sheets turn. Off (strength 0) by default.
+  - Halo: a soft navy shadow under the tile, so it looks lifted off the sheets, as in the ChatGPT original. It is the tile's outline moved left and down, solid, with a soft edge all round, so it is strongest on the left and bottom and faint on the top and right. It is drawn without SVG filters, as one navy shape seen through a mask of grey gradients, between the sheets and the tile, and stays still while the sheets turn. Off (strength 0) in the engine defaults; the look the studio opens on uses strength 0.4.
     - **Halo strength** (0-1): how dark the shadow is where the tile's outline would be; 0 turns the halo off.
     - **Halo reach** (0-40, where the tile is 100 wide): how far the soft edge spreads beyond that outline; 0 also turns it off.
     - **Shadow offset** (0-20): how far the shadow moves left and, by the same amount, down.
@@ -34,10 +34,10 @@ The flat concept has:
 - **Animate squares / Stop animation:** stopping glides each sheet back to the static composition, the short way round: a square looks the same every quarter turn, a stretched sheet every half turn and a fading sheet only after a full turn. Changing a setting while they glide sends them on from where they are.
 - **Toggles:** alternate rotation directions, and "multiply overlaps" (a tinted-glass blend mode).
 - **Download SVG:** mark, wordmark or complete logo, built from your current slider settings with the same code as `generate:assets`. Optionally includes the cream background.
-- **Reset:** restores the approved `defaultLogoConfig` and unloads any saved configuration.
+- **Reset:** goes back to the starter shown pressed under **Start from** (see below) and unloads any saved configuration.
 - **Saved configurations:** keep named variations in this browser's localStorage, one list per concept.
-  - **Start from:** read-only starting points the concept ships with. The flat concept has its current defaults and the MVP exactly as approved on 11 October 2026, before the comparison fixes.
-  - **New:** starts again from the approved settings, unloading the current configuration. It asks first if there are unsaved changes.
+  - **Start from:** read-only starting points the concept ships with. The one shown pressed is where Reset and New go back to: what the studio opened on (for the flat logo, `Irregular, 150 (14 Oct)`), or the starter you picked since. Loading a saved configuration doesn't change it. Where a concept opens on its engine defaults and none of its starters matches them, none is pressed and Reset goes back to those defaults. The flat concept has its original defaults, the MVP exactly as approved on 11 October 2026 (before the comparison fixes), the irregular sheets of 14 October and, at size 150, the look the studio opens on.
+  - **New:** starts again from the pressed starter, unloading the current configuration. It asks first if there are unsaved changes.
   - **Duplicate:** saves the current settings as a new configuration named after the loaded one plus "Copy" (for example "Dense rosette Copy", then "Dense rosette Copy 2" if that name is taken) and switches to it. With nothing loaded it's called "New Config". The name opens for editing straight away; press Escape to keep it.
   - **Save as new:** stores the current settings under a name you type; that configuration is then the one being edited.
   - **Save changes:** writes the current settings back to the loaded configuration. It's enabled when there are unsaved changes.
