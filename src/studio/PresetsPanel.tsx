@@ -21,7 +21,7 @@ const savedAtLabel = (iso: string) =>
  * Save, load, rename and delete named configurations in localStorage, plus
  * the read-only starting points a concept ships with. Loading a preset makes
  * it the one being edited; "Save changes" writes the current settings back
- * to it. "New" starts again from the concept's defaults; "Duplicate" saves
+ * to it. "New" starts again from what the concept opens on; "Duplicate" saves
  * the current settings as a new configuration.
  */
 export function PresetsPanel<T>({
@@ -58,7 +58,7 @@ export function PresetsPanel<T>({
   };
 
   const startNew = () => {
-    if (dirty && !window.confirm('Discard your unsaved changes and start from the defaults?')) return;
+    if (dirty && !window.confirm('Discard your unsaved changes and start again?')) return;
     setRenaming(null);
     state.reset();
   };

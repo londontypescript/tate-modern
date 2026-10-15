@@ -34,10 +34,10 @@ The flat concept has:
 - **Animate squares / Stop animation:** stopping glides each sheet back to the static composition, the short way round: a square looks the same every quarter turn, a stretched sheet every half turn and a fading sheet only after a full turn. Changing a setting while they glide sends them on from where they are.
 - **Toggles:** alternate rotation directions, and "multiply overlaps" (a tinted-glass blend mode).
 - **Download SVG:** mark, wordmark or complete logo, built from your current slider settings with the same code as `generate:assets`. Optionally includes the cream background.
-- **Reset:** restores the approved `defaultLogoConfig` and unloads any saved configuration.
+- **Reset:** goes back to what the studio opened on (for the flat logo, `Irregular, 150 (14 Oct)`; the engine defaults, `defaultLogoConfig`, are the `Original defaults` starter) and unloads any saved configuration.
 - **Saved configurations:** keep named variations in this browser's localStorage, one list per concept.
-  - **Start from:** read-only starting points the concept ships with. The flat concept has its current defaults and the MVP exactly as approved on 11 October 2026, before the comparison fixes.
-  - **New:** starts again from the approved settings, unloading the current configuration. It asks first if there are unsaved changes.
+  - **Start from:** read-only starting points the concept ships with. The flat concept has its original defaults, the MVP exactly as approved on 11 October 2026 (before the comparison fixes), the irregular sheets of 14 October and, at size 150, the look the studio opens on.
+  - **New:** starts again from what the studio opened on (for the flat logo, `Irregular, 150 (14 Oct)`), unloading the current configuration. It asks first if there are unsaved changes.
   - **Duplicate:** saves the current settings as a new configuration named after the loaded one plus "Copy" (for example "Dense rosette Copy", then "Dense rosette Copy 2" if that name is taken) and switches to it. With nothing loaded it's called "New Config". The name opens for editing straight away; press Escape to keep it.
   - **Save as new:** stores the current settings under a name you type; that configuration is then the one being edited.
   - **Save changes:** writes the current settings back to the loaded configuration. It's enabled when there are unsaved changes.

@@ -99,7 +99,7 @@ export const irregularSmallerSheets: LogoConfig = {
 export const flatStarters: readonly StarterConfig<LogoConfig>[] = [
   {
     name: 'Original defaults',
-    description: 'The approved flat logo in config.ts, as the engine defaults it',
+    description: 'The approved flat logo in config.ts, still the engine’s defaults',
     config: defaultLogoConfig,
   },
   { name: 'MVP (11 Oct)', description: 'The first flat logo, before the comparison fixes', config: mvpLogoConfig },
@@ -110,7 +110,7 @@ export const flatStarters: readonly StarterConfig<LogoConfig>[] = [
   },
   {
     name: 'Irregular, 150 (14 Oct)',
-    description: 'The irregular sheets with smaller squares',
+    description: 'The chosen look: the irregular sheets at size 150; the studio opens on it',
     config: irregularSmallerSheets,
   },
 ];
