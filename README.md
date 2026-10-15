@@ -10,8 +10,8 @@ A rig of directional lights picks out highlights along the bevelled edges, and a
 
 <table>
   <tr>
-    <td align="center" width="50%"><img src="public/references/three-hero.png" alt="The hand-coded 3D hero: blue glass slabs fanned across the page beside 'London TypeScript, Enter the Future' and an Ignite button"></td>
-    <td align="center" width="50%"><img src="public/references/three-stack.png" alt="The hand-coded 3D logo: translucent blue slabs fanned behind a Ts tile"></td>
+    <td align="center" valign="middle" width="50%"><img src="public/references/three-hero.png" alt="The hand-coded 3D hero: blue glass slabs fanned across the page beside 'London TypeScript, Enter the Future' and an Ignite button"></td>
+    <td align="center" valign="middle" width="50%"><img src="public/references/three-stack.png" alt="The hand-coded 3D logo: translucent blue slabs fanned behind a Ts tile"></td>
   </tr>
   <tr>
     <td align="center">The 3D hero</td>
