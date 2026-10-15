@@ -41,10 +41,10 @@ const colour = (value: unknown, fallback: string) => (isHexColour(value) ? value
  * can't slip through.
  */
 function sheetColours(value: unknown): readonly string[] {
-  const list: unknown = value;
-  if (!Array.isArray(list) || list.length === 0) return defaultLogoConfig.emblem.colours;
+  if (!Array.isArray(value) || value.length === 0) return defaultLogoConfig.emblem.colours;
+  const list = value as unknown[];
   for (let i = 0; i < list.length; i++) if (!isHexColour(list[i])) return defaultLogoConfig.emblem.colours;
-  return list as readonly string[];
+  return list as string[];
 }
 
 const blendModes: readonly unknown[] = ['normal', 'multiply'] satisfies BlendMode[];
