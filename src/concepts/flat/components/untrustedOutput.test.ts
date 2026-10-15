@@ -91,14 +91,15 @@ describe('the studio’s download from a saved configuration with untrusted stri
     }
   };
 
+  // One test per colour and base, as for the numbers: together they ran close to the default timeout.
   for (const [base, config] of bases) {
-    it(`writes only real colours, whichever colour field is bad, with the ${base}`, () => {
-      for (const path of colourLeaves) {
+    for (const path of colourLeaves) {
+      it(`writes only real colours when ${pathName(path)} is bad, with the ${base}`, () => {
         for (const [name, value] of notColours) {
           expectSafeDownloads(`${base}, ${pathName(path)} = ${name}`, withLeaf(path, value, config));
         }
-      }
-    });
+      });
+    }
   }
 
   it('writes one blend declaration and well-formed ids, whatever blend mode or text is saved', () => {
