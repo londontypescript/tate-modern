@@ -11,7 +11,7 @@ pnpm build            # regenerate assets, type-check, build the studio into dis
 `pnpm dev` opens the studio (a development tool, not part of the eventual website):
 
 - **Concept switcher:** the tabs in the header. The open concept is kept in the URL hash (for example `#flat`), so reloads and links keep it. Concepts load on demand.
-- **Compare with a reference:** shows one of the reference images in `public/references/` beside the previews: the ChatGPT original, the two Three.js concepts and the flat MVP export. The choice is remembered in this browser.
+- **Compare with a reference:** shows one of the reference images in `public/references/` beside the previews: the 2D mockup, the Three.js stack and hero concepts and the flat MVP export. The choice is remembered in this browser.
 
 The flat concept opens on `Irregular, 150 (14 Oct)`, the maintainer's chosen look; the engine defaults (`defaultLogoConfig`) are the `Original defaults` starter. It has:
 
@@ -24,7 +24,7 @@ The flat concept opens on `Irregular, 150 (14 Oct)`, the maintainer's chosen loo
     - **Stretch from square** (0-0.3): makes each sheet a rectangle, up to this fraction wider and as much shorter (or the other way), so its average side stays the same.
     - **Shift off centre** (0-20, where the tile is 100 wide): moves each sheet's centre by up to this much across and, separately, up or down. Each sheet still turns about its own centre.
     - **Variation seed** (1-999): picks which random variation you get. The same seed always gives the same emblem; changing the number of layers keeps the existing sheets' variation and adds new sheets after them.
-  - Halo: a soft navy shadow under the tile, so it looks lifted off the sheets, as in the ChatGPT original. It is the tile's outline moved left and down, solid, with a soft edge all round, so it is strongest on the left and bottom and faint on the top and right. It is drawn without SVG filters, as one navy shape seen through a mask of grey gradients, between the sheets and the tile, and stays still while the sheets turn. Off (strength 0) in the engine defaults; the look the studio opens on uses strength 0.4.
+  - Halo: a soft navy shadow under the tile, so it looks lifted off the sheets, as in the 2D mockup. It is the tile's outline moved left and down, solid, with a soft edge all round, so it is strongest on the left and bottom and faint on the top and right. It is drawn without SVG filters, as one navy shape seen through a mask of grey gradients, between the sheets and the tile, and stays still while the sheets turn. Off (strength 0) in the engine defaults; the look the studio opens on uses strength 0.4.
     - **Halo strength** (0-1): how dark the shadow is where the tile's outline would be; 0 turns the halo off.
     - **Halo reach** (0-40, where the tile is 100 wide): how far the soft edge spreads beyond that outline; 0 also turns it off.
     - **Shadow offset** (0-20): how far the shadow moves left and, by the same amount, down.

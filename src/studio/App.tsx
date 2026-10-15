@@ -7,7 +7,7 @@ const conceptFromHash = () => {
 };
 
 /**
- * The LTS Design Studio: a switcher across the logo concepts. The open
+ * London TypeScript's logo design system: a switcher across the logo concepts. The open
  * concept is kept in the URL hash (`#flat`), so reloads and links keep it.
  */
 export function App() {
@@ -26,7 +26,7 @@ export function App() {
     <div className="min-h-screen bg-stone-100 text-stone-900 lg:flex lg:h-screen lg:flex-col">
       <header className="flex shrink-0 flex-wrap items-center justify-between gap-x-6 gap-y-3 border-b border-stone-200 bg-white px-6 py-4">
         <div>
-          <h1 className="text-lg font-semibold">LTS Design Studio</h1>
+          <h1 className="text-lg font-semibold">London TypeScript's logo design system</h1>
           <p className="text-sm text-stone-500">{concept.summary}</p>
         </div>
         <nav aria-label="Concepts" className="flex flex-wrap gap-1 rounded-lg bg-stone-100 p-1">

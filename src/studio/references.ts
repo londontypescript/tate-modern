@@ -10,10 +10,10 @@ export interface Reference {
 
 export const references: readonly Reference[] = [
   {
-    id: 'chatgpt-original',
-    name: 'ChatGPT original',
-    description: 'The raster logo ChatGPT painted from the Three.js concepts: the look the flat logo set out to match.',
-    src: '/references/chatgpt-original.webp',
+    id: 'flat-mockup',
+    name: '2D mockup',
+    description: 'The 2D mockup made from the Three.js concepts: the look the flat logo set out to match.',
+    src: '/references/flat-mockup.webp',
     background: '#fcf6e9',
   },
   {

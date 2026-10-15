@@ -1,5 +1,5 @@
 /**
- * How the committed reference was made from the ChatGPT original, kept as
+ * How the committed reference was made from the 2D mockup, kept as
  * code so it can be remade exactly (`pnpm score --make-reference`, see
  * reference/README.md) and so a test can check the committed mask and
  * registration still follow from the committed crop.
@@ -195,7 +195,7 @@ export function buildRegions(mark: RgbImage, registration: Registration): RgbIma
   return { width, height, data };
 }
 
-/** The decoded original's size (public/references/chatgpt-original.webp). */
+/** The decoded original's size (public/references/flat-mockup.webp). */
 const ORIGINAL_SIZE = { width: 1808, height: 870 } as const;
 
 /** Everything the reference needs, from the decoded original. */
