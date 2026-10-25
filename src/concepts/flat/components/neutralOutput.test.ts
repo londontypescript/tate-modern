@@ -97,6 +97,23 @@ describe('output of the 14 October starters', () => {
   });
 });
 
+describe('output of the chosen look with the variation and halo off', () => {
+  /*
+   * The `plain` fixtures were rendered by the code at commit 52a63ff, on
+   * 25 October 2026, from `Irregular, 150 (14 Oct)` with `neutralVariation`
+   * and `neutralHalo` applied. They pin what that look draws with both
+   * switched off, so never regenerate them.
+   */
+  it('renders byte-identically', () => {
+    const chosen = flatStarters.find((s) => s.name === 'Irregular, 150 (14 Oct)')!.config;
+    expectFixtures('plain', {
+      ...chosen,
+      emblem: { ...chosen.emblem, ...neutralVariation },
+      tile: { ...chosen.tile, halo: neutralHalo },
+    });
+  });
+});
+
 describe('output with the halo off', () => {
   const withHalo = (halo: LogoConfig['tile']['halo']): LogoConfig => ({
     ...defaults12October,
