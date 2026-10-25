@@ -73,4 +73,4 @@ London TypeScript's repositories are named after London landmarks. Tate Modern i
 
 - **Fonts:** Open Sans and Playfair Display, both under the SIL Open Font License 1.1, installed from `@fontsource` packages. No font files are committed.
 - **three.js:** `src/concepts/projected/engine/shading.ts` ports formulas from three.js's shaders ([MIT](https://github.com/mrdoob/three.js/blob/dev/LICENSE), © 2010-2026 three.js authors).
-- **Reference images** (`public/references/`): `three-hero.png`, `three-stack.png` and `flat-mvp.png` are screenshots of this project's own prototypes; `flat-mockup.webp` is a 2D mockup made from the 3D logo.
+- **Reference images** (`public/references/`): `three-hero.png` and `three-stack.png` are screenshots of this project's own prototypes; `flat-mockup.webp` is a 2D mockup made from the 3D logo.
