@@ -13,9 +13,9 @@ import { elements } from './svgParse';
  * earlier code with the fixed id prefix `lts`, so these tests ask for that
  * prefix, and neither is ever regenerated:
  *
- * - `irregular-150.*`, rendered at commit 35261a7 (14 October 2026) from
- *   the starter that became the defaults, field for field, on 25 October
- *   2026. They pin the defaults' output.
+ * - `default.*`, rendered at commit 35261a7 (14 October 2026) from the
+ *   starter that became the defaults, field for field, on 25 October 2026
+ *   (named after that starter until then). They pin the defaults' output.
  * - `plain.*`, rendered at commit 52a63ff (25 October 2026) from the same
  *   look with `neutralVariation` and `neutralHalo` applied. They pin what
  *   it draws with the sheet variation and the halo both switched off.
@@ -93,7 +93,7 @@ const expectBox = (actual: Box, expected: Box, label: string) => {
 
 describe('the defaults’ output', () => {
   it('renders byte-identically to the fixtures rendered from the look before it became the defaults', () => {
-    expectFixtures('irregular-150', defaultLogoConfig);
+    expectFixtures('default', defaultLogoConfig);
   });
 });
 
