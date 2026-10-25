@@ -40,7 +40,7 @@ The TypeScript source is the design: the SVGs in `public/assets/` are generated 
 
 Each concept has its own page in the studio, with live previews, controls, starting points and configurations saved in your browser. Flat exports the mark, wordmark or complete logo as SVG; Projected exports the mark or logo as SVG; 3D exports the sculpture as PNG.
 
-<p align="center"><img src="docs/images/studio.png" alt="The studio's flat page: the complete logo and emblem previews on the left; animation, SVG downloads, starting points and sliders on the right"></p>
+<p align="center"><img src="docs/images/studio.png" alt="The studio's flat page: a reference image picker with the 2D mockup and the Three.js concepts above the complete logo on the left; animation, SVG downloads, the Default starting point and sliders on the right"></p>
 
 ## Quick start
 
