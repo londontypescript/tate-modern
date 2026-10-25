@@ -6,6 +6,7 @@ import {
   buildLogo,
   defaultLogoConfig,
   emblemRanges,
+  neutralVariation,
   type EmblemConfig,
   type LogoConfig,
   type SheetLayer,
@@ -123,7 +124,7 @@ describe('sheets as written to the SVG', () => {
   });
 
   it('turn about their own centre: the offset is a translate before the rotate, written only when non-zero', () => {
-    const neutral = renderLogoSvg('mark', buildLogo(defaultLogoConfig, fonts));
+    const neutral = renderLogoSvg('mark', buildLogo(withEmblem(neutralVariation), fonts));
     for (const { attrs } of writtenSheets(neutral)) expect(attrs.transform).toMatch(/^rotate\(/);
 
     const logo = buildLogo(withEmblem({ offsetJitter: 10, aspectJitter: 0.2, seed: 5 }), fonts);
@@ -169,7 +170,7 @@ describe('the fade on a non-square, offset sheet', () => {
   });
 
   it('runs edge to edge across a square, as the bounding-box gradient did', () => {
-    const logo = buildLogo(withEmblem({ fade: 0.8, fadeAngle: 20, fadeTurn: 137.5 }), fonts);
+    const logo = buildLogo(withEmblem({ ...neutralVariation, fade: 0.8, fadeAngle: 20, fadeTurn: 137.5 }), fonts);
     const svg = renderLogoSvg('mark', logo, { idPrefix: 'lts' });
     const gradients = elements(svg, 'linearGradient');
     logo.emblem.layers.forEach((layer) => {
@@ -208,7 +209,8 @@ describe('gradient ids', () => {
     const svgs = perSvg(html);
     expect(svgs).toHaveLength(3);
     svgs.forEach((svg, i) => {
-      expect(svg.refs).toHaveLength(logo.emblem.layers.length);
+      // One fade per sheet; any other reference (the halo's) must resolve the same way.
+      expect(svg.refs.filter((ref) => ref?.includes('-fade-'))).toHaveLength(logo.emblem.layers.length);
       for (const ref of svg.refs) {
         expect(svg.ids.has(ref), `svg ${i} -> #${ref}`).toBe(true);
         svgs.forEach((other, j) => j !== i && expect(other.ids.has(ref), `#${ref} also in svg ${j}`).toBe(false));
@@ -220,7 +222,10 @@ describe('gradient ids', () => {
     const svg = renderLogoSvg('mark', buildLogo(withEmblem({ fade: 0.5 }), fonts));
     const prefix = / id="(lts-[0-9a-f]{32})-emblem"/.exec(svg)?.[1];
     expect(prefix).toBeDefined();
-    expect(elements(svg, 'linearGradient').map((g) => g.id)).toEqual(
+    const ids = elements(svg, 'linearGradient').map((g) => g.id ?? '');
+    // The halo's gradients, when it is on, take the same prefix.
+    for (const id of ids) expect(id.startsWith(`${prefix}-`), id).toBe(true);
+    expect(ids.filter((id) => id.includes('-fade-'))).toEqual(
       Array.from({ length: defaultLogoConfig.emblem.layerCount }, (_, i) => `${prefix}-fade-${i}`),
     );
   });

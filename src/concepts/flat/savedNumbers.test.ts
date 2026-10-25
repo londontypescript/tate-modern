@@ -33,6 +33,14 @@ const fallback = (path: readonly (string | number)[]) =>
       ? neutralVariation[path[1] as keyof typeof neutralVariation]
       : getAt(defaultLogoConfig, path);
 
+/**
+ * What a field inside a part that isn't an object becomes: the part is
+ * replaced by its defaults as a whole, variation and halo included, except
+ * the halo itself, which is the neutral (absent) halo when it isn't an object.
+ */
+const partFallback = (parts: readonly (readonly (string | number)[])[], path: readonly (string | number)[]) =>
+  parts.some((p) => p[0] === 'tile' && p[1] === 'halo') ? fallback(path) : getAt(defaultLogoConfig, path);
+
 const fixtures = JSON.parse(
   readFileSync(new URL('./components/__fixtures__/configs.json', import.meta.url), 'utf8'),
 ) as Record<string, unknown>;
@@ -75,7 +83,7 @@ describe('sanitizeLogoConfig', () => {
     for (const [name, config, paths] of malformedContainers) {
       const used = sanitizeLogoConfig(config);
       for (const [leaf] of numericLeaves.filter(([p]) => paths.some((c) => c.every((k, i) => p[i] === k)))) {
-        expect(getAt(used, leaf), `${name}: ${pathName(leaf)}`).toBe(fallback(leaf));
+        expect(getAt(used, leaf), `${name}: ${pathName(leaf)}`).toBe(partFallback(paths, leaf));
       }
     }
   });

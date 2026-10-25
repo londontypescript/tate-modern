@@ -3,7 +3,15 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { loadLogoFontsFromDisk } from '../../../../scripts/node-fonts';
 import type { LogoFonts } from '../../../shared';
 import { parsePresets } from '../../../studio/presets';
-import { buildHalo, buildLogo, defaultLogoConfig, tileRanges, type HaloConfig, type LogoConfig } from '../engine';
+import {
+  buildHalo,
+  buildLogo,
+  defaultLogoConfig,
+  neutralHalo,
+  tileRanges,
+  type HaloConfig,
+  type LogoConfig,
+} from '../engine';
 import { fillMissing } from '../FlatStudio';
 import { LondonTypeScriptLogo } from './LondonTypeScriptLogo';
 import { renderLogoSvg, svgVariants } from './renderSvg';
@@ -242,8 +250,9 @@ describe('halo inputs from untrusted saved configurations', () => {
     for (const halo of [undefined, null, 5, 'on']) {
       const config = withHalo(halo);
       expect(drawn(config).model).toBeUndefined();
+      // The same as the halo switched off, whatever the defaults' halo is.
       expect(renderLogoSvg('logo', buildLogo(config, fonts))).toBe(
-        renderLogoSvg('logo', buildLogo(defaultLogoConfig, fonts)),
+        renderLogoSvg('logo', buildLogo(withHalo(neutralHalo), fonts)),
       );
     }
   });

@@ -2,7 +2,14 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { loadLogoFontsFromDisk } from '../../../../scripts/node-fonts';
 import type { LogoFonts } from '../../../shared';
 import { parsePresets } from '../../../studio/presets';
-import { buildLogo, defaultLogoConfig, neutralVariation, type LogoModel } from '../engine';
+import {
+  buildLogo,
+  defaultLogoConfig,
+  neutralHalo,
+  neutralVariation,
+  type LogoConfig,
+  type LogoModel,
+} from '../engine';
 import { renderLogoSvg, svgVariants } from './renderSvg';
 
 let fonts: LogoFonts;
@@ -32,8 +39,11 @@ describe('renderLogoSvg', () => {
   });
 
   it('keeps every square as its own rotated element', () => {
-    const svg = renderLogoSvg('mark', logo, { idPrefix: 'lts' });
-    for (const layer of logo.emblem.layers) {
+    // Even steps, so every rotation is written exactly as the model holds it.
+    const even: LogoConfig = { ...defaultLogoConfig, emblem: { ...defaultLogoConfig.emblem, ...neutralVariation } };
+    const evenLogo = buildLogo(even, fonts);
+    const svg = renderLogoSvg('mark', evenLogo, { idPrefix: 'lts' });
+    for (const layer of evenLogo.emblem.layers) {
       expect(svg).toContain(`id="lts-${layer.id}"`);
       expect(svg).toContain(`transform="rotate(${layer.rotation})"`);
     }
@@ -69,8 +79,14 @@ describe('renderLogoSvg', () => {
   });
 
   it('fills fading squares with their own gradient, and uniform ones with flat colour', () => {
-    expect(renderLogoSvg('mark', logo)).not.toContain('<linearGradient');
-    const faded = buildLogo({ ...defaultLogoConfig, emblem: { ...defaultLogoConfig.emblem, fade: 0.8 } }, fonts);
+    // The halo off, as it draws gradients of its own.
+    const withFade = (fade: number): LogoConfig => ({
+      ...defaultLogoConfig,
+      emblem: { ...defaultLogoConfig.emblem, fade },
+      tile: { ...defaultLogoConfig.tile, halo: neutralHalo },
+    });
+    expect(renderLogoSvg('mark', buildLogo(withFade(0), fonts))).not.toContain('<linearGradient');
+    const faded = buildLogo(withFade(0.8), fonts);
     const svg = renderLogoSvg('mark', faded);
     const ids = [...svg.matchAll(/<linearGradient id="([^"]+)"/g)].map((m) => m[1]);
     expect(ids).toHaveLength(faded.emblem.layers.length);
