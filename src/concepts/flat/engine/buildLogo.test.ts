@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { loadLogoFontsFromDisk } from '../../../../scripts/node-fonts';
 import { capHeightRatio, layoutTextRun, type LogoFonts } from '../../../shared';
-import { defaultLogoConfig } from './config';
+import { defaultLogoConfig, neutralHalo } from './config';
 import { sheetBox } from './bounds';
 import { buildLogo } from './geometry';
 
@@ -46,7 +46,15 @@ describe('buildLogo', () => {
   });
 
   it('frames the tile alone when there are no sheets', () => {
-    const logo = buildLogo({ ...defaultLogoConfig, emblem: { ...defaultLogoConfig.emblem, layerCount: 0 } }, fonts);
+    // The halo off, as a halo would widen the frame beyond the tile.
+    const logo = buildLogo(
+      {
+        ...defaultLogoConfig,
+        emblem: { ...defaultLogoConfig.emblem, layerCount: 0 },
+        tile: { ...defaultLogoConfig.tile, halo: neutralHalo },
+      },
+      fonts,
+    );
     const tile = { minX: -50, minY: -50, maxX: 50, maxY: 50 };
     expect(logo.emblem.bounds).toEqual(tile);
     expect(logo.emblem.rotationSafeBounds).toEqual(tile);

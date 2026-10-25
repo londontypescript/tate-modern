@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { controlGroups } from './controls';
-import { defaultLogoConfig, haloRanges, sanitizeLogoConfig } from './engine';
+import { defaultLogoConfig, haloRanges, neutralHalo, neutralVariation, sanitizeLogoConfig } from './engine';
 
 describe('the Halo controls', () => {
   const titles = controlGroups.map((g) => g.title);
@@ -40,9 +40,15 @@ describe('every slider', () => {
   });
 
   it('shows the value drawn, not a saved value the engine can’t use', () => {
+    // What the engine draws for such a value: its default, or for the variation and the halo their neutral value.
+    const drawn = {
+      ...defaultLogoConfig,
+      emblem: { ...defaultLogoConfig.emblem, ...neutralVariation },
+      tile: { ...defaultLogoConfig.tile, halo: neutralHalo },
+    };
     for (const control of controls) {
       const saved = control.set(defaultLogoConfig, JSON.parse('1e400') as number);
-      expect(control.get(sanitizeLogoConfig(saved)), control.label).toBe(control.get(defaultLogoConfig));
+      expect(control.get(sanitizeLogoConfig(saved)), control.label).toBe(control.get(drawn));
     }
   });
 });

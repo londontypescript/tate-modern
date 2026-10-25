@@ -30,11 +30,4 @@ export const references: readonly Reference[] = [
     src: '/references/three-hero.png',
     background: '#ffffff',
   },
-  {
-    id: 'flat-mvp',
-    name: 'Flat MVP',
-    description: 'The first flat SVG logo from this repository, exported on 12 October 2026.',
-    src: '/references/flat-mvp.png',
-    background: '#fcf6e9',
-  },
 ];

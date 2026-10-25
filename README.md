@@ -40,7 +40,7 @@ The TypeScript source is the design: the SVGs in `public/assets/` are generated 
 
 Each concept has its own page in the studio, with live previews, controls, starting points and configurations saved in your browser. Flat exports the mark, wordmark or complete logo as SVG; Projected exports the mark or logo as SVG; 3D exports the sculpture as PNG.
 
-<p align="center"><img src="docs/images/studio.png" alt="The studio's flat page: the complete logo and emblem previews on the left; animation, SVG downloads, starting points and sliders on the right"></p>
+<p align="center"><img src="docs/images/studio.png" alt="The studio's flat page: a reference image picker with the 2D mockup and the Three.js concepts above the complete logo on the left; animation, SVG downloads, the Default starting point and sliders on the right"></p>
 
 ## Quick start
 
@@ -73,4 +73,4 @@ London TypeScript's repositories are named after London landmarks. Tate Modern i
 
 - **Fonts:** Open Sans and Playfair Display, both under the SIL Open Font License 1.1, installed from `@fontsource` packages. No font files are committed.
 - **three.js:** `src/concepts/projected/engine/shading.ts` ports formulas from three.js's shaders ([MIT](https://github.com/mrdoob/three.js/blob/dev/LICENSE), © 2010-2026 three.js authors).
-- **Reference images** (`public/references/`): `three-hero.png`, `three-stack.png` and `flat-mvp.png` are screenshots of this project's own prototypes; `flat-mockup.webp` is a 2D mockup made from the 3D logo.
+- **Reference images** (`public/references/`): `three-hero.png` and `three-stack.png` are screenshots of this project's own prototypes; `flat-mockup.webp` is a 2D mockup made from the 3D logo.

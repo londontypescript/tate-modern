@@ -24,7 +24,7 @@ import {
   type LogoModel,
 } from './engine';
 import { SliderPanels } from './SliderPanels';
-import { flatStarters, irregularSmallerSheets } from './starters';
+import { flatStarters } from './starters';
 
 /** Kept from the original playground, so configurations saved there still load. */
 const PRESETS_KEY = 'lts-logo:presets:v1';
@@ -65,9 +65,7 @@ function download(variant: SvgVariant, svg: string) {
 /** Previews and controls for the flat concept. */
 export default function FlatStudio() {
   const fonts = use(loadLogoFonts());
-  // Saved configurations are still filled in from the engine defaults; only
-  // the opening point, and so Reset's first target, is the chosen look.
-  const state = useConceptState(defaultLogoConfig, irregularSmallerSheets);
+  const state = useConceptState(defaultLogoConfig);
   const { config, setConfig } = state;
   const [animating, setAnimating] = useState(false);
   const [exportBackground, setExportBackground] = useState(false);
