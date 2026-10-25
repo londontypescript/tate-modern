@@ -1,58 +1,79 @@
-import { createElement } from 'react';
+import { createElement, useState } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { PresetsPanel } from '../../studio/PresetsPanel';
 import { parsePresets } from '../../studio/presets';
-import { useConceptState } from '../../studio/useConceptState';
-import { defaultLogoConfig } from './engine';
+import { useConceptState, type ConceptState } from '../../studio/useConceptState';
+import { defaultLogoConfig, neutralHalo, neutralVariation, type LogoConfig } from './engine';
 import { fillMissing } from './FlatStudio';
-import { flatStarters, irregularSmallerSheets } from './starters';
+import { flatStarters } from './starters';
+
+/**
+ * The flat studio's state and presets panel as `FlatStudio` sets them up,
+ * rendered once per step: each step acts on the state it is given. Returns
+ * the state and the panel's markup after the last step.
+ */
+function studio(steps: ((state: ConceptState<LogoConfig>) => void)[] = []) {
+  let last: ConceptState<LogoConfig> | undefined;
+  function Probe() {
+    const state = useConceptState(defaultLogoConfig);
+    const [step, setStep] = useState(0);
+    last = state;
+    const act = steps[step];
+    if (act) {
+      act(state);
+      setStep(step + 1);
+    }
+    return createElement(PresetsPanel<LogoConfig>, { storageKey: 'test', state, starters: flatStarters, fillMissing });
+  }
+  const html = renderToStaticMarkup(createElement(Probe));
+  return { state: last!, html };
+}
+
+const pressed = (html: string) => [...html.matchAll(/aria-pressed="true"[^>]*>([^<]*)</g)].map((m) => m[1]);
+
+describe('the flat studio’s starters', () => {
+  it('are one, named Default, whose configuration is the defaults themselves', () => {
+    expect(flatStarters.map((s) => s.name)).toEqual(['Default']);
+    expect(flatStarters[0]?.config).toBe(defaultLogoConfig);
+  });
+});
 
 describe('the flat studio’s opening look', () => {
-  const irregular = flatStarters.find((s) => s.name === 'Irregular (14 Oct)');
-  const chosen = flatStarters.find((s) => s.name === 'Irregular, 150 (14 Oct)');
-
-  it('is the 14 October irregular sheets with only the square size changed', () => {
-    expect(irregular).toBeDefined();
-    expect(chosen?.config).toBe(irregularSmallerSheets);
-    expect(irregularSmallerSheets.emblem.squareSize).toBe(150);
-    expect(irregularSmallerSheets).toEqual({
-      ...irregular!.config,
-      emblem: { ...irregular!.config.emblem, squareSize: 150 },
-    });
+  it('is the defaults, with Default shown pressed, and only that one', () => {
+    const { state, html } = studio();
+    expect(state.config).toBe(defaultLogoConfig);
+    expect(state.startingPoint).toBe(defaultLogoConfig);
+    expect(pressed(html)).toEqual(['Default']);
   });
 
-  it('leaves the engine defaults, which saved configurations are filled from, unchanged', () => {
-    expect(defaultLogoConfig.emblem.squareSize).not.toBe(150);
+  it('is where Reset and New go back to, after edits or a saved configuration', () => {
+    const edited: LogoConfig = { ...defaultLogoConfig, emblem: { ...defaultLogoConfig.emblem, seed: 3 } };
+    // New goes back through the same reset as the Reset button.
+    for (const steps of [
+      [(s: ConceptState<LogoConfig>) => s.setConfig(edited), (s: ConceptState<LogoConfig>) => s.reset()],
+      [(s: ConceptState<LogoConfig>) => s.load(edited, 'saved'), (s: ConceptState<LogoConfig>) => s.reset()],
+    ]) {
+      const { state, html } = studio(steps);
+      expect(state.config).toBe(defaultLogoConfig);
+      expect(state.startingPoint).toBe(defaultLogoConfig);
+      expect(state.activeId).toBeNull();
+      expect(pressed(html)).toEqual(['Default']);
+    }
+  });
+});
+
+describe('a saved flat configuration missing fields', () => {
+  it('is filled from the defaults, with the variation and the halo switched off', () => {
     const [saved] = parsePresets(
       JSON.stringify([{ id: 'a', name: 'A', config: { emblem: { layerCount: 3 } } }]),
       defaultLogoConfig,
       fillMissing,
     );
-    expect(saved?.config.emblem.squareSize).toBe(defaultLogoConfig.emblem.squareSize);
-    expect(saved?.config.emblem.opacity).toBe(defaultLogoConfig.emblem.opacity);
-  });
-
-  it('lists the renamed and new starters in order', () => {
-    expect(flatStarters.map((s) => s.name)).toEqual([
-      'Original defaults',
-      'MVP (11 Oct)',
-      'Irregular (14 Oct)',
-      'Irregular, 150 (14 Oct)',
-    ]);
-  });
-
-  it('shows the opening starter pressed, and only that one', () => {
-    function Panel() {
-      const state = useConceptState(defaultLogoConfig, irregularSmallerSheets);
-      return createElement(PresetsPanel<typeof defaultLogoConfig>, {
-        storageKey: 'test',
-        state,
-        starters: flatStarters,
-      });
-    }
-    const html = renderToStaticMarkup(createElement(Panel));
-    const pressed = [...html.matchAll(/aria-pressed="true"[^>]*>([^<]*)</g)].map((m) => m[1]);
-    expect(pressed).toEqual(['Irregular, 150 (14 Oct)']);
+    expect(saved?.config).toEqual({
+      ...defaultLogoConfig,
+      emblem: { ...defaultLogoConfig.emblem, ...neutralVariation, layerCount: 3 },
+      tile: { ...defaultLogoConfig.tile, halo: neutralHalo },
+    });
   });
 });

@@ -5,7 +5,7 @@
  * typographic lengths (letter spacing, line spacing, indents) are in ems.
  */
 
-import { defaultWordmarkConfig, palette, type WordmarkConfig } from '../../../shared';
+import type { WordmarkConfig } from '../../../shared';
 
 export interface EmblemConfig {
   /** Number of rotating background squares. */
@@ -251,45 +251,67 @@ export interface LogoConfig {
   animation: AnimationConfig;
 }
 
+/**
+ * The flat logo's one default look, approved on 25 October 2026: larger,
+ * stronger sheets varied by seed, one fade shared by every sheet, and the
+ * halo lifting the tile. Every value is written out, colours as hex, so a
+ * change to the shared palette or wordmark never changes the logo by
+ * accident; fixtures in `components/__fixtures__/` pin what it draws.
+ */
 export const defaultLogoConfig: LogoConfig = {
   emblem: {
     layerCount: 6,
     rotationIncrement: 15,
     initialRotation: 7.5,
-    squareSize: 158,
+    squareSize: 150,
     sizeTaper: 0,
     cornerRadius: 1.6,
-    opacity: 0.4,
-    colours: [palette.sheetBlue, palette.sheetSky],
+    opacity: 0.5,
+    // Two entries: a saved list of another length is refused and these are used instead.
+    colours: ['#1678f0', '#5cbcff'],
     blendMode: 'multiply',
-    fade: 0,
-    fadeTurn: 137.5,
-    fadeAngle: 0,
-    fadeColour: palette.sheetSky,
-    rotationJitter: 0,
-    sizeJitter: 0,
-    aspectJitter: 0,
-    offsetJitter: 0,
-    seed: 1,
+    fade: 0.55,
+    fadeTurn: 0,
+    fadeAngle: 315,
+    fadeColour: '#5cbcff',
+    rotationJitter: 12,
+    sizeJitter: 0.15,
+    aspectJitter: 0.12,
+    offsetJitter: 8,
+    seed: 7,
   },
   tile: {
     size: 100,
     cornerRadius: 0.8,
-    colour: palette.tileBlue,
+    colour: '#1688f0',
     facets: { apexX: 0.53, apexY: 0.38, top: 0.4, right: 0.04, bottom: -0.3, left: 0.08 },
     text: 'TS',
-    textColour: palette.white,
+    textColour: '#ffffff',
     textScale: 0.35,
     textOffsetX: 0.07,
     textOffsetY: 0.06,
     letterSpacing: -0.01,
-    // The halo is off (neutral), so the approved logo is unchanged.
-    halo: { strength: 0, reach: 14, offset: 5 },
+    halo: { strength: 0.4, reach: 14, offset: 5 },
   },
-  wordmark: defaultWordmarkConfig,
+  wordmark: {
+    lines: [
+      { indent: 0.21, runs: [{ text: 'London', colour: '#000000' }] },
+      {
+        indent: 0,
+        runs: [
+          { text: 'Type', colour: '#000000' },
+          { text: 'Script', colour: '#1275ec' },
+        ],
+      },
+    ],
+    lineSpacing: 0.72,
+    letterSpacing: -0.06,
+    condense: 0.92,
+    flourishScale: 1,
+  },
   layout: {
     horizontalGap: 0.14,
-    background: palette.cream,
+    background: '#fcf6e9',
   },
   animation: {
     speed: 1,
