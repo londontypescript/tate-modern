@@ -80,7 +80,11 @@ export function LargePreviews({ drawing }: { drawing: BubbleDrawing }) {
           <BubbleSvg drawing={drawing} size={largeSize} className="h-auto max-w-full" />
         </Card>
       ))}
-      <Card label="Reference" note={`docs/references/bubble/emblem-${theme}.svg`} ground={homeGround[theme]}>
+      <Card
+        label="Reference"
+        note={`docs/references/bubble/emblem-${theme}.svg, before the TS grew 1.3× (see its README)`}
+        ground={homeGround[theme]}
+      >
         <img
           src={references[theme]}
           width={largeSize}

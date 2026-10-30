@@ -71,7 +71,7 @@ describe('the smaller steps', () => {
     expect(core(at('small')).transform).toEqual({ scale: 1, cx: 120, cy: 120 });
     expect(core(at('tiny')).transform).toEqual({ scale: 1.3, cx: 120, cy: 120 });
     expect(core(at('none')).transform).toEqual({ scale: 1.3, cx: 120, cy: 120 });
-    expect(ts(at('full'))?.transform).toBeUndefined();
+    expect(ts(at('full'))?.transform).toEqual({ scale: 1.3, cx: 178, cy: 178 });
     expect(ts(at('small'))?.transform).toEqual({ scale: 1.3, cx: 178, cy: 178 });
     expect(ts(at('tiny'))?.transform).toEqual({ scale: 1.45, cx: 178, cy: 178 });
     expect(gloss(at('small'))).toBeDefined();

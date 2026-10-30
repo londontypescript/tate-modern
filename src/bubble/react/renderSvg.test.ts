@@ -10,21 +10,33 @@ beforeAll(async () => {
   lettering = tileLettering((await loadLogoFontsFromDisk()).sans);
 });
 
+/** The reference with its TS path scaled as the departure records it. */
+function withLargerTs(reference: string) {
+  const ts = /<path d="[^"]+" fill="#fff"\/><\/g>/.exec(reference)?.[0];
+  if (!ts) throw new Error('The reference’s TS path was not found');
+  return reference.replace(ts, ts.replace('/>', ' transform="translate(178 178) scale(1.3) translate(-178 -178)"/>'));
+}
+
 const pixels = (svg: string, width: number) =>
   new Resvg(svg, { fitTo: { mode: 'width', value: width } }).render().pixels;
 
 describe('the exported bubble', () => {
-  it.each(themes)('%s: renders exactly as the committed reference, through resvg', (theme) => {
-    const reference = readFileSync(`docs/references/bubble/emblem-${theme}.svg`, 'utf8');
-    for (const width of [56, 480]) {
-      const expected = pixels(reference, width);
-      const actual = pixels(renderBubbleSvg(theme, lettering, { detail: 'full' }), width);
-      expect(actual.length).toBe(expected.length);
-      let differing = 0;
-      for (let i = 0; i < actual.length; i++) if (actual[i] !== expected[i]) differing++;
-      expect(differing, `channels that differ at ${width} px`).toBe(0);
-    }
-  });
+  // The one recorded departure from the reference (its README, "Departures"):
+  // the TS 1.3× larger, scaled about the tile's bottom-right corner.
+  it.each(themes)(
+    '%s: renders exactly as the committed reference with its recorded TS departure, through resvg',
+    (theme) => {
+      const reference = withLargerTs(readFileSync(`docs/references/bubble/emblem-${theme}.svg`, 'utf8'));
+      for (const width of [56, 480]) {
+        const expected = pixels(reference, width);
+        const actual = pixels(renderBubbleSvg(theme, lettering, { detail: 'full' }), width);
+        expect(actual.length).toBe(expected.length);
+        let differing = 0;
+        for (let i = 0; i < actual.length; i++) if (actual[i] !== expected[i]) differing++;
+        expect(differing, `channels that differ at ${width} px`).toBe(0);
+      }
+    },
+  );
 
   it.each(themes)('%s: is self-contained, with only concrete values', (theme) => {
     const svg = renderBubbleSvg(theme, lettering);

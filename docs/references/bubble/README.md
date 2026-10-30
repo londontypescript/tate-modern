@@ -109,6 +109,15 @@ height 500%, and the soft blur's is −20% / 140% on both axes.
 | 14  | Glint            | both   | circle (176, 182) r 5, white at .55                                                                                                                                     |
 | 15  | Outlines         | light  | stroke `#7f9fd0` at .6, width 1: circle r 111.4 (width 1.4), both windows, and the shine's outer edge `M40,96 C46,62 72,36 108,30` at .35                               |
 
+## Departures
+
+The TypeScript logo is judged against these files, except where listed here.
+
+- **TS 1.3× larger** (maintainer, 30 October 2026): the white TS is scaled 1.3 about the tile's bottom-right corner
+  (178, 178), so it reads better at website sizes. The outline, its font and its placement in the tile are otherwise
+  the reference's. The files here keep the original size; the tests compare the logo with them after applying this
+  scale.
+
 ## The lockup
 
 Not captured here: Exo 2 isn't a dependency until P3 (#57), and the exploration loaded it from Google Fonts with no

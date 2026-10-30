@@ -40,8 +40,12 @@ interface EmblemLook {
   tile: number;
 }
 
+/**
+ * Full's TS at 1.3 is the one recorded departure from the reference (its
+ * README, "Departures"): the letters read better at website sizes.
+ */
 export const emblemLooks: Record<Detail, EmblemLook> = {
-  full: { core: 0.9, lettering: 1, gloss: true, tile: 1 },
+  full: { core: 0.9, lettering: 1.3, gloss: true, tile: 1 },
   small: { core: 1, lettering: 1.3, gloss: true, tile: 1 },
   tiny: { core: 1.3, lettering: 1.45, gloss: false, tile: 1 },
   none: { core: 1.3, lettering: false, gloss: false, tile: 0.75 },
@@ -126,7 +130,7 @@ export function emblemLayer(lettering: string, detail: Detail): Group {
       kind: 'path',
       d: lettering,
       fill: palette.white,
-      ...(look.lettering === 1 ? {} : { transform: { scale: look.lettering, ...letteringAnchor } }),
+      transform: { scale: look.lettering, ...letteringAnchor },
     });
   }
   return { kind: 'group', name: 'core', transform: { scale: look.core, ...centre }, children };
