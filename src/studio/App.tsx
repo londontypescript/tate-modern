@@ -28,6 +28,12 @@ export function App() {
         <div>
           <h1 className="text-lg font-semibold">London TypeScript's logo design system</h1>
           <p className="text-sm text-stone-500">{concept.summary}</p>
+          <p className="text-sm text-stone-500">
+            The 0.4.0 studio, frozen.{' '}
+            <a href="./" className="font-medium text-blue-700 underline">
+              The current logo’s studio
+            </a>
+          </p>
         </div>
         <nav aria-label="Concepts" className="flex flex-wrap gap-1 rounded-lg bg-stone-100 p-1">
           {concepts.map((c) => (
