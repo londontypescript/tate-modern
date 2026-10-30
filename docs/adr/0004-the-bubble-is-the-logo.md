@@ -38,10 +38,9 @@ glass bubble. The blue-fan alternative is not kept. Its canonical light and dark
   </tr>
 </table>
 
-It replaces the 0.4.0 flat logo, shown here from the signed `v0.4.0` release (its black wordmark is drawn for light
-backgrounds):
+It replaces the 0.4.0 flat logo, shown here from the signed `v0.4.0` release:
 
-<img src="https://raw.githubusercontent.com/londontypescript/tate-modern/v0.4.0/public/assets/london-typescript-logo.svg" width="360" alt="The 0.4.0 flat logo: a fan of translucent blue squares behind a blue TS tile, with London TypeScript in a black serif and Script in blue">
+<img src="../references/bubble/flat-0.4.0-logo-on-white.png" width="390" height="177" alt="The 0.4.0 flat logo: a fan of translucent blue squares behind a blue TS tile, with London TypeScript in a black serif and Script in blue">
 
 **A new, minimal studio is the main page.** It is built from scratch for the bubble: `index.html`, with its code in
 `src/bubble/`. It previews the logo at real sizes in both themes and exports it; tuning happens in code. The 0.4.0

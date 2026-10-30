@@ -17,6 +17,10 @@ The PNGs in the table have transparent backgrounds. The dark one is drawn for a 
 background styles such as ADR 0004 on GitHub: the emblem at 240 px on solid `#ffffff` or `#0d1117`, with 20 px of
 padding on each side (280 px in all) so the ground shadow isn't cropped. The transparent files stay canonical.
 
+`flat-0.4.0-logo-on-white.png` is a display copy of the logo it replaces, for ADR 0004:
+`public/assets/london-typescript-logo.svg` exactly as it is at the signed `v0.4.0` tag, rendered with resvg on solid
+`#ffffff` with 24 units of padding on each side, 780 px wide (twice its width in the ADR).
+
 ## Source
 
 - **Exploration:** `.temple-bar/explorations/2026-10-29-cartoon-logos/` in the main checkout, gitignored.
