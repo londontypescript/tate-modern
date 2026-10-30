@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240">
+<title>London TypeScript bubble logo, emblem only, dark theme</title>
+<defs>
+<radialGradient id="lts-bubble-dark-body" cx=".5" cy=".5" r=".5"><stop offset=".62" stop-color="#ffffff" stop-opacity="0"/><stop offset=".9" stop-color="#bcd8ff" stop-opacity=".16"/><stop offset="1" stop-color="#ffffff" stop-opacity=".42"/></radialGradient>
+<linearGradient id="lts-bubble-dark-rainbow" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff5fa2"/><stop offset=".22" stop-color="#ffcf7a"/><stop offset=".42" stop-color="#7dffb0"/><stop offset=".62" stop-color="#5cd6ff"/><stop offset=".82" stop-color="#9a7dff"/><stop offset="1" stop-color="#ff5fa2"/></linearGradient>
+<radialGradient id="lts-bubble-dark-shine" cx=".35" cy=".25" r=".6"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+<filter id="lts-bubble-dark-soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.2"/></filter>
+<filter id="lts-bubble-dark-blur4" x="-50%" y="-200%" width="200%" height="500%"><feGaussianBlur stdDeviation="4"/></filter>
+<clipPath id="lts-bubble-dark-ball"><circle cx="120" cy="120" r="112"/></clipPath>
+</defs>
+<ellipse cx="120" cy="230" rx="72" ry="7" fill="#fff" fill-opacity=".2" filter="url(#lts-bubble-dark-blur4)"/>
+<circle cx="120" cy="120" r="112" fill="#9cc8ff" fill-opacity=".08"/>
+<g transform="translate(120 120) scale(0.9) translate(-120 -120)"><defs><linearGradient id="lts-bubble-dark-pane0" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2d1650"/><stop offset="1" stop-color="#2d1650" stop-opacity=".82"/></linearGradient><linearGradient id="lts-bubble-dark-pane1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8a2f6e"/><stop offset="1" stop-color="#8a2f6e" stop-opacity=".82"/></linearGradient><linearGradient id="lts-bubble-dark-pane2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff5fa2"/><stop offset="1" stop-color="#ff5fa2" stop-opacity=".82"/></linearGradient><linearGradient id="lts-bubble-dark-pane3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff9a5c"/><stop offset="1" stop-color="#ff9a5c" stop-opacity=".82"/></linearGradient><linearGradient id="lts-bubble-dark-pane4" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffcf7a"/><stop offset="1" stop-color="#ffcf7a" stop-opacity=".82"/></linearGradient>
+<linearGradient id="lts-bubble-dark-tile" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3d8bff"/><stop offset="1" stop-color="#1275ec"/></linearGradient></defs>
+<rect x="60" y="60" width="120" height="120" rx="14" fill="url(#lts-bubble-dark-pane0)" transform="rotate(-60 120 120)"/><rect x="60" y="60" width="120" height="120" rx="14" fill="url(#lts-bubble-dark-pane1)" transform="rotate(-46 120 120)"/><rect x="60" y="60" width="120" height="120" rx="14" fill="url(#lts-bubble-dark-pane2)" transform="rotate(-32 120 120)"/><rect x="60" y="60" width="120" height="120" rx="14" fill="url(#lts-bubble-dark-pane3)" transform="rotate(-18 120 120)"/><rect x="60" y="60" width="120" height="120" rx="14" fill="url(#lts-bubble-dark-pane4)" transform="rotate(-6 120 120)"/>
+<rect x="62" y="62" width="116" height="116" rx="14" fill="url(#lts-bubble-dark-tile)"/>
+<path d="M70,70 h60 l-60,30 Z" fill="#fff" fill-opacity=".18"/>
+<path d="M137.02 139.08L137.02 168L126.99 168L126.99 139.08L117.93 139.08L117.93 130.88L146.06 130.88L146.06 139.08M173.64 156.73Q173.64 159.75 172.12 162.45Q170.59 165.16 167.38 166.83Q164.17 168.51 159.09 168.51Q156.55 168.51 154.64 168.28Q152.72 168.05 151.07 167.53Q149.42 167.01 147.64 166.17L147.64 157.23Q150.66 158.76 153.73 159.56Q156.81 160.36 159.29 160.36Q160.79 160.36 161.75 160Q162.70 159.65 163.15 159.02Q163.61 158.40 163.61 157.59Q163.61 156.63 162.94 155.95Q162.27 155.28 160.79 154.54Q159.32 153.81 156.91 152.71Q154.85 151.75 153.19 150.73Q151.53 149.72 150.34 148.41Q149.16 147.10 148.53 145.35Q147.89 143.60 147.89 141.21Q147.89 137.63 149.66 135.21Q151.42 132.78 154.58 131.56Q157.75 130.35 161.88 130.35Q165.52 130.35 168.42 131.16Q171.33 131.97 173.64 133.01L170.57 140.76Q168.18 139.66 165.87 139.02Q163.56 138.37 161.58 138.37Q160.29 138.37 159.46 138.69Q158.63 139 158.24 139.54Q157.85 140.07 157.85 140.76Q157.85 141.62 158.52 142.30Q159.19 142.99 160.78 143.79Q162.37 144.59 165.11 145.86Q167.83 147.08 169.73 148.49Q171.63 149.90 172.64 151.86Q173.64 153.83 173.64 156.73" fill="#fff"/></g>
+<circle cx="120" cy="120" r="112" fill="url(#lts-bubble-dark-body)"/>
+<g clip-path="url(#lts-bubble-dark-ball)">
+<circle cx="120" cy="120" r="107" fill="none" stroke="url(#lts-bubble-dark-rainbow)" stroke-width="10" stroke-opacity=".5" filter="url(#lts-bubble-dark-soft)"/>
+<path d="M48,150 A80,80 0 0 0 192,150" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="5" filter="url(#lts-bubble-dark-soft)"/>
+</g>
+<circle cx="120" cy="120" r="111" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="1.6"/>
+<circle cx="120" cy="120" r="112" fill="none" stroke="#7aa8e0" stroke-opacity=".35" stroke-width="1"/>
+<path d="M40,96 C46,62 72,36 108,30 C78,44 58,68 52,100 Z" fill="url(#lts-bubble-dark-shine)"/>
+<rect x="62" y="44" width="16" height="22" rx="4" fill="#fff" fill-opacity=".7" transform="rotate(-32 70 55)"/>
+<rect x="82" y="34" width="12" height="17" rx="3" fill="#fff" fill-opacity=".55" transform="rotate(-22 88 42)"/>
+<circle cx="176" cy="182" r="5" fill="#fff" fill-opacity=".55"/>
+</svg>

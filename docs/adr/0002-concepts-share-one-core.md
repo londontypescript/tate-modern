@@ -1,6 +1,6 @@
 # ADR 0002: The concepts share one core
 
-Date: 2026-10-12. Status: accepted.
+Date: 2026-10-12. Status: accepted; partly superseded by [ADR 0004](0004-the-bubble-is-the-logo.md) for the bubble only (its identical-wordmark invariant and its concept registry and location rule). It still applies to the frozen concepts.
 
 ## Context
 
