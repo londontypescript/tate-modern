@@ -73,7 +73,7 @@ export function LargePreviews({ drawing }: { drawing: BubbleDrawing }) {
           note={g.colour === homeGround[theme] ? 'drawn for this ground' : undefined}
           ground={g.colour}
         >
-          <BubbleSvg drawing={drawing} size={largeSize} className="max-w-full" />
+          <BubbleSvg drawing={drawing} size={largeSize} className="h-auto max-w-full" />
         </Card>
       ))}
       <Card label="Reference" note={`docs/references/bubble/emblem-${theme}.svg`} ground={homeGround[theme]}>
@@ -82,7 +82,7 @@ export function LargePreviews({ drawing }: { drawing: BubbleDrawing }) {
           width={largeSize}
           height={largeSize}
           alt={`The committed ${theme} reference`}
-          className="max-w-full"
+          className="h-auto max-w-full"
         />
       </Card>
     </div>

@@ -30,8 +30,9 @@ export function buildBubble({ theme, detail, lettering }: BubbleOptions): Bubble
         title: titles[theme],
         defs: {
           gradients: [...glassGradients(theme), ...emblemGradients()],
-          blurs: glassBlurs,
-          clips: glassClips,
+          // Copies, so no drawing shares its definitions with another.
+          blurs: glassBlurs.map((b) => ({ ...b, region: { ...b.region } })),
+          clips: glassClips.map((c) => ({ ...c })),
         },
         layers: [...glassBehind(theme), emblemLayer(lettering), ...glassInFront(theme)],
       };
