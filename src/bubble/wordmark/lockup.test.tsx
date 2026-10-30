@@ -1,6 +1,9 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { loadBubbleFontsFromDisk } from '../../../scripts/node-fonts';
 import { standaloneSvg } from '../../shared/react/standaloneSvg';
+import { buildBubble, tileLettering } from '../engine';
+import { BubbleSvg } from '../react/BubbleSvg';
+import { loadLogoFontsFromDisk } from '../../../scripts/node-fonts';
 import { BubbleLockupSvg, BubbleWordmarkSvg } from './BubbleWordmark';
 import type { BubbleFonts } from './fonts';
 import { layoutBubbleLockup } from './lockup';
@@ -78,5 +81,33 @@ describe('the drawings', () => {
       />
     ));
     expect(shadowed).toMatch(/viewBox="0 0 [\d.]+ 246"/);
+  });
+
+  it('compose with the real bubble into one self-contained file', async () => {
+    const lettering = tileLettering((await loadLogoFontsFromDisk()).sans);
+    const svg = standaloneSvg('bubble/lockup-real', (idPrefix) => (
+      <BubbleLockupSvg
+        lockup={layoutBubbleLockup(fonts.wordmark, { emblemSize: 56, theme: 'light' })}
+        emblem={{
+          side: 240,
+          content: (
+            <BubbleSvg
+              drawing={buildBubble({ theme: 'light', detail: 'full', lettering })}
+              size={240}
+              idPrefix={`${idPrefix}-emblem`}
+            />
+          ),
+        }}
+        idPrefix={idPrefix}
+      />
+    ));
+    expect(svg).not.toMatch(/<text|font-family|font-face|<style|var\(--|href=/i);
+    const ids = new Set([...svg.matchAll(/ id="([^"]+)"/g)].map((m) => m[1]));
+    const prefix = /<g id="(lts-[0-9a-f]{32})-emblem"/.exec(svg)?.[1];
+    expect(prefix).toBeDefined();
+    expect([...ids].every((id) => id?.startsWith(`${prefix}-`))).toBe(true);
+    const references = [...svg.matchAll(/url\(#([^)]+)\)/g)].map((m) => m[1]);
+    expect(references.length).toBeGreaterThan(0);
+    expect(references.every((id) => ids.has(id))).toBe(true);
   });
 });

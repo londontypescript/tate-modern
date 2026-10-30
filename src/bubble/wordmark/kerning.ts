@@ -139,11 +139,15 @@ function pairSubtable(gpos: DataView, at: number): Subtable {
   if (format !== 2) return () => undefined;
   const classes1 = classDef(gpos, at + u16(at + 8));
   const classes2 = classDef(gpos, at + u16(at + 10));
+  const class1Count = u16(at + 12);
   const class2Count = u16(at + 14);
   return (left, right) => {
     if (!covered.has(left)) return undefined;
-    const record = at + 16 + ((classes1.get(left) ?? 0) * class2Count + (classes2.get(right) ?? 0)) * recordValues;
-    return xAdvance(record);
+    const class1 = classes1.get(left) ?? 0;
+    const class2 = classes2.get(right) ?? 0;
+    // A class past the matrix is a broken font; read nothing rather than another record.
+    if (class1 >= class1Count || class2 >= class2Count) return 0;
+    return xAdvance(at + 16 + (class1 * class2Count + class2) * recordValues);
   };
 }
 
