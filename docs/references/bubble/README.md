@@ -10,8 +10,12 @@ it the logo. The SVGs are the source of truth; the PNGs are rendered from them.
 | [`emblem-light.svg`](emblem-light.svg)        | [`emblem-dark.svg`](emblem-dark.svg)         |
 | `emblem-light-56.png`, `-240.png`, `-480.png` | `emblem-dark-56.png`, `-240.png`, `-480.png` |
 
-The PNGs have transparent backgrounds. The dark one is drawn for a dark page (the exploration used GitHub's dark
+The PNGs in the table have transparent backgrounds. The dark one is drawn for a dark page (the exploration used GitHub's dark
 `#0d1117`), and its white ground shadow and glass don't show on white.
+
+`emblem-light-240-on-white.png` and `emblem-dark-240-on-github-dark.png` are display copies only, for pages that strip
+background styles such as ADR 0004 on GitHub: the emblem at 240 px on solid `#ffffff` or `#0d1117`, with 20 px of
+padding on each side (280 px in all) so the ground shadow isn't cropped. The transparent files stay canonical.
 
 ## Source
 

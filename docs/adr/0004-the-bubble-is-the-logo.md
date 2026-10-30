@@ -29,12 +29,12 @@ glass bubble. The blue-fan alternative is not kept. Its canonical light and dark
 
 <table>
   <tr>
-    <td align="center"><img src="../references/bubble/emblem-light-240.png" width="240" height="240" alt="The bubble logo, light: a fan of sunset-coloured panes behind a blue TS tile, inside a clear glass sphere"></td>
-    <td align="center"><img src="../references/bubble/emblem-dark-240.png" width="240" height="240" alt="The bubble logo, dark: the same emblem with the glass drawn for a dark page and a soft white ground shadow"></td>
+    <td align="center"><img src="../references/bubble/emblem-light-240-on-white.png" width="280" height="280" alt="The bubble logo, light: a fan of sunset-coloured panes behind a blue TS tile, inside a clear glass sphere"></td>
+    <td align="center"><img src="../references/bubble/emblem-dark-240-on-github-dark.png" width="280" height="280" alt="The bubble logo, dark: the same emblem with the glass drawn for a dark page and a soft white ground shadow"></td>
   </tr>
   <tr>
     <td align="center">Light</td>
-    <td align="center">Dark, drawn for dark backgrounds</td>
+    <td align="center">Dark</td>
   </tr>
 </table>
 
