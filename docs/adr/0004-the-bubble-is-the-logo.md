@@ -34,7 +34,8 @@ it moves to a second page, `legacy.html`, with its source paths unchanged (`src/
 still built and tested. No further work is planned on it.
 
 **Exo 2 is the bubble's wordmark only.** The bubble's lockup sets "London TypeScript" in Exo 2, weight 700. The frozen
-concepts keep their own lettering: Playfair Display and Open Sans, from `src/shared/wordmark.ts`.
+concepts keep their own wordmark: Playfair Display 900, from `src/shared/wordmark.ts`. Open Sans 800 stays the TS
+tile's lettering, in the frozen concepts and the bubble alike.
 
 **What this replaces in ADR 0002, for the bubble only:**
 
