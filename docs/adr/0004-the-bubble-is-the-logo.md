@@ -27,6 +27,22 @@ the scorer and their tests together, a delicate change of its own, so it was not
 glass bubble. The blue-fan alternative is not kept. Its canonical light and dark drawings are frozen in
 [`docs/references/bubble/`](../references/bubble/README.md), and the TypeScript version is judged against them.
 
+<table>
+  <tr>
+    <td align="center"><img src="../references/bubble/emblem-light-240.png" width="240" height="240" alt="The bubble logo, light: a fan of sunset-coloured panes behind a blue TS tile, inside a clear glass sphere"></td>
+    <td align="center"><img src="../references/bubble/emblem-dark-240.png" width="240" height="240" alt="The bubble logo, dark: the same emblem with the glass drawn for a dark page and a soft white ground shadow"></td>
+  </tr>
+  <tr>
+    <td align="center">Light</td>
+    <td align="center">Dark, drawn for dark backgrounds</td>
+  </tr>
+</table>
+
+It replaces the 0.4.0 flat logo, shown here from the signed `v0.4.0` release (its black wordmark is drawn for light
+backgrounds):
+
+<img src="https://raw.githubusercontent.com/londontypescript/tate-modern/v0.4.0/public/assets/london-typescript-logo.svg" width="360" alt="The 0.4.0 flat logo: a fan of translucent blue squares behind a blue TS tile, with London TypeScript in a black serif and Script in blue">
+
 **A new, minimal studio is the main page.** It is built from scratch for the bubble: `index.html`, with its code in
 `src/bubble/`. It previews the logo at real sizes in both themes and exports it; tuning happens in code. The 0.4.0
 studio (Flat, 3D and Projected, with their sliders and saved configurations) is a previous version, frozen as it is:
