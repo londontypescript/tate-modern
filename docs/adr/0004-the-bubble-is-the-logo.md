@@ -1,6 +1,6 @@
 # ADR 0004: The bubble is the logo
 
-Date: 2026-10-30. Status: proposed.
+Date: 2026-10-30. Status: accepted (merged in #62, 2026-10-30).
 
 ## Context
 
