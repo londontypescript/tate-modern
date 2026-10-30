@@ -1,8 +1,10 @@
 import { Suspense, use, useMemo, useState } from 'react';
 import { loadLogoFonts } from '../../shared/react/fonts.browser';
+import { loadBubbleFonts } from '../wordmark/fonts.browser';
 import { buildBubble, themes, tileLettering, type Theme } from '../engine';
 import { bubbleFileName, renderBubbleSvg } from '../react/renderSvg';
 import { downloadSvg } from './download';
+import { LockupPreviews } from './LockupPreviews';
 import { LargePreviews, SizeRow } from './Previews';
 
 type ThemeChoice = Theme | 'both';
@@ -17,7 +19,8 @@ const themeNames: Record<Theme, string> = { light: 'Light theme', dark: 'Dark th
 
 /**
  * The bubble logo's studio: the emblem in each theme, large and at real
- * sizes, beside the committed reference, with SVG downloads. Nothing is
+ * sizes, beside the committed reference, then the lockup with its Exo 2
+ * wordmark, with SVG downloads. Nothing is
  * tuned here; the drawing is changed in code.
  */
 export function App() {
@@ -41,6 +44,7 @@ export function App() {
 
 function Studio() {
   const fonts = use(loadLogoFonts());
+  const bubbleFonts = use(loadBubbleFonts());
   const lettering = useMemo(() => tileLettering(fonts.sans), [fonts]);
   const [choice, setChoice] = useState<ThemeChoice>('both');
   const shown = themes.filter((t) => choice === 'both' || choice === t);
@@ -89,9 +93,11 @@ function Studio() {
           <LargePreviews drawing={buildBubble({ theme, detail: 'full', lettering })} />
           <h3 className="text-sm font-semibold text-stone-700">At real sizes</h3>
           <SizeRow theme={theme} lettering={lettering} />
+          <h3 className="text-sm font-semibold text-stone-700">Lockup</h3>
+          <LockupPreviews theme={theme} font={bubbleFonts.wordmark} lettering={lettering} />
         </section>
       ))}
-      {/* The lockup with its wordmark, and previews of where the logo lands, are added below. */}
+      {/* Previews of where the logo lands are added below. */}
     </main>
   );
 }

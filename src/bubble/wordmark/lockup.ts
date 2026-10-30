@@ -1,6 +1,6 @@
 import type { Box, Point } from '../../shared/types';
 import { translateBox } from '../../shared/typography';
-import type { Theme } from './colours';
+import type { Theme } from '../engine/types';
 import type { KernedFont } from './fonts';
 import { buildBubbleWordmark, type BubbleWordmark } from './wordmark';
 

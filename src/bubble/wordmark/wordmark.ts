@@ -2,7 +2,8 @@ import type { Glyph } from 'opentype.js';
 import { idChar } from '../../shared/idChar';
 import type { Box, PathShape } from '../../shared/types';
 import { glyphBounds, layoutTextRun, type PlacedGlyph } from '../../shared/typography';
-import { wordmarkColours, type Theme } from './colours';
+import type { Theme } from '../engine/types';
+import { wordmarkColours } from './colours';
 import type { KernedFont } from './fonts';
 
 /**
