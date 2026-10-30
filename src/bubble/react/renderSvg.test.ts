@@ -18,7 +18,7 @@ describe('the exported bubble', () => {
     const reference = readFileSync(`docs/references/bubble/emblem-${theme}.svg`, 'utf8');
     for (const width of [56, 480]) {
       const expected = pixels(reference, width);
-      const actual = pixels(renderBubbleSvg(theme, lettering), width);
+      const actual = pixels(renderBubbleSvg(theme, lettering, { detail: 'full' }), width);
       expect(actual.length).toBe(expected.length);
       let differing = 0;
       for (let i = 0; i < actual.length; i++) if (actual[i] !== expected[i]) differing++;

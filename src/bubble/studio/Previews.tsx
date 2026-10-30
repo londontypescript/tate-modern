@@ -13,7 +13,7 @@ import lightReferenceUrl from '../../../docs/references/bubble/emblem-light.svg?
 import darkReferenceUrl from '../../../docs/references/bubble/emblem-dark.svg?url';
 
 /** The two grounds every drawing is judged on: white, and GitHub's dark page. */
-const grounds = [
+export const grounds = [
   { name: 'white', colour: palette.white },
   { name: palette.darkPage, colour: palette.darkPage },
 ] as const;
@@ -23,8 +23,12 @@ const homeGround: Record<Theme, string> = { light: palette.white, dark: palette.
 
 const references: Record<Theme, string> = { light: lightReferenceUrl, dark: darkReferenceUrl };
 
-/** Square sizes, in CSS pixels, of the frame the emblem is seen in at small sizes. */
-const previewSizes = [16, 20, 32, 48, 64, 96] as const;
+/**
+ * Square sizes, in CSS pixels, of the frame the emblem is seen in: the
+ * common ones, and those just below, at and just above each breakpoint
+ * (22 | 23, 29 | 30, 55 | 56).
+ */
+export const previewSizes = [16, 20, 22, 23, 24, 29, 30, 32, 48, 55, 56, 64, 96] as const;
 
 const largeSize = 320;
 
@@ -89,7 +93,10 @@ export function LargePreviews({ drawing }: { drawing: BubbleDrawing }) {
   );
 }
 
-/** The drawing at real pixel sizes on both grounds, each labelled with the detail that size gets. */
+/**
+ * The drawing at real pixel sizes on both grounds, each labelled with its
+ * frame, its sphere's diameter (⌀, what chooses the step) and the step it gets.
+ */
 export function SizeRow({ theme, lettering }: { theme: Theme; lettering: string }) {
   return (
     <div className="space-y-2">
@@ -107,7 +114,7 @@ export function SizeRow({ theme, lettering }: { theme: Theme; lettering: string 
                 <figcaption
                   className={`font-mono text-[11px] ${g.colour === palette.darkPage ? 'text-stone-400' : 'text-stone-500'}`}
                 >
-                  {size} px · {detail}
+                  {size} px · ⌀ {sphereDiameterInFrame(size).toFixed(1)} · {detail}
                 </figcaption>
               </figure>
             );

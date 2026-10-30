@@ -1,4 +1,6 @@
 import type { Box } from '../../shared/types';
+import type { Detail } from './detail';
+import { emblemLooks, pane, panes } from './emblem';
 
 /**
  * The bubble's three boxes, kept apart because each answers a different
@@ -41,3 +43,49 @@ export const squareFrame: Box = { minX: 0, minY: 0, maxX: boxSize, maxY: boxSize
 
 /** The sphere's diameter when its square frame is shown `frameSize` CSS pixels wide. */
 export const sphereDiameterInFrame = (frameSize: number) => (frameSize * 2 * sphere.r) / boxSize;
+
+/**
+ * How far the fan reaches from the centre once its emblem is scaled by
+ * `core`: each pane is a rounded square turned about the centre, so along
+ * either axis it reaches its corner circle's centre, (size / 2 - rx) ×
+ * (|cos| + |sin|) of its turn, plus rx. A square turned by any angle reaches
+ * the same distance along x and y.
+ */
+function fanReach(core: number) {
+  const half = pane.size / 2 - pane.rx;
+  const reach = Math.max(
+    ...panes.map(({ rotate }) => {
+      const turn = (rotate * Math.PI) / 180;
+      return half * (Math.abs(Math.cos(turn)) + Math.abs(Math.sin(turn))) + pane.rx;
+    }),
+  );
+  return reach * core;
+}
+
+/**
+ * Each step's two boxes. Every step is aligned by the same sphere, so a swap
+ * at a breakpoint keeps the logo's centre and size; the steps without a
+ * bubble grow their fan to fill most of that circle instead. `painted` is
+ * where the step actually paints: small's rim ends at the sphere's edge, and
+ * the bare fan stays inside it, so only the full bubble's shadow passes the
+ * square frame.
+ */
+export function stepBounds(detail: Detail): { align: Box; painted: Box } {
+  switch (detail) {
+    case 'full':
+      return { align: sphereBounds, painted: paintedBounds };
+    case 'small':
+      return { align: sphereBounds, painted: sphereBounds };
+    case 'tiny':
+    case 'none': {
+      const reach = fanReach(emblemLooks[detail].core);
+      const painted = {
+        minX: sphere.cx - reach,
+        minY: sphere.cy - reach,
+        maxX: sphere.cx + reach,
+        maxY: sphere.cy + reach,
+      };
+      return { align: sphereBounds, painted };
+    }
+  }
+}
