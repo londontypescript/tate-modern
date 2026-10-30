@@ -6,6 +6,7 @@ import { bubbleFileName, renderBubbleSvg } from '../react/renderSvg';
 import { downloadSvg } from './download';
 import { LockupPreviews } from './LockupPreviews';
 import { LargePreviews, SizeRow } from './Previews';
+import { SlotPreviews } from './SlotPreviews';
 import { AvatarCrops, ForcedDetailGrid } from './StepPreviews';
 
 type ThemeChoice = Theme | 'both';
@@ -20,9 +21,10 @@ const themeNames: Record<Theme, string> = { light: 'Light theme', dark: 'Dark th
 
 /**
  * The bubble logo's studio: the emblem in each theme, large and at real
- * sizes, beside the committed reference, then the lockup with its Exo 2
- * wordmark, with SVG downloads. Nothing is
- * tuned here; the drawing is changed in code.
+ * sizes beside the committed reference, every detail step at every size,
+ * the lockup with its Exo 2 wordmark, and each slot's image as its recipe
+ * composes it, with SVG downloads. Nothing is tuned here; the drawing is
+ * changed in code.
  */
 export function App() {
   return (
@@ -102,7 +104,12 @@ function Studio() {
           <LockupPreviews theme={theme} font={bubbleFonts.wordmark} lettering={lettering} />
         </section>
       ))}
-      {/* Previews of where the logo lands are added below. */}
+      <section aria-labelledby="slots" className="space-y-4">
+        <h2 id="slots" className="text-base font-semibold">
+          Where the logo lands
+        </h2>
+        <SlotPreviews lettering={lettering} font={bubbleFonts.wordmark} />
+      </section>
     </main>
   );
 }
