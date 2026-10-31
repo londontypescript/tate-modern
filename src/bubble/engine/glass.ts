@@ -149,14 +149,12 @@ const groundShadow: Node = {
  * Dark's caustic, centred under the sphere and wider than light's shadow,
  * with no contact shadow: hidden under the glow, one added nothing.
  */
-const caustic = { cy: 233, rx: 84, ry: 8.5, blur: 5 } as const;
-
 const causticGlow: Node = {
   kind: 'ellipse',
   cx,
-  cy: caustic.cy,
-  rx: caustic.rx,
-  ry: caustic.ry,
+  cy: 233,
+  rx: 84,
+  ry: 8.5,
   fill: { gradient: 'caustic' },
   filter: 'blur5',
 };
