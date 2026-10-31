@@ -1,9 +1,14 @@
+import { panes } from './emblem';
+
 /**
  * The optional band and rounded corners a slot's image can carry: the
  * sunset fan laid flat along one edge, and corners cut away to transparent.
  * The studio offers them where a recipe has `edges`; the committed assets
  * are always drawn plain.
  */
+
+/** The band's colours: the fan's panes laid flat, back to front, so it reads as part of the logo. */
+export const bandColours = panes.map((p) => p.colour);
 
 export type BandSide = 'left' | 'right' | 'top' | 'bottom';
 

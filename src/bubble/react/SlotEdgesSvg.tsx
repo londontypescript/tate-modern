@@ -1,8 +1,4 @@
-import { palette } from '../../shared/palette';
-import { bandRect, isPlain, type SlotEdges, type SlotRecipe } from '../engine';
-
-/** The fan's panes from back to front: the band lays them flat in the same order. */
-const fan = [palette.sunsetPlum, palette.sunsetMagenta, palette.sunsetPink, palette.sunsetOrange, palette.sunsetGold];
+import { bandColours, bandRect, isPlain, type SlotEdges, type SlotRecipe } from '../engine';
 
 interface Props {
   recipe: SlotRecipe;
@@ -31,8 +27,8 @@ export function SlotEdgeDefs({ recipe, edges, canvas, prefix }: Props) {
     <defs>
       {edges.band !== 'off' && (
         <linearGradient id={id.band} x1="0" y1="0" x2={runsDown ? 0 : 1} y2={runsDown ? 1 : 0}>
-          {fan.map((colour, n) => (
-            <stop key={colour} offset={n / (fan.length - 1)} stopColor={colour} />
+          {bandColours.map((colour, n) => (
+            <stop key={colour} offset={n / (bandColours.length - 1)} stopColor={colour} />
           ))}
         </linearGradient>
       )}
