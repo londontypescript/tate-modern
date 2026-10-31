@@ -2,11 +2,21 @@ import { frameViewBox, num } from '../../shared/react/SvgFrame';
 import { useOwnIdPrefix } from '../../shared/react/useOwnIdPrefix';
 import type { Box } from '../../shared/types';
 import { unionBox } from '../../shared/typography';
-import { boxSize, buildBubble, stepBounds, type Detail, type SlotRecipe, type Theme } from '../engine';
+import {
+  boxSize,
+  buildBubble,
+  plainEdges,
+  stepBounds,
+  type Detail,
+  type SlotEdges,
+  type SlotRecipe,
+  type Theme,
+} from '../engine';
 import { BubbleLockupSvg } from '../wordmark/BubbleWordmark';
 import type { KernedFont } from '../wordmark/fonts';
 import { layoutBubbleLockup, lockupBounds, type BubbleLockup } from '../wordmark/lockup';
 import { BubbleSvg } from './BubbleSvg';
+import { edgeIds, SlotBand, SlotEdgeDefs } from './SlotEdgesSvg';
 
 export interface SlotSvgProps {
   recipe: SlotRecipe;
@@ -16,6 +26,8 @@ export interface SlotSvgProps {
   lettering: string;
   /** The wordmark's font, for a lockup. */
   font?: KernedFont;
+  /** The band and rounded corners, where the recipe offers them; plain by default, as the committed files are. */
+  edges?: SlotEdges;
   /** Written as `width`; the height follows. Omitted, it fills its box. */
   width?: number;
   idPrefix?: string;
@@ -78,7 +90,17 @@ export function slotCanvas(recipe: SlotRecipe, theme: Theme, detail: Detail, fon
  * is framed by everything the content shows. Every id comes from one
  * prefix, the emblem's nested under it.
  */
-export function SlotSvg({ recipe, theme, detail, lettering, font, width, idPrefix, className }: SlotSvgProps) {
+export function SlotSvg({
+  recipe,
+  theme,
+  detail,
+  lettering,
+  font,
+  edges = plainEdges,
+  width,
+  idPrefix,
+  className,
+}: SlotSvgProps) {
   const prefix = useOwnIdPrefix(idPrefix);
   const drawing = buildBubble({ theme, detail, lettering });
   const emblem = <BubbleSvg drawing={drawing} size={boxSize} idPrefix={`${prefix}-emblem`} />;
@@ -112,6 +134,15 @@ export function SlotSvg({ recipe, theme, detail, lettering, font, width, idPrefi
     : { x: 0, y: 0 };
   const title = recipe.composition === 'emblem' ? drawing.title : `London TypeScript logo, ${theme} theme`;
   const background = recipe.background.kind === 'fixed' ? recipe.background.colour : undefined;
+  const edgeProps = { recipe, edges, canvas, prefix };
+  // Plain edges add nothing at all, so the committed files' drawing doesn't change by a byte.
+  const painted = (
+    <>
+      {background && <rect width={canvas.width} height={canvas.height} fill={background} />}
+      <SlotBand {...edgeProps} />
+      <g transform={`translate(${at.x} ${at.y})`}>{content}</g>
+    </>
+  );
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -123,8 +154,8 @@ export function SlotSvg({ recipe, theme, detail, lettering, font, width, idPrefi
       className={className}
     >
       <title>{title}</title>
-      {background && <rect width={canvas.width} height={canvas.height} fill={background} />}
-      <g transform={`translate(${at.x} ${at.y})`}>{content}</g>
+      <SlotEdgeDefs {...edgeProps} />
+      {edges.corners === 'on' ? <g clipPath={`url(#${edgeIds(prefix).corners})`}>{painted}</g> : painted}
     </svg>
   );
 }

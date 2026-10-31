@@ -1,7 +1,7 @@
 import { standaloneSvg } from '../../shared/react/standaloneSvg';
 import { slotRecipes } from '../engine';
 import { renderBubbleSvg } from '../react/renderSvg';
-import { SlotSvg, slotCanvas } from '../react/SlotSvg';
+import { renderSlotSvg } from '../react/renderSlot';
 import { BubbleWordmarkSvg } from '../wordmark/BubbleWordmark';
 import type { KernedFont } from '../wordmark/fonts';
 import { layoutBubbleLockup } from '../wordmark/lockup';
@@ -38,21 +38,8 @@ export function renderAssetSvg(entry: AssetEntry, { lettering, font }: AssetInpu
         </svg>
       ));
     }
-    case 'slot': {
-      const { recipe } = source;
-      const canvas = slotCanvas(recipe, theme, recipe.detail, font);
-      return standaloneSvg(`bubble/${recipe.id}-${theme}`, (prefix) => (
-        <SlotSvg
-          recipe={recipe}
-          theme={theme}
-          detail={recipe.detail}
-          lettering={lettering}
-          font={font}
-          width={Number(canvas.width.toFixed(3))}
-          idPrefix={prefix}
-        />
-      ));
-    }
+    case 'slot':
+      return renderSlotSvg(source.recipe, theme, { lettering, font });
   }
 }
 
