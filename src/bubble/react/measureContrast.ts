@@ -65,8 +65,9 @@ export interface ContrastSample {
   count: number;
 }
 
+// A loop rather than Math.min(...ratios): a large render has more pixels than a call can take as arguments.
 const sample = (ratios: number[]): ContrastSample => ({
-  min: Math.min(...ratios),
+  min: ratios.reduce((a, b) => Math.min(a, b), Infinity),
   share: (target) => ratios.filter((r) => r >= target).length / ratios.length,
   count: ratios.length,
 });

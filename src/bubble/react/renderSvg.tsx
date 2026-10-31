@@ -14,7 +14,7 @@ export function renderBubbleSvg(
   { detail = 'full', idPrefix }: { detail?: Detail; idPrefix?: string } = {},
 ) {
   const drawing = buildBubble({ theme, detail, lettering });
-  // Full keeps its original kind, so its file stays byte-identical.
+  // Full keeps its original kind, so its ids still change only when its drawing does.
   const kind = detail === 'full' ? `bubble/emblem-${theme}` : `bubble/emblem-${theme}-${detail}`;
   return standaloneSvg(kind, (prefix) => <BubbleSvg drawing={drawing} idPrefix={prefix} size={boxSize} />, idPrefix);
 }

@@ -57,9 +57,10 @@ export function ForcedDetailGrid({ theme, lettering }: { theme: Theme; lettering
 const avatarSizes = [20, 24, 32, 40, 48, 96] as const;
 
 /**
- * Every step cropped to a circle, as GitHub shows avatars, on the theme's
- * page. The circle is the square frame's inscribed circle, so it trims only
- * what lies outside the sphere.
+ * Every step cropped to a circle, as GitHub shows people's avatars (an
+ * organisation's are rounded squares, as the slot previews show), on the
+ * theme's page. The circle is the square frame's inscribed circle, so it
+ * trims only what lies outside the sphere.
  */
 export function AvatarCrops({ theme, lettering }: { theme: Theme; lettering: string }) {
   const ground = theme === 'light' ? palette.white : palette.darkPage;

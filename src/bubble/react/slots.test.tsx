@@ -2,6 +2,7 @@ import { Resvg } from '@resvg/resvg-js';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { loadBubbleFontsFromDisk, loadLogoFontsFromDisk } from '../../../scripts/node-fonts';
 import { palette } from '../../shared/palette';
+import type { Box } from '../../shared/types';
 import { standaloneSvg } from '../../shared/react/standaloneSvg';
 import { unionBox } from '../../shared/typography';
 import { wordmarkColours } from '../wordmark/colours';
@@ -9,8 +10,11 @@ import { contrastRatio, contrastTarget } from '../wordmark/contrast';
 import type { KernedFont } from '../wordmark/fonts';
 import { layoutBubbleLockup } from '../wordmark/lockup';
 import {
+  boxSize,
   buildBubble,
   detailForDiameter,
+  squareFrame,
+  stepBounds,
   slotRecipes,
   sphereDiameterInFrame,
   tileLettering,
@@ -126,6 +130,65 @@ describe('each slot’s image', () => {
       else expect(corner[3]).toBe(0);
     },
   );
+
+  // The recipe's numbers are only half of it: this finds where the image actually paints,
+  // so a drawing that lost its scale or its centring fails here, not just in a preview.
+  it.each(each)('%s %s: paints its artwork where the recipe puts it', (_, theme, recipe) => {
+    const size = contentSize(recipe);
+    const canvas = recipe.canvas ?? size;
+    const offset = { x: (canvas.width - size.width) / 2, y: (canvas.height - size.height) / 2 };
+    // At least 400 px across, so a unit is a few pixels even for the 32 px favicon.
+    const scale = Math.max(1, 400 / canvas.width);
+    const { pixels, width } = new Resvg(file(recipe, theme), {
+      fitTo: { mode: 'width', value: canvas.width * scale },
+    }).render();
+    const ground = recipe.background.kind === 'fixed' ? [13, 17, 23] : undefined;
+    const box = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
+    for (let i = 0; i < pixels.length; i += 4) {
+      const painted = ground
+        ? [0, 1, 2].some((c) => Math.abs((pixels[i + c] ?? 0) - (ground[c] ?? 0)) > 2)
+        : (pixels[i + 3] ?? 0) > 2;
+      if (!painted) continue;
+      const x = ((i / 4) % width) / scale;
+      const y = Math.floor(i / 4 / width) / scale;
+      box.minX = Math.min(box.minX, x);
+      box.minY = Math.min(box.minY, y);
+      box.maxX = Math.max(box.maxX, x + 1 / scale);
+      box.maxY = Math.max(box.maxY, y + 1 / scale);
+    }
+    // A pixel's anti-aliasing either side of the edge, in canvas units.
+    const slack = 2 / scale + canvas.width * 0.002;
+    // The step's own painted box, clipped by its square frame, in the emblem's units.
+    const p = stepBounds(recipe.detail).painted;
+    const emblemPainted = (x: number, y: number, side: number) => {
+      const k = side / boxSize;
+      return {
+        minX: x + Math.max(p.minX, squareFrame.minX) * k,
+        minY: y + Math.max(p.minY, squareFrame.minY) * k,
+        maxX: x + Math.min(p.maxX, squareFrame.maxX) * k,
+        maxY: y + Math.min(p.maxY, squareFrame.maxY) * k,
+      };
+    };
+    let expected: Box;
+    if (recipe.composition === 'emblem') {
+      expected = emblemPainted(offset.x, offset.y, recipe.emblemSide);
+    } else {
+      // The emblem's painted box and the wordmark's ink, moved as SlotSvg frames the lockup.
+      const lockup = layoutBubbleLockup(font, { emblemSize: recipe.emblemSide, theme });
+      const frame = unionBox(lockup.box, lockup.wordmarkInk);
+      const { emblem } = lockup;
+      const ink = unionBox(emblemPainted(emblem.x, emblem.y, emblem.size), lockup.wordmarkInk);
+      expected = {
+        minX: offset.x + ink.minX - frame.minX,
+        minY: offset.y + ink.minY - frame.minY,
+        maxX: offset.x + ink.maxX - frame.minX,
+        maxY: offset.y + ink.maxY - frame.minY,
+      };
+    }
+    for (const side of ['minX', 'minY', 'maxX', 'maxY'] as const) {
+      expect(Math.abs(box[side] - expected[side]), side).toBeLessThanOrEqual(slack);
+    }
+  });
 
   // D9's 3:1, in each fixed-background recipe's own theme on its own ground.
   it.each(each.filter(([, , r]) => r.background.kind === 'fixed'))(

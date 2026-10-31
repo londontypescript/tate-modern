@@ -98,7 +98,9 @@ function Studio() {
           <SizeRow theme={theme} lettering={lettering} />
           <h3 className="text-sm font-semibold text-stone-700">Every step at every size</h3>
           <ForcedDetailGrid theme={theme} lettering={lettering} />
-          <h3 className="text-sm font-semibold text-stone-700">Cropped to a circle, as GitHub shows avatars</h3>
+          <h3 className="text-sm font-semibold text-stone-700">
+            Cropped to a circle, as GitHub shows people’s avatars
+          </h3>
           <AvatarCrops theme={theme} lettering={lettering} />
           <h3 className="text-sm font-semibold text-stone-700">Lockup</h3>
           <LockupPreviews theme={theme} font={bubbleFonts.wordmark} lettering={lettering} />
