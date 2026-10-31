@@ -47,23 +47,34 @@ function expectContained(svg: string, label: string) {
   }
 }
 
+// Building and exporting 120 logos takes over half a second on a Mac, almost
+// all of it inside the flat concept's own (frozen) build and export, so the
+// test can't be made cheaper without sampling fewer seeds. It took 8.1 to
+// 8.8 s on a machine about ten times slower, past vitest's 5 s default, so it
+// gets room of its own.
+const SEED_SWEEP_TIMEOUT_MS = 30_000;
+
 describe('sheets as written to the SVG', () => {
-  it('stay inside the viewBox of every export, for many seeds and strong variation', () => {
-    let nearBoundary = 0;
-    for (let seed = 1; seed <= 120; seed++) {
-      const config = withEmblem({ ...strong, seed, layerCount: 6 + (seed % 11), cornerRadius: (seed % 5) * 3 });
-      const logo = buildLogo(config, fonts);
-      const { minX, minY, maxX, maxY } = logo.emblem.bounds;
-      for (const edge of [minX, minY, maxX, maxY]) {
-        const hundredths = Math.abs(edge) * 100;
-        if (Math.abs(hundredths - Math.round(hundredths)) < 0.05) nearBoundary++;
+  it(
+    'stay inside the viewBox of every export, for many seeds and strong variation',
+    { timeout: SEED_SWEEP_TIMEOUT_MS },
+    () => {
+      let nearBoundary = 0;
+      for (let seed = 1; seed <= 120; seed++) {
+        const config = withEmblem({ ...strong, seed, layerCount: 6 + (seed % 11), cornerRadius: (seed % 5) * 3 });
+        const logo = buildLogo(config, fonts);
+        const { minX, minY, maxX, maxY } = logo.emblem.bounds;
+        for (const edge of [minX, minY, maxX, maxY]) {
+          const hundredths = Math.abs(edge) * 100;
+          if (Math.abs(hundredths - Math.round(hundredths)) < 0.05) nearBoundary++;
+        }
+        expectContained(renderLogoSvg('mark', logo), `seed ${seed} mark`);
+        expectContained(renderLogoSvg('logo', logo), `seed ${seed} logo`);
       }
-      expectContained(renderLogoSvg('mark', logo), `seed ${seed} mark`);
-      expectContained(renderLogoSvg('logo', logo), `seed ${seed} logo`);
-    }
-    // The sweep includes bounds that sit right by a rounding step of the viewBox.
-    expect(nearBoundary).toBeGreaterThan(5);
-  });
+      // The sweep includes bounds that sit right by a rounding step of the viewBox.
+      expect(nearBoundary).toBeGreaterThan(5);
+    },
+  );
 
   it('stay inside the viewBox at the largest accepted sizes, where rounding the angle moves corners most', () => {
     const { squareSize, sizeTaper } = emblemRanges;
