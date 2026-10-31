@@ -36,6 +36,11 @@ export interface SlotRecipe {
   /** Where the content must stay, in canvas units, clear of crops and overlays. */
   safe?: Box;
   /**
+   * The band and rounded corners the studio can add to this image, in
+   * canvas units (see `SlotEdges`). The committed file is always plain.
+   */
+  edges?: { bandWidth: number; cornerRadius: number };
+  /**
    * The smallest the image is seen: its width in CSS px where it is shown,
    * never the file's pixels, and where that number came from.
    */
@@ -108,6 +113,9 @@ export const slotRecipes: readonly SlotRecipe[] = [
     // The lockup at 80% of the width (it is 3.21 emblems wide), the most that stays inside the safe rectangle.
     emblemSide: 298,
     safe: { minX: 120, minY: 100, maxX: 1080, maxY: 575 },
+    // As the maintainer's mock-ups drew them: 14 px at the 600 px Meetup shows it at most, a band that reads
+    // as the fan without competing with the logo, and corners a little rounder than Meetup's own crop.
+    edges: { bandWidth: 28, cornerRadius: 28 },
     smallestDisplay: { width: 300, source: 'assumed: a group card in Meetup’s search results, to be confirmed' },
   },
   {

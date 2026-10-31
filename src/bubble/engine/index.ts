@@ -10,6 +10,7 @@ export * from './types';
 export * from './detail';
 export * from './bounds';
 export * from './slots';
+export * from './edges';
 export { tileLettering } from './emblem';
 
 export interface BubbleOptions {
