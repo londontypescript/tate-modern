@@ -28,7 +28,7 @@ const belowBar = 'md:top-12';
 /**
  * The bar that stays at the top while scrolling: a link to each topic and,
  * on a narrow window where the columns can't sit side by side, the Light /
- * Dark tabs that pick the one shown.
+ * Dark toggle that picks the one shown.
  */
 export function TopicBar({
   topics,
@@ -43,17 +43,13 @@ export function TopicBar({
     <div
       className={`sticky top-0 z-20 flex ${barHeight} items-center gap-4 border-b border-stone-200 bg-white/95 px-6 backdrop-blur`}
     >
-      <div
-        role="tablist"
-        aria-label="Theme shown"
-        className="flex shrink-0 gap-1 rounded-lg bg-stone-200 p-1 md:hidden"
-      >
+      {/* Two toggle buttons rather than tabs: the columns they pick aren't tab panels, and plain buttons need no arrow-key wiring. */}
+      <div role="group" aria-label="Theme shown" className="flex shrink-0 gap-1 rounded-lg bg-stone-200 p-1 md:hidden">
         {themes.map((theme) => (
           <button
             key={theme}
             type="button"
-            role="tab"
-            aria-selected={theme === shown}
+            aria-pressed={theme === shown}
             onClick={() => onShow(theme)}
             className={`rounded-md px-3 py-0.5 text-sm font-medium transition-colors ${
               theme === shown ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'
@@ -81,7 +77,7 @@ export function TopicBar({
 /**
  * A topic as a Light column and a Dark column side by side, each on its
  * panel. A column scrolls sideways inside itself when its contents are wider
- * than half the page. On a narrow window only the tab's column shows.
+ * than half the page. On a narrow window only the toggled column shows.
  */
 export function TopicSection({ topic, shown }: { topic: Topic; shown: Theme }) {
   return (
