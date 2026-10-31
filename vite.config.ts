@@ -22,5 +22,11 @@ export default defineConfig({
     // Only the project's own folders: agents' worktrees (.temple-bar/,
     // .claude/worktrees/) hold whole copies of the repo, tests included.
     include: ['src/**/*.test.{ts,tsx}', 'scripts/**/*.test.ts'],
+    // Some tests render and sample a lot (seed sweeps, contrast over every
+    // pixel, resvg reference renders), and on a slower machine they take
+    // several times vitest's 5 s default with nothing wrong. A timeout here
+    // only stops a stuck or runaway test; it checks nothing about the result,
+    // so a larger budget keeps every assertion while letting them finish.
+    testTimeout: 30_000,
   },
 });
