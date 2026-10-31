@@ -40,7 +40,7 @@ export function renderAssetSvg(entry: AssetEntry, { lettering, font }: AssetInpu
     }
     case 'slot': {
       const { recipe } = source;
-      const canvas = slotCanvas(recipe, theme, font);
+      const canvas = slotCanvas(recipe, theme, recipe.detail, font);
       return standaloneSvg(`bubble/${recipe.id}-${theme}`, (prefix) => (
         <SlotSvg
           recipe={recipe}

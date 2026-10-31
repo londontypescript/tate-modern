@@ -53,8 +53,8 @@ const avatarSizes = [20, 24, 32, 40, 48, 96] as const;
 /**
  * Every step cropped to a circle, as GitHub shows people's avatars (an
  * organisation's are rounded squares, as the slot previews show). The circle
- * is the square frame's inscribed circle, so it trims only what lies outside
- * the sphere.
+ * is the 240 box's inscribed circle, so it trims only what lies outside the
+ * sphere, the full step's ground included.
  */
 export function AvatarCrops({ theme, ground, lettering }: StepProps) {
   return (

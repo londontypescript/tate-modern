@@ -7,7 +7,7 @@ import { captionClass, groundName, homeGround, noteClass, strongClass } from './
 const references: Record<Theme, string> = { light: lightReferenceUrl, dark: darkReferenceUrl };
 
 /**
- * Square sizes, in CSS pixels, of the frame the emblem is seen in: the
+ * Widths, in CSS pixels, of the frame the emblem is seen in: the
  * common ones, and those just below, at and just above each breakpoint
  * (22 | 23, 29 | 30, 55 | 56).
  */
@@ -73,7 +73,10 @@ export function SizeRow({ theme, ground, lettering }: PreviewProps) {
         const detail = detailForFrame(size);
         return (
           <figure key={size} className="flex flex-col items-center gap-1.5">
-            <BubbleSvg drawing={buildBubble({ theme, detail, lettering })} size={size} />
+            {/* Placed by its 240 box, as the slots place it, so the spheres line up whatever their step and the full step's ground hangs below. */}
+            <div style={{ width: size, height: size }}>
+              <BubbleSvg drawing={buildBubble({ theme, detail, lettering })} size={size} className="block" />
+            </div>
             <figcaption className={`whitespace-nowrap ${captionClass(ground)}`}>
               {size} px · ⌀ {sphereDiameterInFrame(size).toFixed(1)} · {detail}
             </figcaption>

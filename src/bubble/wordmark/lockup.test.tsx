@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { loadBubbleFontsFromDisk } from '../../../scripts/node-fonts';
 import { standaloneSvg } from '../../shared/react/standaloneSvg';
-import { buildBubble, tileLettering } from '../engine';
+import { buildBubble, fullFrame, tileLettering } from '../engine';
 import { BubbleSvg } from '../react/BubbleSvg';
 import { loadLogoFontsFromDisk } from '../../../scripts/node-fonts';
 import { BubbleLockupSvg, BubbleWordmarkSvg } from './BubbleWordmark';
@@ -73,14 +73,23 @@ describe('the drawings', () => {
     const svg = files()[1] ?? '';
     expect(svg).toMatch(/viewBox="0 0 179\.89 56"/);
     expect(svg).toContain('scale(0.233333)');
-    const shadowed = standaloneSvg('bubble/lockup-shadow', (idPrefix) => (
-      <BubbleLockupSvg
-        lockup={layoutBubbleLockup(fonts.wordmark, { emblemSize: 240, theme: 'dark' })}
-        emblem={{ ...emblem, paintedBounds: { minX: 0, minY: 0, maxX: 240, maxY: 246 } }}
-        idPrefix={idPrefix}
-      />
-    ));
-    expect(shadowed).toMatch(/viewBox="0 0 [\d.]+ 246"/);
+  });
+
+  it('make room below for the full bubble’s taller frame, leaving the wordmark where the square put it', () => {
+    const lockup = layoutBubbleLockup(fonts.wordmark, { emblemSize: 240, theme: 'dark' });
+    const draw = (paintedBounds?: typeof fullFrame) =>
+      standaloneSvg('bubble/lockup-frame', (idPrefix) => (
+        <BubbleLockupSvg lockup={lockup} emblem={{ ...emblem, paintedBounds }} idPrefix={idPrefix} />
+      ));
+    const square = draw();
+    const tall = draw(fullFrame);
+    expect(square).toMatch(/viewBox="0 0 ([\d.]+) 240"/);
+    // As wide as before and 13 units taller at a 240 emblem, the extra all below.
+    const width = /viewBox="0 0 ([\d.]+) 240"/.exec(square)?.[1];
+    expect(tall).toContain(`viewBox="0 0 ${width} 253"`);
+    const wordmarkAt = (svg: string) => /<g transform="(translate\([^"]+\))"><g id="[^"]+-wordmark"/.exec(svg)?.[1];
+    expect(wordmarkAt(tall)).toBeDefined();
+    expect(wordmarkAt(tall)).toBe(wordmarkAt(square));
   });
 
   it('compose with the real bubble into one self-contained file', async () => {

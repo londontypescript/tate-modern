@@ -1,7 +1,6 @@
 import type { SVGAttributes } from 'react';
 import { useOwnIdPrefix } from '../../shared/react/useOwnIdPrefix';
 import {
-  squareFrame,
   type BubbleDrawing,
   type Gradient,
   type Node,
@@ -73,25 +72,31 @@ export interface BubbleSvgProps {
   drawing: BubbleDrawing;
   /** Fixes the ids' prefix (exports); a live drawing without one takes its own. */
   idPrefix?: string;
-  /** Written as `width` and `height`, so a file shows at its size as an `<img>`; omitted, it fills its box. */
+  /**
+   * The frame's width, written as `width` with `height` following the
+   * frame's shape, so a file shows at its size as an `<img>`. Every frame is
+   * as wide as the 240 box, so this sets the sphere's size whatever the
+   * step. Omitted, it fills its box.
+   */
   size?: number;
   className?: string;
 }
 
 /**
- * The bubble as a self-contained SVG: its square frame, every gradient, blur
+ * The bubble as a self-contained SVG: its step's frame, every gradient, blur
  * and clip defined inside it under one prefix, and only concrete values (no
  * CSS, no custom properties, no outside references).
  */
 export function BubbleSvg({ drawing, idPrefix, size, className }: BubbleSvgProps) {
   const prefix = useOwnIdPrefix(idPrefix);
-  const { minX, minY, maxX, maxY } = squareFrame;
+  const { minX, minY, maxX, maxY } = drawing.frame;
   const { gradients, blurs, clips } = drawing.defs;
+  const height = size === undefined ? undefined : Number(((size * (maxY - minY)) / (maxX - minX)).toFixed(3));
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width={size}
-      height={size}
+      height={height}
       viewBox={`${minX} ${minY} ${maxX - minX} ${maxY - minY}`}
       role="img"
       aria-label={drawing.title}

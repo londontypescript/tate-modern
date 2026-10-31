@@ -1,3 +1,4 @@
+import { stepBounds } from './bounds';
 import type { Detail } from './detail';
 import { emblemGradients, emblemLayer } from './emblem';
 import { glassBehind, glassBlurs, glassClips, glassGradients, glassInFront } from './glass';
@@ -26,16 +27,18 @@ const titles: Record<Theme, string> = {
 /** The bubble emblem as drawing data, layers in paint order. */
 export function buildBubble({ theme, detail, lettering }: BubbleOptions): BubbleDrawing {
   const title = titles[theme];
+  // A copy, so no drawing shares its boxes with another.
+  const frame = { ...stepBounds(detail, theme).frame };
   const emblem = emblemLayer(lettering, detail);
   switch (detail) {
     case 'full':
       return {
         theme,
         title,
+        frame,
         defs: {
           gradients: [...glassGradients(theme), ...emblemGradients()],
-          // Copies, so no drawing shares its definitions with another.
-          blurs: glassBlurs.map((b) => ({ ...b, region: { ...b.region } })),
+          blurs: glassBlurs(theme),
           clips: glassClips.map((c) => ({ ...c })),
         },
         layers: [...glassBehind(theme), emblem, ...glassInFront(theme)],
@@ -44,11 +47,12 @@ export function buildBubble({ theme, detail, lettering }: BubbleOptions): Bubble
       return {
         theme,
         title,
+        frame,
         defs: { gradients: [...rimGlassGradients(theme), ...emblemGradients()], blurs: [], clips: [] },
         layers: [rimGlassBehind(theme), emblem, ...rimGlassInFront(theme)],
       };
     case 'tiny':
     case 'none':
-      return { theme, title, defs: { gradients: emblemGradients(), blurs: [], clips: [] }, layers: [emblem] };
+      return { theme, title, frame, defs: { gradients: emblemGradients(), blurs: [], clips: [] }, layers: [emblem] };
   }
 }

@@ -31,7 +31,7 @@ export interface SlotRecipe {
   detailReason?: string;
   /** The image's own size in its units; none for a drawing framed by its content. */
   canvas?: { width: number; height: number };
-  /** The emblem's square side in canvas units (in CSS px where there is no canvas); content is centred. */
+  /** The emblem's square side in canvas units (in CSS px where there is no canvas); content is centred by it. */
   emblemSide: number;
   /** Where the content must stay, in canvas units, clear of crops and overlays. */
   safe?: Box;

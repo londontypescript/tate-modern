@@ -7,6 +7,8 @@
  * definitions by its local id; renderers prefix those ids.
  */
 
+import type { Box } from '../../shared/types';
+
 export type Theme = 'light' | 'dark';
 
 export const themes: readonly Theme[] = ['light', 'dark'];
@@ -81,6 +83,8 @@ export interface BubbleDrawing {
   theme: Theme;
   /** Accessible name, written as the SVG `<title>`. */
   title: string;
+  /** The box a file of this drawing shows: its step's frame (see `bounds.ts`). */
+  frame: Box;
   defs: Definitions;
   /** In paint order. */
   layers: Group[];

@@ -19,6 +19,19 @@ export interface SvgFrameProps {
 }
 
 /**
+ * The viewBox a frame of `bounds` writes, rounded outwards to two decimals
+ * to avoid clipping. A viewport holding a frame must match it exactly, or
+ * the frame is scaled a hair to fit.
+ */
+export function frameViewBox(bounds: Box) {
+  const minX = Math.floor(bounds.minX * 100) / 100;
+  const minY = Math.floor(bounds.minY * 100) / 100;
+  const width = num(Math.ceil(bounds.maxX * 100) / 100 - minX);
+  const height = num(Math.ceil(bounds.maxY * 100) / 100 - minY);
+  return { minX, minY, width, height };
+}
+
+/**
  * Root <svg> sized purely by its viewBox, so it scales to its container and
  * keeps its aspect ratio. The viewBox is rounded outwards to avoid clipping.
  */
@@ -29,10 +42,7 @@ export function SvgFrame({
   className,
   children,
 }: SvgFrameProps & { bounds: Box; children: ReactNode }) {
-  const minX = Math.floor(bounds.minX * 100) / 100;
-  const minY = Math.floor(bounds.minY * 100) / 100;
-  const width = num(Math.ceil(bounds.maxX * 100) / 100 - minX);
-  const height = num(Math.ceil(bounds.maxY * 100) / 100 - minY);
+  const { minX, minY, width, height } = frameViewBox(bounds);
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
