@@ -1,4 +1,5 @@
 import { standaloneSvg } from '../../shared/react/standaloneSvg';
+import { slotRecipes } from '../engine';
 import { renderBubbleSvg } from '../react/renderSvg';
 import { SlotSvg, slotCanvas } from '../react/SlotSvg';
 import { BubbleWordmarkSvg } from '../wordmark/BubbleWordmark';
@@ -25,7 +26,8 @@ export function renderAssetSvg(entry: AssetEntry, { lettering, font }: AssetInpu
       return renderBubbleSvg(theme, lettering);
     case 'wordmark': {
       // At the size the README header's lockup sets it, so the two read alike side by side.
-      const readmeEmblem = 96;
+      const readmeEmblem = slotRecipes.find((r) => r.id === 'readmeHeader')?.emblemSide;
+      if (readmeEmblem === undefined) throw new Error('The wordmark is sized from the README header’s recipe');
       const { wordmark } = layoutBubbleLockup(font, { emblemSize: readmeEmblem, theme });
       const ink = wordmark.inkBounds;
       const width = Number((ink.maxX - ink.minX).toFixed(3));
