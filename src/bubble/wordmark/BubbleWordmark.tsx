@@ -1,8 +1,7 @@
 import type { ReactNode } from 'react';
 import { SvgFrame, num, shapeId, type SvgFrameProps } from '../../shared/react/SvgFrame';
 import type { Box } from '../../shared/types';
-import { unionBox } from '../../shared/typography';
-import type { BubbleLockup } from './lockup';
+import { lockupBounds, type BubbleLockup } from './lockup';
 import type { BubbleWordmark } from './wordmark';
 
 /** The outlined wordmark in wordmark space (first line box at the origin). */
@@ -36,8 +35,9 @@ export interface LockupEmblem {
   content: ReactNode;
   side: number;
   /**
-   * Where it paints, in the same units, when that passes its square (a
-   * blurred shadow), so the frame doesn't crop it. Defaults to the square.
+   * Where it paints, in the same units, when that passes its square (the
+   * full bubble's taller frame), so the lockup's frame doesn't crop it.
+   * Defaults to the square.
    */
   paintedBounds?: Box;
 }
@@ -52,13 +52,7 @@ export function BubbleLockupSvg({
 }: SvgFrameProps & { lockup: BubbleLockup; emblem: LockupEmblem }) {
   const k = lockup.emblem.size / emblem.side;
   const painted = emblem.paintedBounds ?? { minX: 0, minY: 0, maxX: emblem.side, maxY: emblem.side };
-  const emblemBounds = {
-    minX: lockup.emblem.x + painted.minX * k,
-    minY: lockup.emblem.y + painted.minY * k,
-    maxX: lockup.emblem.x + painted.maxX * k,
-    maxY: lockup.emblem.y + painted.maxY * k,
-  };
-  const bounds = unionBox(unionBox(lockup.box, lockup.wordmarkInk), emblemBounds);
+  const bounds = lockupBounds(lockup, painted, emblem.side);
   return (
     <SvgFrame bounds={bounds} title={title} {...frame}>
       <g

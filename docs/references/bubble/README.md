@@ -117,6 +117,19 @@ The TypeScript logo is judged against these files, except where listed here.
   (178, 178), so it reads better at website sizes. The outline, its font and its placement in the tile are otherwise
   the reference's. The files here keep the original size; the tests compare the logo with them after applying this
   scale.
+- **A warm caustic under the dark bubble** (maintainer, 31 October 2026): the dark theme's white ground shadow (row 3)
+  read as a grey smudge, so the dark bubble casts light through its sunset fan instead. One ellipse centred under the
+  sphere, (120, 233) rx 84 ry 8.5, fully opaque, filled with a radial gradient (cx .5, cy .5, r .5): 0 gold `#ffcf7a`
+  .9, .45 orange `#ff9a5c` .55, .8 pink `#ff5fa2` .2, 1 pink 0, through its own blur of 5 with the shadow's filter
+  region. No contact shadow beneath it. Light keeps its navy shadow and blur 4.
+- **The full bubble's frame 240 × 253** (maintainer, 31 October 2026): the 240 box grown downwards only, in both
+  themes, so the ground fades out inside the frame instead of ending in a straight line at y 240. Its height is the
+  caustic's last visible row as resvg renders it (about y 252.4), rounded up. The sphere keeps its place and size,
+  and lockups and slot images are still placed by the 240 box, so the extra room hangs below. It shows a little more
+  of the light shadow's tail, which the square cut at 240 (it ends at about y 246). The smaller steps keep the square.
+
+The files here stay as captured. The pixel test reframes the reference to 240 × 253 and, in dark, swaps its shadow
+for the caustic, then requires an exact match: no other difference is allowed.
 
 ## The lockup
 

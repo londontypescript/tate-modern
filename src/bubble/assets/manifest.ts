@@ -14,7 +14,10 @@ interface SlotAsset {
   recipe: SlotRecipe & { detail: Detail };
 }
 
-/** The full emblem alone, 240 × 240, the same bytes as the studio's download. */
+/**
+ * The full emblem alone, 240 wide and 253 tall so its ground fades out below
+ * the sphere, the same bytes as the studio's download.
+ */
 interface EmblemAsset {
   kind: 'emblem';
 }

@@ -6,8 +6,8 @@ import type { Blur, CircleClip, Gradient, Group, Node, Paints, Shape, Theme } fr
  * The glass sphere around the emblem, as the reference draws it. The light
  * theme's glass has a pale body, a darker edge, an inner shade and fine
  * outlines, so it reads on white; the dark theme leaves those out and casts
- * a white ground shadow, so it reads on a dark page. Everything else is the
- * same in both.
+ * a warm caustic, the sunset fan's light through the glass, so it reads on a
+ * dark page. Everything else is the same in both.
  */
 
 const { cx, cy, r } = sphere;
@@ -55,6 +55,25 @@ export const lightBodyGradient = (): Gradient => ({
   ],
 });
 
+/**
+ * The dark theme's caustic: the fan's gold, orange and pink fading to clear
+ * from the middle of its ellipse. A shadow paler than a dark page read as a
+ * grey smudge, so the dark bubble casts light instead.
+ */
+const causticGradient = (): Gradient => ({
+  kind: 'radial',
+  id: 'caustic',
+  cx: 0.5,
+  cy: 0.5,
+  r: 0.5,
+  stops: [
+    { offset: 0, colour: palette.sunsetGold, opacity: 0.9 },
+    { offset: 0.45, colour: palette.sunsetOrange, opacity: 0.55 },
+    { offset: 0.8, colour: palette.sunsetPink, opacity: 0.2 },
+    { offset: 1, colour: palette.sunsetPink, opacity: 0 },
+  ],
+});
+
 export function glassGradients(theme: Theme): Gradient[] {
   const both: Gradient[] = [
     {
@@ -80,7 +99,7 @@ export function glassGradients(theme: Theme): Gradient[] {
     },
     shineGradient(),
   ];
-  if (theme === 'dark') return both;
+  if (theme === 'dark') return [...both, causticGradient()];
   return [
     ...both,
     lightBodyGradient(),
@@ -99,24 +118,46 @@ export function glassGradients(theme: Theme): Gradient[] {
   ];
 }
 
-export const glassBlurs: Blur[] = [
-  { id: 'soft', stdDeviation: 2.2, region: { x: -0.2, y: -0.2, width: 1.4, height: 1.4 } },
-  // Tall, because the shadow's ellipse is flat and its blur spreads past it vertically.
-  { id: 'blur4', stdDeviation: 4, region: { x: -0.5, y: -2, width: 2, height: 5 } },
-];
+// The ground's blurs are tall, because their ellipses are flat and the blur spreads past them vertically.
+const groundRegion = { x: -0.5, y: -2, width: 2, height: 5 };
+
+/** Each theme's blurs: the soft one for the sheen, and the blur its own ground needs. */
+export function glassBlurs(theme: Theme): Blur[] {
+  return [
+    { id: 'soft', stdDeviation: 2.2, region: { x: -0.2, y: -0.2, width: 1.4, height: 1.4 } },
+    theme === 'light'
+      ? { id: 'blur4', stdDeviation: 4, region: { ...groundRegion } }
+      : { id: 'blur5', stdDeviation: 5, region: { ...groundRegion } },
+  ];
+}
 
 export const glassClips: CircleClip[] = [{ id: 'ball', cx, cy, r }];
 
-const groundShadow = (theme: Theme): Node => ({
+/** Light's navy shadow under the sphere, as the reference draws it. */
+const groundShadow: Node = {
   kind: 'ellipse',
   cx,
   cy: 230,
   rx: 72,
   ry: 7,
-  fill: theme === 'light' ? glass.shadowLight : white,
-  fillOpacity: theme === 'light' ? 0.22 : 0.2,
+  fill: glass.shadowLight,
+  fillOpacity: 0.22,
   filter: 'blur4',
-});
+};
+
+/**
+ * Dark's caustic, centred under the sphere and wider than light's shadow,
+ * with no contact shadow: hidden under the glow, one added nothing.
+ */
+const causticGlow: Node = {
+  kind: 'ellipse',
+  cx,
+  cy: 233,
+  rx: 84,
+  ry: 8.5,
+  fill: { gradient: 'caustic' },
+  filter: 'blur5',
+};
 
 /** A circle filling the sphere exactly. */
 const ball = (paints: Paints): Shape => ({ kind: 'circle', cx, cy, r, ...paints });
@@ -128,14 +169,13 @@ const windows = [
   { opacity: 0.55, rect: { x: 82, y: 34, width: 12, height: 17, rx: 3, transform: { rotate: -22, cx: 88, cy: 42 } } },
 ] as const;
 
-/** The layers painted under the emblem: shadow, body and tint. */
+/** The layers painted under the emblem: the ground (shadow or caustic), body and tint. */
 export function glassBehind(theme: Theme): Group[] {
   return [
     {
       kind: 'group',
       name: 'ground',
-      children:
-        theme === 'light' ? [groundShadow(theme), ball({ fill: { gradient: 'lightBody' } })] : [groundShadow(theme)],
+      children: theme === 'light' ? [groundShadow, ball({ fill: { gradient: 'lightBody' } })] : [causticGlow],
     },
     { kind: 'group', name: 'tint', children: [ball({ fill: glass.tint, fillOpacity: 0.08 })] },
   ];
