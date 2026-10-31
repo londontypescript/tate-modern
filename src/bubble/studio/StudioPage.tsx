@@ -59,7 +59,7 @@ function studioTopics(lettering: string, font: KernedFont): Topic[] {
       id: 'slots',
       nav: 'Where it lands',
       title: 'Where the logo lands',
-      note: 'One row per slot, at the sizes it is seen: light and dark side by side where it comes as a pair, once where it has a fixed background.',
+      note: 'One row per slot, at the sizes it is seen: light and dark together where it comes as a pair, once where it has a fixed background.',
       full: () => <SlotPreviews lettering={lettering} font={font} />,
     },
     {

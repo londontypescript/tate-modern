@@ -17,7 +17,7 @@ const seen: Partial<Record<SlotId, { widths: number[]; radius: (width: number) =
 /**
  * Every slot's image, one row per slot, as its recipe composes it at the
  * sizes it is seen. A transparent image sits on its theme's own page, light
- * and dark side by side where it comes as a pair; an image with a fixed
+ * and dark together where it comes as a pair; an image with a fixed
  * background brings it, shown once, on the studio's neutral surround.
  */
 export function SlotPreviews({ lettering, font }: { lettering: string; font: KernedFont }) {
@@ -38,6 +38,8 @@ export function SlotPreviews({ lettering, font }: { lettering: string; font: Ker
             <div className="flex flex-wrap gap-4">
               {recipe.themes.map((theme) => {
                 const ground = fixed ? undefined : homeGround[theme];
+                // Each size in its own card, so a tightly framed image (the README header) doesn't run into the next.
+                const card = ground === homeGround.dark ? 'border-stone-700' : 'border-stone-200';
                 const label = fixed
                   ? `${themeLabels[theme]}, on its fixed GitHub-dark background`
                   : `${themeLabels[theme]}, on the ${theme} page`;
@@ -49,9 +51,9 @@ export function SlotPreviews({ lettering, font }: { lettering: string; font: Ker
                     style={{ backgroundColor: ground }}
                   >
                     <div className={captionClass(ground ?? homeGround.light)}>{label}</div>
-                    <div className="flex w-max items-end gap-4">
+                    <div className="flex w-max items-end gap-6">
                       {(seen[recipe.id]?.widths ?? []).map((width) => (
-                        <div key={width} className="flex flex-col items-center gap-1">
+                        <div key={width} className={`flex flex-col items-center gap-2 rounded-md border p-3 ${card}`}>
                           <div className="overflow-hidden" style={{ borderRadius: seen[recipe.id]?.radius(width) }}>
                             <SlotSvg
                               recipe={recipe}

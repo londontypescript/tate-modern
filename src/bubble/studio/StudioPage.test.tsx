@@ -76,7 +76,7 @@ describe('the studio page', () => {
   });
 
   // Some slots exist only on their fixed dark background, so this topic is one row per slot, not two columns.
-  it('shows where the logo lands full width: a pair side by side where a slot has one, once where its background is fixed', () => {
+  it('shows where the logo lands full width: a pair together where a slot has one, once where its background is fixed', () => {
     const slots = sections().find((s) => s.id === 'slots')?.html ?? '';
     expect(slots).not.toContain('md:grid-cols-2');
     const rows = [...slots.matchAll(/data-slot="(\w+)"/g)].map((m) => m[1]);
