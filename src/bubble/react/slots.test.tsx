@@ -238,30 +238,53 @@ describe('each slot’s image', () => {
     expect(Math.abs(moved.count - before.count)).toBeLessThanOrEqual(2);
   });
 
-  // The frame holds the ground until it has faded out: its bottom row, where a smaller frame would have cut a
-  // straight line through the glow, is clear.
+  // A viewport a hair smaller than the lockup's own viewBox would scale the whole lockup down to fit.
+  it.each(lockups)(
+    '%s %s: holds the lockup in a viewport exactly its size, so nothing is scaled',
+    (_, theme, recipe) => {
+      const svg = file(recipe, theme);
+      const boxes = [...svg.matchAll(/<svg [^>]*?viewBox="([^"]+)"/g)].map((m) => m[1]);
+      // The image, the viewport holding the lockup, the lockup's own frame, then the emblem.
+      expect(boxes).toHaveLength(4);
+      expect(boxes[1]).toBe(boxes[2]);
+      const viewport = /<svg viewBox="[^"]+" width="([\d.]+)" height="([\d.]+)" overflow="hidden"/.exec(svg);
+      expect(`0 0 ${viewport?.[1]} ${viewport?.[2]}`).toBe(boxes[2]);
+    },
+  );
+
+  // The frame holds the ground until it has faded out: the glow reaches as far down as the emblem alone paints
+  // it, so nothing cuts it short, and still ends inside the frame, so no straight line shows at its edge.
   it.each(lockups)('%s %s: lets the ground fade out inside the frame', (_, theme, recipe) => {
     const canvas = slotCanvas(recipe, theme, 'full', font);
-    const scale = 4;
-    const { pixels, width } = new Resvg(file(recipe, theme), {
-      fitTo: { mode: 'width', value: canvas.width * scale },
+    // resvg takes only a whole number of pixels, and ignores any other width.
+    const { pixels, width, height } = new Resvg(file(recipe, theme), {
+      fitTo: { mode: 'width', value: Math.round(canvas.width * 4) },
     }).render();
-    // The lockup's last row: the image's own bottom, or on a canvas the bottom of its centred frame.
+    const scale = width / canvas.width;
+    // The emblem's square in canvas units: placed by the layout box, centred on a canvas or at the image's corner.
     const lockup = layoutBubbleLockup(font, { emblemSize: recipe.emblemSide, theme });
+    const layout = unionBox(lockup.box, lockup.wordmarkInk);
+    const size = contentSize(recipe);
+    const left = (recipe.canvas ? (canvas.width - size.width) / 2 : 0) + lockup.emblem.x - layout.minX;
+    const top = (recipe.canvas ? (canvas.height - size.height) / 2 : 0) + lockup.emblem.y - layout.minY;
     const k = recipe.emblemSide / boxSize;
-    const layoutTop = recipe.canvas ? (canvas.height - contentSize(recipe).height) / 2 : 0;
-    const frameBottom = layoutTop + (lockup.emblem.y - lockup.box.minY) + stepBounds('full', theme).frame.maxY * k;
-    const row = Math.floor(frameBottom * scale) - 1;
     const ground = recipe.background.kind === 'fixed' ? [13, 17, 23] : undefined;
-    let painted = 0;
-    for (let x = 0; x < Math.round(recipe.emblemSide * scale); x++) {
-      const i = (row * width + Math.floor((canvas.width - contentSize(recipe).width) / 2) * scale + x) * 4;
-      const p = ground
-        ? [0, 1, 2].some((c) => Math.abs((pixels[i + c] ?? 0) - (ground[c] ?? 0)) > 2)
-        : (pixels[i + 3] ?? 0) > 2;
-      if (p) painted++;
+    let lastRow = -1;
+    for (let y = 0; y < height; y++) {
+      for (let x = Math.ceil(left * scale); x < Math.floor((left + recipe.emblemSide) * scale); x++) {
+        const i = (y * width + x) * 4;
+        const painted = ground
+          ? [0, 1, 2].some((c) => Math.abs((pixels[i + c] ?? 0) - (ground[c] ?? 0)) > 2)
+          : (pixels[i + 3] ?? 0) > 2;
+        if (painted) lastRow = y;
+      }
     }
-    expect(painted, 'painted pixels in the frame’s bottom row').toBe(0);
+    // In the emblem's own units.
+    const bottom = ((lastRow + 1) / scale - top) / k;
+    const { painted, frame } = stepBounds('full', theme);
+    expect(bottom, 'where the glow ends').toBeLessThan(frame.maxY);
+    // The faintest rows fall under the 2-of-255 threshold here, so the glow is seen to end a few units short.
+    expect(bottom, 'where the glow ends').toBeGreaterThan(painted.maxY - 4);
   });
 
   // D9's 3:1, in each fixed-background recipe's own theme on its own ground.
