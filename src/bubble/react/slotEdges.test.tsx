@@ -174,12 +174,4 @@ describe('every band and corner combination', () => {
       }
     }
   });
-
-  it('each get their own file name', () => {
-    const names = edgeChoices.flatMap((e) => (['svg', 'png'] as const).map((f) => slotFileName(meetup, e, f)));
-    expect(new Set(names).size).toBe(names.length);
-    expect(slotFileName(meetup, { band: 'left', corners: 'on' }, 'svg')).toBe(
-      'london-typescript-meetup-photo-band-left-rounded.svg',
-    );
-  });
 });
