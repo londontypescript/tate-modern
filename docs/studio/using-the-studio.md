@@ -8,7 +8,7 @@ pnpm typecheck        # strict TypeScript check
 pnpm build            # regenerate assets, type-check, build the studio into dist/
 ```
 
-`pnpm dev` opens the studio (a development tool, not part of the eventual website):
+This page describes the 0.4.0 studio, kept unchanged at `legacy.html` (in development, http://localhost:5173/legacy.html); `pnpm dev`'s main page is the bubble logo's studio, described in the [README](../../README.md#the-studio). The 0.4.0 studio is a development tool, not part of the eventual website:
 
 - **Concept switcher:** the tabs in the header. The open concept is kept in the URL hash (for example `#flat`), so reloads and links keep it. Concepts load on demand.
 - **Compare with a reference:** shows one of the reference images in `public/references/` beside the previews: the 2D mockup and the Three.js stack and hero concepts. The choice is remembered in this browser.
@@ -33,7 +33,7 @@ The flat concept opens on its defaults (`defaultLogoConfig`), the approved logo,
   - Animation: speed and speed variation.
 - **Animate squares / Stop animation:** stopping glides each sheet back to the static composition, the short way round: a square looks the same every quarter turn, a stretched sheet every half turn and a fading sheet only after a full turn. Changing a setting while they glide sends them on from where they are.
 - **Toggles:** alternate rotation directions, and "multiply overlaps" (a tinted-glass blend mode).
-- **Download SVG:** mark, wordmark or complete logo, built from your current slider settings with the same code as `generate:assets`. Optionally includes the cream background.
+- **Download SVG:** mark, wordmark or complete logo, built from your current slider settings with the same code that generated the 0.4.0 assets. Optionally includes the cream background.
 - **Reset:** goes back to the starter shown pressed under **Start from** (see below) and unloads any saved configuration.
 - **Saved configurations:** keep named variations in this browser's localStorage, one list per concept.
   - **Start from:** read-only starting points the concept ships with. The one shown pressed is where Reset and New go back to: what the studio opened on, or the starter you picked since. Loading a saved configuration doesn't change it. Where a concept opens on its engine defaults and none of its starters matches them, none is pressed and Reset goes back to those defaults. The flat concept has one starter, `Default`: its defaults, which it opens on, so `Default` is pressed when the studio opens.
@@ -44,7 +44,7 @@ The flat concept opens on its defaults (`defaultLogoConfig`), the approved logo,
   - **Load, Rename, Delete:** load and delete ask for confirmation when work would be lost.
   - Saved configurations from older versions still load: fields a saved configuration lacks are filled from the defaults, except the sheet variation and the halo, which stay off, so a configuration saved before they existed looks as it did although the defaults turn them on. Values that aren't sensible numbers (for example from a hand-edited file) fall back to the defaults (the sheet variation and the halo to off), and every number is kept within its slider's range; numbers without a slider (the tile's size, corner radius and facets, the wordmark's line indents, the animation's base velocity) are kept within a wide range set in `config.ts`. Whole numbers (layers, seed) round to the nearest. Colours are kept only as `#` and six hex digits (either case, as written), the only form the studio produces: anything else (a colour name, three digits, `url(#…)`, spaces around it, a value that isn't text) takes the default's colour. The squares' colours are kept or replaced as a whole list, so their alternation never changes silently; a wordmark run's bad colour takes the default run's colour at the same place, or black for a run the defaults don't have, and a line whose runs aren't a list of texts takes the default line's runs. A blend mode other than `normal` or `multiply` takes the default, and the TS tile's text, if it isn't text, takes `TS`. Any character of the lettering other than a letter, a digit, `_` or `-` is written into its shape's id as its code point (`u0020` for a space), so ids stay valid. The sliders, toggles, previews and downloads all show the values drawn, while the saved configuration itself is left as it was.
 
-Saved configurations live only in this browser; they aren't shared and don't change the generated assets. To make a configuration the official logo, copy its values into `defaultLogoConfig` in `src/concepts/flat/engine/config.ts` and run `pnpm generate:assets`. (Flat configurations saved in the original playground still load: the storage key is unchanged.)
+Saved configurations live only in this browser; they aren't shared and don't change the generated assets. `defaultLogoConfig` in `src/concepts/flat/engine/config.ts` was the official logo until 0.5.0; the logo is now the bubble, and `pnpm generate:assets` draws only that. (Flat configurations saved in the original playground still load: the storage key is unchanged.)
 
 ## The 3D concept
 

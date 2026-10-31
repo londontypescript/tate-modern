@@ -35,6 +35,17 @@ describe('public/assets', () => {
     }
   });
 
+  it.each(['index.html', 'legacy.html'])('%s: links only to files in the manifest', (page) => {
+    const html = readFileSync(new URL(`../../../${page}`, import.meta.url), 'utf8');
+    const linked = [...html.matchAll(/href="\/assets\/([^"]+)"/g)].map((m) => m[1]);
+    expect(linked.length, page).toBeGreaterThan(0);
+    for (const file of linked)
+      expect(
+        assetManifest.map((e) => e.file),
+        page,
+      ).toContain(file);
+  });
+
   it('are each listed in the README’s assets section', () => {
     const readme = readFileSync(new URL('../../../README.md', import.meta.url), 'utf8');
     const section = readme.slice(readme.indexOf('## Assets'), readme.indexOf('\n## ', readme.indexOf('## Assets') + 1));
