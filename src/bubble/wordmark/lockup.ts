@@ -1,5 +1,5 @@
 import type { Box, Point } from '../../shared/types';
-import { translateBox } from '../../shared/typography';
+import { translateBox, unionBox } from '../../shared/typography';
 import type { Theme } from '../engine/types';
 import type { KernedFont } from './fonts';
 import { buildBubbleWordmark, type BubbleWordmark } from './wordmark';
@@ -48,4 +48,22 @@ export function layoutBubbleLockup(
     wordmarkInk: translateBox(wordmark.inkBounds, offset.x, offset.y),
     box: { minX: 0, minY: Math.min(0, text.minY), maxX: text.maxX, maxY: Math.max(emblemSize, text.maxY) },
   };
+}
+
+/**
+ * What a lockup shows: its layout box and the wordmark's ink, with where the
+ * emblem paints (`emblemBounds`, in the emblem's own units, drawn in a
+ * square of side `side`) scaled into place. The full bubble's taller frame
+ * only adds room below; the layout, and so the wordmark's size and place,
+ * still goes by the emblem's square.
+ */
+export function lockupBounds(lockup: BubbleLockup, emblemBounds: Box, side: number): Box {
+  const k = lockup.emblem.size / side;
+  const emblem = {
+    minX: lockup.emblem.x + emblemBounds.minX * k,
+    minY: lockup.emblem.y + emblemBounds.minY * k,
+    maxX: lockup.emblem.x + emblemBounds.maxX * k,
+    maxY: lockup.emblem.y + emblemBounds.maxY * k,
+  };
+  return unionBox(unionBox(lockup.box, lockup.wordmarkInk), emblem);
 }

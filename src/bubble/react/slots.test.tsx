@@ -13,7 +13,6 @@ import {
   boxSize,
   buildBubble,
   detailForDiameter,
-  squareFrame,
   stepBounds,
   slotRecipes,
   sphereDiameterInFrame,
@@ -23,7 +22,7 @@ import {
   type SlotRecipe,
 } from '../engine';
 import { contrastAgainstGround, contrastOver } from './measureContrast';
-import { SlotSvg } from './SlotSvg';
+import { SlotSvg, slotCanvas } from './SlotSvg';
 
 let lettering: string;
 let font: KernedFont;
@@ -34,7 +33,7 @@ beforeAll(async () => {
 
 const images = slotRecipes.filter((r): r is SlotRecipe & { detail: Detail } => r.detail !== 'bySize');
 
-/** The content's box (the emblem's square, or the lockup's) in canvas units. */
+/** The content's layout box (the emblem's square, or the lockup's), which places it, in canvas units. */
 function contentSize(recipe: SlotRecipe) {
   if (recipe.composition === 'emblem') return { width: recipe.emblemSide, height: recipe.emblemSide };
   const lockup = layoutBubbleLockup(font, { emblemSize: recipe.emblemSide, theme: 'light' });
@@ -135,8 +134,11 @@ describe('each slot’s image', () => {
   // so a drawing that lost its scale or its centring fails here, not just in a preview.
   it.each(each)('%s %s: paints its artwork where the recipe puts it', (_, theme, recipe) => {
     const size = contentSize(recipe);
-    const canvas = recipe.canvas ?? size;
-    const offset = { x: (canvas.width - size.width) / 2, y: (canvas.height - size.height) / 2 };
+    const canvas = slotCanvas(recipe, theme, recipe.detail, font);
+    // Placed by its layout box: centred on a canvas, or at the top left of an image framed by its content.
+    const offset = recipe.canvas
+      ? { x: (canvas.width - size.width) / 2, y: (canvas.height - size.height) / 2 }
+      : { x: 0, y: 0 };
     // At least 400 px across, so a unit is a few pixels even for the 32 px favicon.
     const scale = Math.max(1, 400 / canvas.width);
     const { pixels, width } = new Resvg(file(recipe, theme), {
@@ -158,15 +160,15 @@ describe('each slot’s image', () => {
     }
     // A pixel's anti-aliasing either side of the edge, in canvas units.
     const slack = 2 / scale + canvas.width * 0.002;
-    // The step's own painted box, clipped by its square frame, in the emblem's units.
-    const p = stepBounds(recipe.detail).painted;
+    // The step's own painted box, clipped by its frame, in the emblem's units.
+    const { painted: p, frame } = stepBounds(recipe.detail, theme);
     const emblemPainted = (x: number, y: number, side: number) => {
       const k = side / boxSize;
       return {
-        minX: x + Math.max(p.minX, squareFrame.minX) * k,
-        minY: y + Math.max(p.minY, squareFrame.minY) * k,
-        maxX: x + Math.min(p.maxX, squareFrame.maxX) * k,
-        maxY: y + Math.min(p.maxY, squareFrame.maxY) * k,
+        minX: x + Math.max(p.minX, frame.minX) * k,
+        minY: y + Math.max(p.minY, frame.minY) * k,
+        maxX: x + Math.min(p.maxX, frame.maxX) * k,
+        maxY: y + Math.min(p.maxY, frame.maxY) * k,
       };
     };
     let expected: Box;
@@ -188,6 +190,101 @@ describe('each slot’s image', () => {
     for (const side of ['minX', 'minY', 'maxX', 'maxY'] as const) {
       expect(Math.abs(box[side] - expected[side]), side).toBeLessThanOrEqual(slack);
     }
+  });
+
+  // The full bubble's frame is taller than the square, but everything is still placed by the square: a lockup
+  // drawn with the small step, whose frame is the square, shows where the logo sat before the frame grew.
+  const lockups = each.filter(([, , r]) => r.composition === 'lockup' && r.detail === 'full');
+  it.each(lockups)('%s %s: leaves the wordmark where the square put it', (_, theme, recipe) => {
+    // resvg rounds an image's height to whole pixels and stretches it to fit, so render at a zoom that makes
+    // both heights whole: then the two share one scale on both axes and their pixels can be compared.
+    const heights = (['full', 'small'] as const).map((detail) => slotCanvas(recipe, theme, detail, font).height);
+    const zoom = [1, 2, 3, 4, 5, 10].find((z) => heights.every((h) => Math.abs(h * z - Math.round(h * z)) < 1e-6));
+    if (zoom === undefined) throw new Error(`No zoom makes ${heights.join(' and ')} whole pixels`);
+    const render = (detail: Detail) =>
+      new Resvg(file({ ...recipe, detail }, theme), { fitTo: { mode: 'zoom', value: zoom } }).render();
+    const full = render('full');
+    const square = render('small');
+    expect(full.width).toBe(square.width);
+    // Right of the emblem's square, where only the wordmark paints.
+    const canvasWidth = slotCanvas(recipe, theme, 'full', font).width;
+    const fromX = Math.ceil(
+      (((canvasWidth - contentSize(recipe).width) / 2 + recipe.emblemSide) * full.width) / canvasWidth,
+    );
+    const ground = recipe.background.kind === 'fixed' ? [13, 17, 23] : undefined;
+    // Where the wordmark's ink is, to the pixel. Not every channel: resvg anti-aliases the odd edge pixel a little
+    // differently on canvases of different heights, though the wordmark is drawn at the same place.
+    const ink = ({ pixels, width, height }: typeof full) => {
+      const box = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity, count: 0 };
+      for (let y = 0; y < height; y++) {
+        for (let x = fromX; x < width; x++) {
+          const i = (y * width + x) * 4;
+          const inked = ground
+            ? [0, 1, 2].some((c) => Math.abs((pixels[i + c] ?? 0) - (ground[c] ?? 0)) > 2)
+            : (pixels[i + 3] ?? 0) > 2;
+          if (!inked) continue;
+          box.count++;
+          box.minX = Math.min(box.minX, x);
+          box.minY = Math.min(box.minY, y);
+          box.maxX = Math.max(box.maxX, x);
+          box.maxY = Math.max(box.maxY, y);
+        }
+      }
+      return box;
+    };
+    const [moved, before] = [ink(full), ink(square)];
+    expect(before.count).toBeGreaterThan(1000);
+    expect({ ...moved, count: 0 }).toEqual({ ...before, count: 0 });
+    expect(Math.abs(moved.count - before.count)).toBeLessThanOrEqual(2);
+  });
+
+  // A viewport a hair smaller than the lockup's own viewBox would scale the whole lockup down to fit.
+  it.each(lockups)(
+    '%s %s: holds the lockup in a viewport exactly its size, so nothing is scaled',
+    (_, theme, recipe) => {
+      const svg = file(recipe, theme);
+      const boxes = [...svg.matchAll(/<svg [^>]*?viewBox="([^"]+)"/g)].map((m) => m[1]);
+      // The image, the viewport holding the lockup, the lockup's own frame, then the emblem.
+      expect(boxes).toHaveLength(4);
+      expect(boxes[1]).toBe(boxes[2]);
+      const viewport = /<svg viewBox="[^"]+" width="([\d.]+)" height="([\d.]+)" overflow="hidden"/.exec(svg);
+      expect(`0 0 ${viewport?.[1]} ${viewport?.[2]}`).toBe(boxes[2]);
+    },
+  );
+
+  // The frame holds the ground until it has faded out: the glow reaches as far down as the emblem alone paints
+  // it, so nothing cuts it short, and still ends inside the frame, so no straight line shows at its edge.
+  it.each(lockups)('%s %s: lets the ground fade out inside the frame', (_, theme, recipe) => {
+    const canvas = slotCanvas(recipe, theme, 'full', font);
+    // resvg takes only a whole number of pixels, and ignores any other width.
+    const { pixels, width, height } = new Resvg(file(recipe, theme), {
+      fitTo: { mode: 'width', value: Math.round(canvas.width * 4) },
+    }).render();
+    const scale = width / canvas.width;
+    // The emblem's square in canvas units: placed by the layout box, centred on a canvas or at the image's corner.
+    const lockup = layoutBubbleLockup(font, { emblemSize: recipe.emblemSide, theme });
+    const layout = unionBox(lockup.box, lockup.wordmarkInk);
+    const size = contentSize(recipe);
+    const left = (recipe.canvas ? (canvas.width - size.width) / 2 : 0) + lockup.emblem.x - layout.minX;
+    const top = (recipe.canvas ? (canvas.height - size.height) / 2 : 0) + lockup.emblem.y - layout.minY;
+    const k = recipe.emblemSide / boxSize;
+    const ground = recipe.background.kind === 'fixed' ? [13, 17, 23] : undefined;
+    let lastRow = -1;
+    for (let y = 0; y < height; y++) {
+      for (let x = Math.ceil(left * scale); x < Math.floor((left + recipe.emblemSide) * scale); x++) {
+        const i = (y * width + x) * 4;
+        const painted = ground
+          ? [0, 1, 2].some((c) => Math.abs((pixels[i + c] ?? 0) - (ground[c] ?? 0)) > 2)
+          : (pixels[i + 3] ?? 0) > 2;
+        if (painted) lastRow = y;
+      }
+    }
+    // In the emblem's own units.
+    const bottom = ((lastRow + 1) / scale - top) / k;
+    const { painted, frame } = stepBounds('full', theme);
+    expect(bottom, 'where the glow ends').toBeLessThan(frame.maxY);
+    // The faintest rows fall under the 2-of-255 threshold here, so the glow is seen to end a few units short.
+    expect(bottom, 'where the glow ends').toBeGreaterThan(painted.maxY - 4);
   });
 
   // D9's 3:1, in each fixed-background recipe's own theme on its own ground.

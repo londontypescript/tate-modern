@@ -1,10 +1,12 @@
 import type { Box } from '../../shared/types';
 import type { Detail } from './detail';
+import type { Theme } from './types';
 import { emblemLooks, pane, panes } from './emblem';
 
 /**
- * The bubble's three boxes, kept apart because each answers a different
- * question. All are in the drawing's 240-unit box.
+ * The bubble's boxes, kept apart because each answers a different question:
+ * the sphere (what to align by), where it paints, and the frame a file
+ * shows. All are in the drawing's 240-unit box.
  */
 
 /** The side of the box the bubble is drawn in, as the reference's 240 symbol. */
@@ -22,27 +24,43 @@ export const sphereBounds: Box = {
 };
 
 /**
- * Everything that paints: the sphere with its outer rim stroke (half of its
- * 1-unit width outside r 112), and the ground shadow's ellipse (cy 230, ry 7)
- * spread by its blur. The blur is counted to three standard deviations
- * (3 × 4), past where it fades below one 8-bit step; resvg measured the
- * reference's last visible row at about y 246.
+ * Where each theme's ground stops painting: its last visible row as resvg
+ * renders it, rounded up to a whole unit. Dark's caustic ends at about
+ * y 252.4 (at 8 px per unit): its ellipse ends at 241.5, and its gradient
+ * fades to clear before the blur's three standard deviations (256.5) would
+ * suggest. Light's navy shadow ends at about y 246, a little lower at
+ * coarse pixel sizes (247 at 1 px per unit).
  */
-export const paintedBounds: Box = {
+const groundBottom: Record<Theme, number> = { light: 247, dark: 253 };
+
+/**
+ * Everything the full bubble paints in a theme: the sphere with its outer
+ * rim stroke (half of its 1-unit width outside r 112), and the ground below.
+ */
+export const paintedBounds = (theme: Theme): Box => ({
   minX: sphere.cx - sphere.r - 0.5,
   minY: sphere.cy - sphere.r - 0.5,
   maxX: sphere.cx + sphere.r + 0.5,
-  maxY: 230 + 7 + 3 * 4,
-};
+  maxY: groundBottom[theme],
+});
 
-/**
- * The square an emblem file frames: the 240 box, as the reference. It clips
- * the faint bottom of the shadow's blur, as the exploration's symbol did.
- */
+/** The square the smaller steps are framed in: the 240 box, as the reference. */
 export const squareFrame: Box = { minX: 0, minY: 0, maxX: boxSize, maxY: boxSize };
 
-/** The sphere's diameter when its square frame is shown `frameSize` CSS pixels wide. */
-export const sphereDiameterInFrame = (frameSize: number) => (frameSize * 2 * sphere.r) / boxSize;
+/**
+ * The full bubble's frame: the 240 box grown downwards only, so the ground
+ * fades out inside it instead of ending in a straight line at the box's
+ * edge. The same in both themes, so a light and dark pair swap without the
+ * page moving. The sphere keeps its place and size, and everything that
+ * places the bubble still goes by the 240 box: the extra room hangs below.
+ */
+export const fullFrame: Box = { minX: 0, minY: 0, maxX: boxSize, maxY: Math.max(...Object.values(groundBottom)) };
+
+/**
+ * The sphere's diameter when its frame is shown `frameWidth` CSS pixels
+ * wide. Every frame is the 240 box's width, however tall.
+ */
+export const sphereDiameterInFrame = (frameWidth: number) => (frameWidth * 2 * sphere.r) / boxSize;
 
 /**
  * How far the fan reaches from the centre once its emblem is scaled by
@@ -63,19 +81,19 @@ function fanReach(core: number) {
 }
 
 /**
- * Each step's two boxes. Every step is aligned by the same sphere, so a swap
- * at a breakpoint keeps the logo's centre and size; the steps without a
- * bubble grow their fan to fill most of that circle instead. `painted` is
+ * Each step's three boxes. Every step is aligned by the same sphere, so a
+ * swap at a breakpoint keeps the logo's centre and size; the steps without
+ * a bubble grow their fan to fill most of that circle instead. `painted` is
  * where the step actually paints: small's rim ends at the sphere's edge, and
- * the bare fan stays inside it, so only the full bubble's shadow passes the
- * square frame.
+ * the bare fan stays inside it, so only the full bubble's ground passes the
+ * square and needs the taller `frame`, the same in both themes.
  */
-export function stepBounds(detail: Detail): { align: Box; painted: Box } {
+export function stepBounds(detail: Detail, theme: Theme): { align: Box; painted: Box; frame: Box } {
   switch (detail) {
     case 'full':
-      return { align: sphereBounds, painted: paintedBounds };
+      return { align: sphereBounds, painted: paintedBounds(theme), frame: fullFrame };
     case 'small':
-      return { align: sphereBounds, painted: sphereBounds };
+      return { align: sphereBounds, painted: sphereBounds, frame: squareFrame };
     case 'tiny':
     case 'none': {
       const reach = fanReach(emblemLooks[detail].core);
@@ -85,7 +103,7 @@ export function stepBounds(detail: Detail): { align: Box; painted: Box } {
         maxX: sphere.cx + reach,
         maxY: sphere.cy + reach,
       };
-      return { align: sphereBounds, painted };
+      return { align: sphereBounds, painted, frame: squareFrame };
     }
   }
 }

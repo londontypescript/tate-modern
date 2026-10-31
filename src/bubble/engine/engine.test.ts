@@ -128,13 +128,41 @@ describe('the glass', () => {
     ]);
   });
 
-  it('casts a dark ground shadow under a pale body in light, a white shadow alone in dark', () => {
-    const [lightShadow, lightBody] = layer(drawingFor('light'), 'ground').children;
-    expect(lightShadow).toMatchObject({ kind: 'ellipse', fill: '#1b2a4a', fillOpacity: 0.22, filter: 'blur4' });
+  it('casts a dark ground shadow under a pale body in light, a warm caustic alone in dark', () => {
+    const light = drawingFor('light');
+    const [lightShadow, lightBody] = layer(light, 'ground').children;
+    expect(lightShadow).toEqual({
+      kind: 'ellipse',
+      cx: 120,
+      cy: 230,
+      rx: 72,
+      ry: 7,
+      fill: '#1b2a4a',
+      fillOpacity: 0.22,
+      filter: 'blur4',
+    });
     expect(lightBody).toMatchObject({ kind: 'circle', r: 112, fill: { gradient: 'lightBody' } });
-    expect(layer(drawingFor('dark'), 'ground').children).toEqual([
-      { kind: 'ellipse', cx: 120, cy: 230, rx: 72, ry: 7, fill: palette.white, fillOpacity: 0.2, filter: 'blur4' },
+    expect(light.defs.blurs.find((b) => b.id === 'blur4')).toMatchObject({ stdDeviation: 4 });
+
+    // Centred under the sphere, fully opaque, with no contact shadow beside it.
+    const dark = drawingFor('dark');
+    expect(layer(dark, 'ground').children).toEqual([
+      { kind: 'ellipse', cx: 120, cy: 233, rx: 84, ry: 8.5, fill: { gradient: 'caustic' }, filter: 'blur5' },
     ]);
+    expect(dark.defs.blurs.find((b) => b.id === 'blur5')).toMatchObject({ stdDeviation: 5 });
+    expect(dark.defs.gradients.find((g) => g.id === 'caustic')).toEqual({
+      kind: 'radial',
+      id: 'caustic',
+      cx: 0.5,
+      cy: 0.5,
+      r: 0.5,
+      stops: [
+        { offset: 0, colour: palette.sunsetGold, opacity: 0.9 },
+        { offset: 0.45, colour: palette.sunsetOrange, opacity: 0.55 },
+        { offset: 0.8, colour: palette.sunsetPink, opacity: 0.2 },
+        { offset: 1, colour: palette.sunsetPink, opacity: 0 },
+      ],
+    });
   });
 });
 

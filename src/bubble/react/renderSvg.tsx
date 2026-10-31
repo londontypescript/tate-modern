@@ -3,8 +3,9 @@ import { boxSize, buildBubble, type Detail, type Theme } from '../engine';
 import { BubbleSvg } from './BubbleSvg';
 
 /**
- * The bubble emblem as a standalone SVG file, 240 × 240 like the reference,
- * at full detail unless `detail` asks for a smaller step, with ids taken
+ * The bubble emblem as a standalone SVG file, at full detail unless `detail`
+ * asks for a smaller step: 240 wide like the reference, and as tall as its
+ * step's frame (253 for the full bubble's ground, 240 otherwise), with ids taken
  * from its content (see `standaloneSvg`). `idPrefix` fixes the prefix
  * instead, for tests.
  */

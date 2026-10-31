@@ -22,7 +22,11 @@ export function LockupPreviews({ theme, font, lettering }: { theme: Theme; font:
             <BubbleLockupSvg
               lockup={lockup}
               title={`London TypeScript lockup, ${theme} theme, ${size} px emblem`}
-              emblem={{ side: boxSize, content: <BubbleSvg drawing={drawing} size={boxSize} /> }}
+              emblem={{
+                side: boxSize,
+                content: <BubbleSvg drawing={drawing} size={boxSize} />,
+                paintedBounds: drawing.frame,
+              }}
               className="block h-auto w-full"
             />
           </div>
