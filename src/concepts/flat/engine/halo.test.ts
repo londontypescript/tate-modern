@@ -195,6 +195,10 @@ describe('buildHalo', () => {
   }
 
   it('partitions the shadow exactly: every point within reach of the core is in one share, others in none', () => {
+    // Tens of thousands of points are sampled, so a wrong one is collected and
+    // all are checked in one assertion at the end: an expect per point made
+    // this test run past the 5 s timeout on a slow machine.
+    const wrong: string[] = [];
     for (const config of [on, { strength: 1, reach: 40, offset: 20 }, { strength: 0.3, reach: 0.5, offset: 0 }]) {
       for (const cornerRadius of [0, 0.8, 12, 50]) {
         const halo = buildHalo(tileWith(config, { cornerRadius })) as HaloModel;
@@ -208,11 +212,15 @@ describe('buildHalo', () => {
             const dy = Math.max(core.minY - y, 0, y - core.maxY);
             const d = Math.hypot(dx, dy);
             if (Math.abs(d - R) < 0.002) continue;
-            expect(piecesAt(halo, x, y), `r ${cornerRadius} (${x}, ${y})`).toBe(d < R ? 1 : 0);
+            const pieces = piecesAt(halo, x, y);
+            const expected = d < R ? 1 : 0;
+            if (pieces !== expected)
+              wrong.push(`r ${cornerRadius} (${x}, ${y}): in ${pieces} shares, expected ${expected}`);
           }
         }
       }
     }
+    expect(wrong).toEqual([]);
   });
 
   it('builds one stop list: full to the moved outline, then (1 − t)² over the reach, as 8-bit greys', () => {
