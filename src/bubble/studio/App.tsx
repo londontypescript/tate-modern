@@ -6,6 +6,8 @@ import { bubbleFileName, renderBubbleSvg } from '../react/renderSvg';
 import { downloadSvg } from './download';
 import { LockupPreviews } from './LockupPreviews';
 import { LargePreviews, SizeRow } from './Previews';
+import { SlotPreviews } from './SlotPreviews';
+import { AvatarCrops, ForcedDetailGrid } from './StepPreviews';
 
 type ThemeChoice = Theme | 'both';
 
@@ -19,9 +21,10 @@ const themeNames: Record<Theme, string> = { light: 'Light theme', dark: 'Dark th
 
 /**
  * The bubble logo's studio: the emblem in each theme, large and at real
- * sizes, beside the committed reference, then the lockup with its Exo 2
- * wordmark, with SVG downloads. Nothing is
- * tuned here; the drawing is changed in code.
+ * sizes beside the committed reference, every detail step at every size,
+ * the lockup with its Exo 2 wordmark, and each slot's image as its recipe
+ * composes it, with SVG downloads. Nothing is tuned here; the drawing is
+ * changed in code.
  */
 export function App() {
   return (
@@ -91,13 +94,24 @@ function Studio() {
             {themeNames[theme]}
           </h2>
           <LargePreviews drawing={buildBubble({ theme, detail: 'full', lettering })} />
-          <h3 className="text-sm font-semibold text-stone-700">At real sizes</h3>
+          <h3 className="text-sm font-semibold text-stone-700">At real sizes, with the step each size gets</h3>
           <SizeRow theme={theme} lettering={lettering} />
+          <h3 className="text-sm font-semibold text-stone-700">Every step at every size</h3>
+          <ForcedDetailGrid theme={theme} lettering={lettering} />
+          <h3 className="text-sm font-semibold text-stone-700">
+            Cropped to a circle, as GitHub shows people’s avatars
+          </h3>
+          <AvatarCrops theme={theme} lettering={lettering} />
           <h3 className="text-sm font-semibold text-stone-700">Lockup</h3>
           <LockupPreviews theme={theme} font={bubbleFonts.wordmark} lettering={lettering} />
         </section>
       ))}
-      {/* Previews of where the logo lands are added below. */}
+      <section aria-labelledby="slots" className="space-y-4">
+        <h2 id="slots" className="text-base font-semibold">
+          Where the logo lands
+        </h2>
+        <SlotPreviews lettering={lettering} font={bubbleFonts.wordmark} />
+      </section>
     </main>
   );
 }

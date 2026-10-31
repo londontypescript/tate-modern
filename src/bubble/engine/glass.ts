@@ -14,7 +14,7 @@ const { cx, cy, r } = sphere;
 const white = palette.white;
 
 /** The glass's own tints: specific to the bubble, so kept here rather than in the palette. */
-const glass = {
+export const glass = {
   shadowLight: '#1b2a4a',
   tint: '#9cc8ff',
   bodyBlue: '#bcd8ff',
@@ -26,6 +26,34 @@ const glass = {
 
 const rainbow = ['#ff5fa2', '#ffcf7a', '#7dffb0', '#5cd6ff', '#9a7dff', '#ff5fa2'] as const;
 const rainbowOffsets = [0, 0.22, 0.42, 0.62, 0.82, 1] as const;
+
+/** The highlight's fade, from nearly white at its top left to clear. */
+export const shineGradient = (): Gradient => ({
+  kind: 'radial',
+  id: 'shine',
+  cx: 0.35,
+  cy: 0.25,
+  r: 0.6,
+  stops: [
+    { offset: 0, colour: white, opacity: 0.85 },
+    { offset: 1, colour: white, opacity: 0 },
+  ],
+});
+
+/** The light theme's pale glass body, clear at its top left and bluer towards the edge. */
+export const lightBodyGradient = (): Gradient => ({
+  kind: 'radial',
+  id: 'lightBody',
+  cx: 0.4,
+  cy: 0.35,
+  r: 0.65,
+  stops: [
+    { offset: 0, colour: white, opacity: 0 },
+    { offset: 0.55, colour: '#e6effc', opacity: 0.35 },
+    { offset: 0.85, colour: '#c4d7f2', opacity: 0.55 },
+    { offset: 1, colour: '#9db6dc', opacity: 0.7 },
+  ],
+});
 
 export function glassGradients(theme: Theme): Gradient[] {
   const both: Gradient[] = [
@@ -50,34 +78,12 @@ export function glassGradients(theme: Theme): Gradient[] {
       y2: 1,
       stops: rainbow.map((colour, i) => ({ offset: rainbowOffsets[i] ?? 0, colour })),
     },
-    {
-      kind: 'radial',
-      id: 'shine',
-      cx: 0.35,
-      cy: 0.25,
-      r: 0.6,
-      stops: [
-        { offset: 0, colour: white, opacity: 0.85 },
-        { offset: 1, colour: white, opacity: 0 },
-      ],
-    },
+    shineGradient(),
   ];
   if (theme === 'dark') return both;
   return [
     ...both,
-    {
-      kind: 'radial',
-      id: 'lightBody',
-      cx: 0.4,
-      cy: 0.35,
-      r: 0.65,
-      stops: [
-        { offset: 0, colour: white, opacity: 0 },
-        { offset: 0.55, colour: '#e6effc', opacity: 0.35 },
-        { offset: 0.85, colour: '#c4d7f2', opacity: 0.55 },
-        { offset: 1, colour: '#9db6dc', opacity: 0.7 },
-      ],
-    },
+    lightBodyGradient(),
     {
       kind: 'radial',
       id: 'edge',
@@ -115,7 +121,7 @@ const groundShadow = (theme: Theme): Node => ({
 /** A circle filling the sphere exactly. */
 const ball = (paints: Paints): Shape => ({ kind: 'circle', cx, cy, r, ...paints });
 
-const shinePath = 'M40,96 C46,62 72,36 108,30 C78,44 58,68 52,100 Z';
+export const shinePath = 'M40,96 C46,62 72,36 108,30 C78,44 58,68 52,100 Z';
 /** The two window reflections, upper left, and how opaque each is. */
 const windows = [
   { opacity: 0.7, rect: { x: 62, y: 44, width: 16, height: 22, rx: 4, transform: { rotate: -32, cx: 70, cy: 55 } } },
