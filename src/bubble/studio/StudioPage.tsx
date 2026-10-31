@@ -13,9 +13,10 @@ import { themeLabels, TopicBar, TopicSection, type Topic } from './TopicLayout';
 const home = { grounds: homeGround, label: (theme: Theme) => themeLabels[theme] } as const;
 
 /**
- * The page's topics, each shown as its light and dark columns. Every topic
- * but the last shows a theme only on the ground it is drawn for; the last
- * puts each on the other one, to check nothing breaks when it lands there.
+ * The page's topics, most shown as light and dark columns. Every column
+ * topic but the last shows a theme only on the ground it is drawn for; the
+ * last puts each on the other one, to check nothing breaks when it lands
+ * there. Where the logo lands takes the full width, one row per slot.
  */
 function studioTopics(lettering: string, font: KernedFont): Topic[] {
   return [
@@ -58,9 +59,8 @@ function studioTopics(lettering: string, font: KernedFont): Topic[] {
       id: 'slots',
       nav: 'Where it lands',
       title: 'Where the logo lands',
-      note: 'Each slot’s image in the column of the theme it is made in, at the sizes it is seen.',
-      ...home,
-      render: (theme, ground) => <SlotPreviews theme={theme} ground={ground} lettering={lettering} font={font} />,
+      note: 'One row per slot, at the sizes it is seen: light and dark side by side where it comes as a pair, once where it has a fixed background.',
+      full: () => <SlotPreviews lettering={lettering} font={font} />,
     },
     {
       id: 'mismatch',

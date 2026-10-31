@@ -63,12 +63,12 @@ export function LargePreviews({ theme, ground, lettering }: PreviewProps) {
 
 /**
  * The drawing at real pixel sizes in one row, each labelled with its frame,
- * its sphere's diameter (⌀, what chooses the step) and the step it gets. The
- * row keeps its width, so its panel scrolls rather than wrapping it.
+ * its sphere's diameter (⌀, what chooses the step) and the step it gets. It
+ * wraps onto further lines in a half-width column, so every size stays in view.
  */
 export function SizeRow({ theme, ground, lettering }: PreviewProps) {
   return (
-    <div className="flex w-max items-end gap-6">
+    <div className="flex flex-wrap items-end gap-x-6 gap-y-4">
       {previewSizes.map((size) => {
         const detail = detailForFrame(size);
         return (

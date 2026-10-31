@@ -38,8 +38,8 @@ function column(html: string, theme: Theme) {
 
 describe('the studio page', () => {
   it('shows every topic as a light column on white and a dark column on GitHub’s dark page, each with its own theme’s drawing', () => {
-    const topics = sections().filter((s) => s.id !== 'mismatch');
-    expect(topics.map((s) => s.id)).toEqual(['large', 'sizes', 'steps', 'crops', 'lockup', 'slots']);
+    const topics = sections().filter((s) => s.id !== 'mismatch' && s.id !== 'slots');
+    expect(topics.map((s) => s.id)).toEqual(['large', 'sizes', 'steps', 'crops', 'lockup']);
     for (const { id, html } of topics) {
       expect(column(html, 'light'), id).toMatchObject({ ground: palette.white, named: ['light'] });
       expect(column(html, 'dark'), id).toMatchObject({ ground: palette.darkPage, named: ['dark'] });
@@ -55,7 +55,7 @@ describe('the studio page', () => {
   });
 
   it('puts the columns side by side from md up, and on a narrow window shows only the chosen theme (light at first)', () => {
-    for (const { id, html } of sections()) {
+    for (const { id, html } of sections().filter((s) => s.id !== 'slots')) {
       expect(html, id).toContain('grid gap-4 md:grid-cols-2');
       expect(column(html, 'light').classes, id).toContain('min-w-0');
       expect(column(html, 'light').classes, id).not.toContain('hidden');
@@ -73,6 +73,21 @@ describe('the studio page', () => {
       expect(column(byId.steps ?? '', theme).images).toBeGreaterThanOrEqual(previewSizes.length * details.length);
       expect(column(byId.crops ?? '', theme).images).toBeGreaterThanOrEqual(6 * details.length);
     }
+  });
+
+  // Some slots exist only on their fixed dark background, so this topic is one row per slot, not two columns.
+  it('shows where the logo lands full width: a pair side by side where a slot has one, once where its background is fixed', () => {
+    const slots = sections().find((s) => s.id === 'slots')?.html ?? '';
+    expect(slots).not.toContain('md:grid-cols-2');
+    const rows = [...slots.matchAll(/data-slot="(\w+)"/g)].map((m) => m[1]);
+    expect(rows).toEqual(['favicon', 'appleTouchIcon', 'githubAvatar', 'readmeHeader', 'meetupPhoto']);
+    const panels = (slot: string) =>
+      [...(slots.split(`data-slot="${slot}"`)[1]?.split('data-slot=')[0] ?? '').matchAll(/data-theme="(\w+)"/g)].map(
+        (m) => m[1],
+      );
+    expect(panels('readmeHeader')).toEqual(['light', 'dark']);
+    for (const slot of ['appleTouchIcon', 'githubAvatar', 'meetupPhoto']) expect(panels(slot), slot).toEqual(['dark']);
+    expect(slots.match(/on its fixed GitHub-dark background/g)?.length).toBe(3);
   });
 
   it('links the topic bar to every topic', () => {

@@ -1,8 +1,7 @@
 import type { ReactNode } from 'react';
 import { themes, type Theme } from '../engine';
 
-/** One topic of the page: what it shows in each theme's column, and on which ground. */
-export interface Topic {
+interface TopicBase {
   /** The section's id, which the topic bar links to. */
   id: string;
   /** The topic bar's short name for it. */
@@ -11,6 +10,10 @@ export interface Topic {
   note?: string;
   /** Set apart from the topics above it by a rule, as a check rather than a view. */
   apart?: boolean;
+}
+
+/** A topic shown in each theme's column, and on which ground. */
+interface ColumnTopic extends TopicBase {
   /** Each column's panel colour. */
   grounds: Record<Theme, string>;
   /** Each column's sticky label. */
@@ -18,6 +21,17 @@ export interface Topic {
   /** The column's contents: the theme's drawing, captioned for the panel's colour. */
   render: (theme: Theme, ground: string) => ReactNode;
 }
+
+/**
+ * A topic whose items don't come in light and dark pairs (some slots exist
+ * only on their fixed background), so splitting it into columns would leave
+ * one looking empty: it takes the full width instead.
+ */
+interface FullTopic extends TopicBase {
+  full: () => ReactNode;
+}
+
+export type Topic = ColumnTopic | FullTopic;
 
 export const themeLabels: Record<Theme, string> = { light: 'Light', dark: 'Dark' };
 
@@ -92,23 +106,27 @@ export function TopicSection({ topic, shown }: { topic: Topic; shown: Theme }) {
         </h2>
         {topic.note && <p className="text-sm text-stone-600">{topic.note}</p>}
       </div>
-      <div className="grid gap-4 md:grid-cols-2">
-        {themes.map((theme) => (
-          <div key={theme} data-theme={theme} className={`min-w-0 ${theme === shown ? '' : 'hidden md:block'}`}>
-            <h3
-              className={`z-10 bg-stone-100 py-1.5 text-xs font-semibold tracking-wide text-stone-600 uppercase md:sticky ${belowBar}`}
-            >
-              {topic.label(theme)}
-            </h3>
-            <div
-              className="overflow-x-auto rounded-lg border border-stone-200 p-4"
-              style={{ backgroundColor: topic.grounds[theme] }}
-            >
-              {topic.render(theme, topic.grounds[theme])}
+      {'full' in topic ? (
+        topic.full()
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2">
+          {themes.map((theme) => (
+            <div key={theme} data-theme={theme} className={`min-w-0 ${theme === shown ? '' : 'hidden md:block'}`}>
+              <h3
+                className={`z-10 bg-stone-100 py-1.5 text-xs font-semibold tracking-wide text-stone-600 uppercase md:sticky ${belowBar}`}
+              >
+                {topic.label(theme)}
+              </h3>
+              <div
+                className="overflow-x-auto rounded-lg border border-stone-200 p-4"
+                style={{ backgroundColor: topic.grounds[theme] }}
+              >
+                {topic.render(theme, topic.grounds[theme])}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

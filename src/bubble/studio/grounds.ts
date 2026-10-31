@@ -21,6 +21,3 @@ export const noteClass = (ground: string) => `text-xs ${isDark(ground) ? 'text-s
 
 /** A caption's emphasised words, on the ground. */
 export const strongClass = (ground: string) => `font-medium ${isDark(ground) ? 'text-stone-100' : 'text-stone-800'}`;
-
-/** A hairline that shows on the ground without competing with the drawing. */
-export const borderClass = (ground: string) => (isDark(ground) ? 'border-stone-700' : 'border-stone-200');
