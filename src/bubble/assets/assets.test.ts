@@ -35,6 +35,12 @@ describe('public/assets', () => {
     }
   });
 
+  it('are each listed in the README’s assets section', () => {
+    const readme = readFileSync(new URL('../../../README.md', import.meta.url), 'utf8');
+    const section = readme.slice(readme.indexOf('## Assets'), readme.indexOf('\n## ', readme.indexOf('## Assets') + 1));
+    for (const { file } of assetManifest) expect(section, file).toContain(`\`${file}\``);
+  });
+
   it('match the studio’s download of the emblem byte for byte', () => {
     // `pnpm generate:assets` writes these; the studio's Download SVG must give the same file.
     for (const theme of themes) {

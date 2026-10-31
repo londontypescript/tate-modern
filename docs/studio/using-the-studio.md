@@ -2,7 +2,7 @@
 
 ```bash
 pnpm dev              # the studio at http://localhost:5173
-pnpm generate:assets  # regenerate public/assets/*.svg
+pnpm generate:assets  # regenerate public/assets/ (the bubble logo's files)
 pnpm test             # unit tests (Vitest)
 pnpm typecheck        # strict TypeScript check
 pnpm build            # regenerate assets, type-check, build the studio into dist/
@@ -66,15 +66,9 @@ Saved configurations live only in this browser; they aren't shared and don't cha
 
 ## Generated assets
 
-The flat concept's approved configuration is exported as:
-
-| File                                           | Contents                 |
-| ---------------------------------------------- | ------------------------ |
-| `public/assets/london-typescript-logo.svg`     | Complete horizontal logo |
-| `public/assets/london-typescript-mark.svg`     | Emblem only              |
-| `public/assets/london-typescript-wordmark.svg` | Two-line wordmark only   |
-
-Each file is:
+Since 0.5.0, `public/assets/` holds the bubble logo's files, listed in the [README](../../README.md#assets). The flat
+concept's mark, wordmark and complete logo are no longer generated; this studio still downloads them, and the signed
+`v0.4.0` tag keeps the last generated copies. Each flat download is:
 
 - **Static:** no JavaScript.
 - **Self-contained:** glyphs are converted to outlines, so no fonts are needed.
@@ -89,14 +83,14 @@ Each square, facet and glyph is its own element with an id: `lts-`, the file's o
 Each exported SVG, from the studio's Download buttons or from `pnpm generate:assets`, takes its id prefix from its own content: the file is drawn once with the plain prefix `lts`, that drawing is hashed (SHA-256) with its concept and variant, and the file is drawn again with `lts-` and 128 bits of the hash. So:
 
 - **Different logos can share a page inline.** Every id in the file carries the prefix (squares, tile, glyphs, gradients, masks), and so does every `url(#…)` that points at one, so a second logo never paints with the first one's fades or halo. The mark, wordmark and complete logo of one design each get their own prefix.
-- **The same file always gets the same ids.** Exporting again, or regenerating the assets, gives byte-identical files, and the studio's download matches `pnpm generate:assets` for the same configuration.
+- **The same file always gets the same ids.** Exporting again, or regenerating the assets, gives byte-identical files, and the bubble studio's emblem download matches the file `pnpm generate:assets` writes.
 - **Changing anything changes the ids,** the background included. Don't rely on a shape's full id across versions of the logo; rely on its name.
 
 **Not covered:** two inline copies of the _same_ file still share ids, since no prefix written into a file can tell its copies apart. They mostly render correctly, but can lose their gradients when the first copy is hidden. For repeated copies, use `<img>` or a CSS background, where each file is its own document; when the markup must be inline, give each copy its own ids with a tool such as SVGO's `prefixIds` or SVGR.
 
 `<img>` and CSS backgrounds were never affected. The live React components of the flat and projected concepts, which the studio draws, take their gradients' ids from React's `useId` when given no `idPrefix`, so several can share a page too: the projected page's live 3D comparison shows two drawings of one emblem, each with its own ids.
 
-These files are build artefacts. Never edit them by hand: change the configuration (for the flat concept, `src/concepts/flat/engine/config.ts`) and run `pnpm generate:assets`.
+The files in `public/assets/` are build artefacts. Never edit them by hand: change the bubble's drawing in `src/bubble/` and run `pnpm generate:assets`.
 
 ## Using the components in a website
 
@@ -111,4 +105,4 @@ const logo = buildLogo(defaultLogoConfig, await loadLogoFonts());
 <AnimatedTypeScriptMark emblem={logo.emblem} animation={defaultLogoConfig.animation} />
 ```
 
-For static pages, simply use the generated files in `public/assets/`.
+For static pages, use the downloaded SVG files, or the bubble logo's files in `public/assets/`.
