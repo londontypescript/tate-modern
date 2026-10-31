@@ -1,4 +1,3 @@
-import { readFileSync } from 'node:fs';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { loadLogoFontsFromDisk } from '../../../../scripts/node-fonts';
 import { defaultWordmarkConfig, tileLettering, type LogoFonts } from '../../../shared';
@@ -6,7 +5,7 @@ import { buildProjectedEmblem, defaultProjectedConfig } from '../../projected/en
 import { buildProjectedLockup } from '../../projected/components/ProjectedLogo';
 import { renderProjectedSvg } from '../../projected/components/renderSvg';
 import { buildLogo, defaultLogoConfig, type LogoConfig } from '../engine';
-import { renderLogoSvg, svgFileName, svgVariants } from './renderSvg';
+import { renderLogoSvg, svgVariants } from './renderSvg';
 
 let fonts: LogoFonts;
 beforeAll(async () => {
@@ -94,14 +93,5 @@ describe('ids in exported SVGs', () => {
       expect(renderLogoSvg(variant, buildLogo(structuredClone(config), fonts))).toBe(first);
     }
     expect(renderProjectedSvg('logo', projectedLockup())).toBe(renderProjectedSvg('logo', projectedLockup()));
-  });
-
-  it('match the generated assets, which use the same renderer as the studio’s download', () => {
-    // `pnpm generate:assets` writes the defaults; the studio's download of the defaults must give the same bytes.
-    const logo = buildLogo(defaultLogoConfig, fonts);
-    for (const variant of svgVariants) {
-      const asset = readFileSync(new URL(`../../../../public/assets/${svgFileName(variant)}`, import.meta.url), 'utf8');
-      expect(renderLogoSvg(variant, logo), svgFileName(variant)).toBe(asset);
-    }
   });
 });

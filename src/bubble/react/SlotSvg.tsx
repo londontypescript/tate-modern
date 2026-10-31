@@ -21,6 +21,20 @@ export interface SlotSvgProps {
 }
 
 /**
+ * The image's own size in its units: the recipe's canvas, or for a drawing
+ * framed by its content (the README header), the lockup's box. Exports write
+ * it as their pixel size.
+ */
+export function slotCanvas(recipe: SlotRecipe, theme: Theme, font?: KernedFont) {
+  if (recipe.canvas) return recipe.canvas;
+  if (recipe.composition === 'emblem') return { width: recipe.emblemSide, height: recipe.emblemSide };
+  if (!font) throw new Error(`The ${recipe.id} slot's lockup needs the wordmark's font`);
+  const lockup = layoutBubbleLockup(font, { emblemSize: recipe.emblemSide, theme });
+  const bounds = unionBox(lockup.box, lockup.wordmarkInk);
+  return { width: bounds.maxX - bounds.minX, height: bounds.maxY - bounds.minY };
+}
+
+/**
  * One slot's image as its recipe composes it: the fixed background, then
  * the emblem or the lockup centred on the canvas. The lockup's emblem is
  * framed by its square, so the full bubble's shadow is clipped there, as
@@ -62,7 +76,7 @@ export function SlotSvg({ recipe, theme, detail, lettering, font, width, idPrefi
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width={width}
-      height={width === undefined ? undefined : (width * canvas.height) / canvas.width}
+      height={width === undefined ? undefined : Number(((width * canvas.height) / canvas.width).toFixed(3))}
       viewBox={`0 0 ${canvas.width} ${canvas.height}`}
       role="img"
       aria-label={title}

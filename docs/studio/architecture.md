@@ -23,11 +23,11 @@ src/
       FlatStudio.tsx   the concept's studio page (with controls.ts, starters.ts)
   studio/              shell: concept registry, layout, references, saved configurations
 scripts/
-  generate-assets.ts   writes public/assets/*.svg
+  generate-assets.ts   writes public/assets/ (the bubble's files)
   node-fonts.ts        loads the fonts in Node (generator and tests)
   score/               scores the flat emblem against the original (see scoring.md)
 public/
-  assets/              generated SVGs: do not edit
+  assets/              generated SVGs and PNGs: do not edit
   references/          images the concepts are compared against
 ```
 

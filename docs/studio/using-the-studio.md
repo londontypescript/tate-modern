@@ -2,13 +2,13 @@
 
 ```bash
 pnpm dev              # the studio at http://localhost:5173
-pnpm generate:assets  # regenerate public/assets/*.svg
+pnpm generate:assets  # regenerate public/assets/ (the bubble logo's files)
 pnpm test             # unit tests (Vitest)
 pnpm typecheck        # strict TypeScript check
 pnpm build            # regenerate assets, type-check, build the studio into dist/
 ```
 
-`pnpm dev` opens the studio (a development tool, not part of the eventual website):
+This page describes the 0.4.0 studio, kept unchanged at `legacy.html` (in development, http://localhost:5173/legacy.html); `pnpm dev`'s main page is the bubble logo's studio, described in the [README](../../README.md#the-studio). The 0.4.0 studio is a development tool, not part of the eventual website:
 
 - **Concept switcher:** the tabs in the header. The open concept is kept in the URL hash (for example `#flat`), so reloads and links keep it. Concepts load on demand.
 - **Compare with a reference:** shows one of the reference images in `public/references/` beside the previews: the 2D mockup and the Three.js stack and hero concepts. The choice is remembered in this browser.
@@ -33,7 +33,7 @@ The flat concept opens on its defaults (`defaultLogoConfig`), the approved logo,
   - Animation: speed and speed variation.
 - **Animate squares / Stop animation:** stopping glides each sheet back to the static composition, the short way round: a square looks the same every quarter turn, a stretched sheet every half turn and a fading sheet only after a full turn. Changing a setting while they glide sends them on from where they are.
 - **Toggles:** alternate rotation directions, and "multiply overlaps" (a tinted-glass blend mode).
-- **Download SVG:** mark, wordmark or complete logo, built from your current slider settings with the same code as `generate:assets`. Optionally includes the cream background.
+- **Download SVG:** mark, wordmark or complete logo, built from your current slider settings with the same code that generated the 0.4.0 assets. Optionally includes the cream background.
 - **Reset:** goes back to the starter shown pressed under **Start from** (see below) and unloads any saved configuration.
 - **Saved configurations:** keep named variations in this browser's localStorage, one list per concept.
   - **Start from:** read-only starting points the concept ships with. The one shown pressed is where Reset and New go back to: what the studio opened on, or the starter you picked since. Loading a saved configuration doesn't change it. Where a concept opens on its engine defaults and none of its starters matches them, none is pressed and Reset goes back to those defaults. The flat concept has one starter, `Default`: its defaults, which it opens on, so `Default` is pressed when the studio opens.
@@ -44,7 +44,7 @@ The flat concept opens on its defaults (`defaultLogoConfig`), the approved logo,
   - **Load, Rename, Delete:** load and delete ask for confirmation when work would be lost.
   - Saved configurations from older versions still load: fields a saved configuration lacks are filled from the defaults, except the sheet variation and the halo, which stay off, so a configuration saved before they existed looks as it did although the defaults turn them on. Values that aren't sensible numbers (for example from a hand-edited file) fall back to the defaults (the sheet variation and the halo to off), and every number is kept within its slider's range; numbers without a slider (the tile's size, corner radius and facets, the wordmark's line indents, the animation's base velocity) are kept within a wide range set in `config.ts`. Whole numbers (layers, seed) round to the nearest. Colours are kept only as `#` and six hex digits (either case, as written), the only form the studio produces: anything else (a colour name, three digits, `url(#…)`, spaces around it, a value that isn't text) takes the default's colour. The squares' colours are kept or replaced as a whole list, so their alternation never changes silently; a wordmark run's bad colour takes the default run's colour at the same place, or black for a run the defaults don't have, and a line whose runs aren't a list of texts takes the default line's runs. A blend mode other than `normal` or `multiply` takes the default, and the TS tile's text, if it isn't text, takes `TS`. Any character of the lettering other than a letter, a digit, `_` or `-` is written into its shape's id as its code point (`u0020` for a space), so ids stay valid. The sliders, toggles, previews and downloads all show the values drawn, while the saved configuration itself is left as it was.
 
-Saved configurations live only in this browser; they aren't shared and don't change the generated assets. To make a configuration the official logo, copy its values into `defaultLogoConfig` in `src/concepts/flat/engine/config.ts` and run `pnpm generate:assets`. (Flat configurations saved in the original playground still load: the storage key is unchanged.)
+Saved configurations live only in this browser; they aren't shared and don't change the generated assets. `defaultLogoConfig` in `src/concepts/flat/engine/config.ts` was the official logo until 0.5.0; the logo is now the bubble, and `pnpm generate:assets` draws only that. (Flat configurations saved in the original playground still load: the storage key is unchanged.)
 
 ## The 3D concept
 
@@ -66,15 +66,9 @@ Saved configurations live only in this browser; they aren't shared and don't cha
 
 ## Generated assets
 
-The flat concept's approved configuration is exported as:
-
-| File                                           | Contents                 |
-| ---------------------------------------------- | ------------------------ |
-| `public/assets/london-typescript-logo.svg`     | Complete horizontal logo |
-| `public/assets/london-typescript-mark.svg`     | Emblem only              |
-| `public/assets/london-typescript-wordmark.svg` | Two-line wordmark only   |
-
-Each file is:
+Since 0.5.0, `public/assets/` holds the bubble logo's files, listed in the [README](../../README.md#assets). The flat
+concept's mark, wordmark and complete logo are no longer generated; this studio still downloads them, and the signed
+`v0.4.0` tag keeps the last generated copies. Each flat download is:
 
 - **Static:** no JavaScript.
 - **Self-contained:** glyphs are converted to outlines, so no fonts are needed.
@@ -89,14 +83,14 @@ Each square, facet and glyph is its own element with an id: `lts-`, the file's o
 Each exported SVG, from the studio's Download buttons or from `pnpm generate:assets`, takes its id prefix from its own content: the file is drawn once with the plain prefix `lts`, that drawing is hashed (SHA-256) with its concept and variant, and the file is drawn again with `lts-` and 128 bits of the hash. So:
 
 - **Different logos can share a page inline.** Every id in the file carries the prefix (squares, tile, glyphs, gradients, masks), and so does every `url(#…)` that points at one, so a second logo never paints with the first one's fades or halo. The mark, wordmark and complete logo of one design each get their own prefix.
-- **The same file always gets the same ids.** Exporting again, or regenerating the assets, gives byte-identical files, and the studio's download matches `pnpm generate:assets` for the same configuration.
+- **The same file always gets the same ids.** Exporting again, or regenerating the assets, gives byte-identical files, and the bubble studio's emblem download matches the file `pnpm generate:assets` writes.
 - **Changing anything changes the ids,** the background included. Don't rely on a shape's full id across versions of the logo; rely on its name.
 
 **Not covered:** two inline copies of the _same_ file still share ids, since no prefix written into a file can tell its copies apart. They mostly render correctly, but can lose their gradients when the first copy is hidden. For repeated copies, use `<img>` or a CSS background, where each file is its own document; when the markup must be inline, give each copy its own ids with a tool such as SVGO's `prefixIds` or SVGR.
 
 `<img>` and CSS backgrounds were never affected. The live React components of the flat and projected concepts, which the studio draws, take their gradients' ids from React's `useId` when given no `idPrefix`, so several can share a page too: the projected page's live 3D comparison shows two drawings of one emblem, each with its own ids.
 
-These files are build artefacts. Never edit them by hand: change the configuration (for the flat concept, `src/concepts/flat/engine/config.ts`) and run `pnpm generate:assets`.
+The files in `public/assets/` are build artefacts. Never edit them by hand: change the bubble's drawing in `src/bubble/` and run `pnpm generate:assets`.
 
 ## Using the components in a website
 
@@ -111,4 +105,4 @@ const logo = buildLogo(defaultLogoConfig, await loadLogoFonts());
 <AnimatedTypeScriptMark emblem={logo.emblem} animation={defaultLogoConfig.animation} />
 ```
 
-For static pages, simply use the generated files in `public/assets/`.
+For static pages, use the downloaded SVG files, or the bubble logo's files in `public/assets/`.
