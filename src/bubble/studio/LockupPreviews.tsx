@@ -1,12 +1,8 @@
-import { palette } from '../../shared/palette';
 import { boxSize, buildBubble, detailForDiameter, sphereDiameterInFrame, type Theme } from '../engine';
 import { BubbleSvg } from '../react/BubbleSvg';
 import { BubbleLockupSvg } from '../wordmark/BubbleWordmark';
 import type { KernedFont } from '../wordmark/fonts';
 import { layoutBubbleLockup } from '../wordmark/lockup';
-
-/** The ground each theme is drawn for. */
-const homeGround: Record<Theme, string> = { light: palette.white, dark: palette.darkPage };
 
 /**
  * Emblem sizes in CSS pixels: the reference lockup's header size (56) and
@@ -14,13 +10,10 @@ const homeGround: Record<Theme, string> = { light: palette.white, dark: palette.
  */
 const lockupSizes = [110, 56] as const;
 
-/** The stacked lockup at real sizes on the theme's own ground. */
+/** The stacked lockup at real sizes, on the panel of its theme's own ground. */
 export function LockupPreviews({ theme, font, lettering }: { theme: Theme; font: KernedFont; lettering: string }) {
   return (
-    <div
-      className="flex flex-wrap items-center gap-x-12 gap-y-6 rounded-lg border border-stone-200 p-6"
-      style={{ backgroundColor: homeGround[theme] }}
-    >
+    <div className="flex flex-wrap items-center gap-x-12 gap-y-6">
       {lockupSizes.map((size) => {
         const lockup = layoutBubbleLockup(font, { emblemSize: size, theme });
         const drawing = buildBubble({ theme, detail: detailForDiameter(sphereDiameterInFrame(size)), lettering });

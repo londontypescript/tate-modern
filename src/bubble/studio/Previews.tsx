@@ -1,25 +1,8 @@
-import type { ReactNode } from 'react';
-import { palette } from '../../shared/palette';
-import {
-  buildBubble,
-  detailForDiameter,
-  sphereDiameterInFrame,
-  type BubbleDrawing,
-  type Detail,
-  type Theme,
-} from '../engine';
+import { buildBubble, detailForDiameter, sphereDiameterInFrame, type Detail, type Theme } from '../engine';
 import { BubbleSvg } from '../react/BubbleSvg';
 import lightReferenceUrl from '../../../docs/references/bubble/emblem-light.svg?url';
 import darkReferenceUrl from '../../../docs/references/bubble/emblem-dark.svg?url';
-
-/** The two grounds every drawing is judged on: white, and GitHub's dark page. */
-export const grounds = [
-  { name: 'white', colour: palette.white },
-  { name: palette.darkPage, colour: palette.darkPage },
-] as const;
-
-/** The ground each theme is drawn for. */
-const homeGround: Record<Theme, string> = { light: palette.white, dark: palette.darkPage };
+import { captionClass, groundName, homeGround, noteClass, strongClass } from './grounds';
 
 const references: Record<Theme, string> = { light: lightReferenceUrl, dark: darkReferenceUrl };
 
@@ -38,93 +21,65 @@ const largeSize = 320;
  */
 const detailForFrame = (size: number): Detail => detailForDiameter(sphereDiameterInFrame(size));
 
-function Card({
-  label,
-  note,
-  ground,
-  children,
-}: {
-  label: string;
-  note?: string;
+interface PreviewProps {
+  theme: Theme;
+  /** The panel's colour, which the captions must stay readable on. */
   ground: string;
-  children: ReactNode;
-}) {
-  return (
-    <figure className="space-y-2">
-      <div
-        className="flex items-center justify-center rounded-lg border border-stone-200 p-4"
-        style={{ backgroundColor: ground }}
-      >
-        {children}
-      </div>
-      <figcaption className="text-xs text-stone-600">
-        <span className="font-medium text-stone-800">{label}</span>
-        {note && <span> · {note}</span>}
-      </figcaption>
-    </figure>
-  );
+  lettering: string;
 }
 
-/** The theme's drawing large, on both grounds, beside the committed reference on its own ground. */
-export function LargePreviews({ drawing }: { drawing: BubbleDrawing }) {
-  const theme = drawing.theme;
+/**
+ * The theme's drawing large on the ground, and on its own ground the
+ * committed reference beside it.
+ */
+export function LargePreviews({ theme, ground, lettering }: PreviewProps) {
+  const drawing = buildBubble({ theme, detail: 'full', lettering });
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-      {grounds.map((g) => (
-        <Card
-          key={g.name}
-          label={`Live, on ${g.name}`}
-          note={g.colour === homeGround[theme] ? 'drawn for this ground' : undefined}
-          ground={g.colour}
-        >
-          <BubbleSvg drawing={drawing} size={largeSize} className="h-auto max-w-full" />
-        </Card>
-      ))}
-      <Card
-        label="Reference"
-        note={`docs/references/bubble/emblem-${theme}.svg, before the TS grew 1.3× (see its README)`}
-        ground={homeGround[theme]}
-      >
-        <img
-          src={references[theme]}
-          width={largeSize}
-          height={largeSize}
-          alt={`The committed ${theme} reference`}
-          className="h-auto max-w-full"
-        />
-      </Card>
+    <div className="grid gap-6 xl:grid-cols-2">
+      <figure className="space-y-2">
+        <BubbleSvg drawing={drawing} size={largeSize} className="h-auto max-w-full" />
+        <figcaption className={noteClass(ground)}>
+          <span className={strongClass(ground)}>Live, on {groundName(ground)}</span>
+        </figcaption>
+      </figure>
+      {ground === homeGround[theme] && (
+        <figure className="space-y-2">
+          <img
+            src={references[theme]}
+            width={largeSize}
+            height={largeSize}
+            alt={`The committed ${theme} reference`}
+            className="h-auto max-w-full"
+          />
+          <figcaption className={noteClass(ground)}>
+            <span className={strongClass(ground)}>Reference</span> · docs/references/bubble/emblem-{theme}.svg, before
+            the TS grew 1.3× (see its README)
+          </figcaption>
+        </figure>
+      )}
     </div>
   );
 }
 
 /**
- * The drawing at real pixel sizes on both grounds, each labelled with its
- * frame, its sphere's diameter (⌀, what chooses the step) and the step it gets.
+ * The drawing at real pixel sizes in one row, each labelled with its frame,
+ * its sphere's diameter (⌀, what chooses the step) and the step it gets. The
+ * row keeps its width, so its panel scrolls rather than wrapping it.
  */
-export function SizeRow({ theme, lettering }: { theme: Theme; lettering: string }) {
+export function SizeRow({ theme, ground, lettering }: PreviewProps) {
   return (
-    <div className="space-y-2">
-      {grounds.map((g) => (
-        <div
-          key={g.name}
-          className="flex flex-wrap items-end gap-6 rounded-lg border border-stone-200 p-4"
-          style={{ backgroundColor: g.colour }}
-        >
-          {previewSizes.map((size) => {
-            const detail = detailForFrame(size);
-            return (
-              <figure key={size} className="flex flex-col items-center gap-1.5">
-                <BubbleSvg drawing={buildBubble({ theme, detail, lettering })} size={size} />
-                <figcaption
-                  className={`font-mono text-[11px] ${g.colour === palette.darkPage ? 'text-stone-400' : 'text-stone-500'}`}
-                >
-                  {size} px · ⌀ {sphereDiameterInFrame(size).toFixed(1)} · {detail}
-                </figcaption>
-              </figure>
-            );
-          })}
-        </div>
-      ))}
+    <div className="flex w-max items-end gap-6">
+      {previewSizes.map((size) => {
+        const detail = detailForFrame(size);
+        return (
+          <figure key={size} className="flex flex-col items-center gap-1.5">
+            <BubbleSvg drawing={buildBubble({ theme, detail, lettering })} size={size} />
+            <figcaption className={`whitespace-nowrap ${captionClass(ground)}`}>
+              {size} px · ⌀ {sphereDiameterInFrame(size).toFixed(1)} · {detail}
+            </figcaption>
+          </figure>
+        );
+      })}
     </div>
   );
 }

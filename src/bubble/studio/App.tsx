@@ -1,30 +1,15 @@
-import { Suspense, use, useMemo, useState } from 'react';
+import { Suspense, use, useMemo } from 'react';
 import { loadLogoFonts } from '../../shared/react/fonts.browser';
 import { loadBubbleFonts } from '../wordmark/fonts.browser';
-import { buildBubble, themes, tileLettering, type Theme } from '../engine';
-import { bubbleFileName, renderBubbleSvg } from '../react/renderSvg';
-import { downloadSvg } from './download';
-import { LockupPreviews } from './LockupPreviews';
-import { LargePreviews, SizeRow } from './Previews';
-import { SlotPreviews } from './SlotPreviews';
-import { AvatarCrops, ForcedDetailGrid } from './StepPreviews';
-
-type ThemeChoice = Theme | 'both';
-
-const themeChoices: { id: ThemeChoice; label: string }[] = [
-  { id: 'light', label: 'Light' },
-  { id: 'dark', label: 'Dark' },
-  { id: 'both', label: 'Both' },
-];
-
-const themeNames: Record<Theme, string> = { light: 'Light theme', dark: 'Dark theme' };
+import { tileLettering } from '../engine';
+import { StudioPage } from './StudioPage';
 
 /**
- * The bubble logo's studio: the emblem in each theme, large and at real
- * sizes beside the committed reference, every detail step at every size,
- * the lockup with its Exo 2 wordmark, and each slot's image as its recipe
- * composes it, with SVG downloads. Nothing is tuned here; the drawing is
- * changed in code.
+ * The bubble logo's studio: the emblem large and at real sizes beside the
+ * committed reference, every detail step at every size, the lockup with its
+ * Exo 2 wordmark, and each slot's image as its recipe composes it, every
+ * topic in a light and a dark column, with SVG downloads. Nothing is tuned
+ * here; the drawing is changed in code.
  */
 export function App() {
   return (
@@ -49,69 +34,5 @@ function Studio() {
   const fonts = use(loadLogoFonts());
   const bubbleFonts = use(loadBubbleFonts());
   const lettering = useMemo(() => tileLettering(fonts.sans), [fonts]);
-  const [choice, setChoice] = useState<ThemeChoice>('both');
-  const shown = themes.filter((t) => choice === 'both' || choice === t);
-
-  return (
-    <main className="space-y-8 p-6">
-      <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-stone-600">Theme</span>
-          <div role="radiogroup" aria-label="Theme" className="flex gap-1 rounded-lg bg-stone-200 p-1">
-            {themeChoices.map((c) => (
-              <button
-                key={c.id}
-                type="button"
-                role="radio"
-                aria-checked={c.id === choice}
-                onClick={() => setChoice(c.id)}
-                className={`rounded-md px-3 py-1 text-sm font-medium transition-colors ${
-                  c.id === choice ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'
-                }`}
-              >
-                {c.label}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-stone-600">Download SVG</span>
-          {themes.map((theme) => (
-            <button
-              key={theme}
-              type="button"
-              onClick={() => downloadSvg(bubbleFileName(theme), renderBubbleSvg(theme, lettering))}
-              className="rounded-md border border-stone-300 bg-white px-3 py-1 text-sm font-medium text-stone-700 hover:bg-stone-50"
-            >
-              {theme === 'light' ? 'Light' : 'Dark'}
-            </button>
-          ))}
-        </div>
-      </div>
-      {shown.map((theme) => (
-        <section key={theme} aria-labelledby={`theme-${theme}`} className="space-y-4">
-          <h2 id={`theme-${theme}`} className="text-base font-semibold">
-            {themeNames[theme]}
-          </h2>
-          <LargePreviews drawing={buildBubble({ theme, detail: 'full', lettering })} />
-          <h3 className="text-sm font-semibold text-stone-700">At real sizes, with the step each size gets</h3>
-          <SizeRow theme={theme} lettering={lettering} />
-          <h3 className="text-sm font-semibold text-stone-700">Every step at every size</h3>
-          <ForcedDetailGrid theme={theme} lettering={lettering} />
-          <h3 className="text-sm font-semibold text-stone-700">
-            Cropped to a circle, as GitHub shows people’s avatars
-          </h3>
-          <AvatarCrops theme={theme} lettering={lettering} />
-          <h3 className="text-sm font-semibold text-stone-700">Lockup</h3>
-          <LockupPreviews theme={theme} font={bubbleFonts.wordmark} lettering={lettering} />
-        </section>
-      ))}
-      <section aria-labelledby="slots" className="space-y-4">
-        <h2 id="slots" className="text-base font-semibold">
-          Where the logo lands
-        </h2>
-        <SlotPreviews lettering={lettering} font={bubbleFonts.wordmark} />
-      </section>
-    </main>
-  );
+  return <StudioPage lettering={lettering} font={bubbleFonts.wordmark} />;
 }
