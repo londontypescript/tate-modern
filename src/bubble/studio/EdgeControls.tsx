@@ -63,14 +63,18 @@ interface Props {
  */
 export function EdgeControls({ recipe, edges, onEdges, lettering, font }: Props) {
   const [failure, setFailure] = useState<string>();
+  // The browser can take several seconds over the first PNG, so the button says it is working.
+  const [making, setMaking] = useState(false);
   // An image with edges has a fixed background, so it is drawn in one theme only.
   const theme = recipe.themes[0] ?? 'dark';
   const svg = () => renderSlotSvg(recipe, theme, { lettering, font }, edges);
   const savePng = () => {
     setFailure(undefined);
+    setMaking(true);
     svgToPng(svg(), slotCanvas(recipe, theme, recipe.detail, font))
       .then((png) => downloadBlob(slotFileName(recipe, edges, 'png'), png))
-      .catch((error: unknown) => setFailure(error instanceof Error ? error.message : String(error)));
+      .catch((error: unknown) => setFailure(error instanceof Error ? error.message : String(error)))
+      .finally(() => setMaking(false));
   };
   return (
     <div className="flex flex-wrap items-center gap-x-6 gap-y-2" data-edge-controls>
@@ -90,8 +94,8 @@ export function EdgeControls({ recipe, edges, onEdges, lettering, font }: Props)
         >
           SVG
         </button>
-        <button type="button" onClick={savePng} className={choiceClass(false)}>
-          PNG
+        <button type="button" onClick={savePng} disabled={making} className={choiceClass(false)}>
+          {making ? 'Making the PNG…' : 'PNG'}
         </button>
       </div>
       {failure && (
