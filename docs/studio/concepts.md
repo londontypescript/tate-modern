@@ -1,5 +1,7 @@
 # How the concepts work
 
+These are the 0.4.0 studio's concepts, kept unchanged at `legacy.html`. They are not the current logo: that is the bubble, in `src/bubble/`, described in [the code layout](architecture.md#the-bubble).
+
 Each concept lives in `src/concepts/<name>/`; what they share is in `src/shared/`. See [the code layout](architecture.md) for the overall structure.
 
 ## Flat
@@ -18,7 +20,7 @@ config ──► GEOMETRY (pure TS) ──► model (plain data) ──► RENDE
 | Geometry      | `engine/geometry.ts` (plus `src/shared/wordmark.ts`, `typography.ts`) | What the shapes are and where they start                         |
 | Animation     | `engine/animation.ts`                                                 | How the squares' rotations change over time                      |
 | Rendering     | `components/`                                                         | Turns models into SVG elements; calculates nothing               |
-| Export        | `components/renderSvg.tsx`, `scripts/generate-assets.ts`              | The same components rendered to standalone SVG documents         |
+| Export        | `components/renderSvg.tsx`                                            | The same components rendered to standalone SVG documents         |
 | Studio page   | `FlatStudio.tsx`, `controls.ts`, `starters.ts`                        | Development UI only                                              |
 
 `engine/` imports neither React nor the DOM. Its functions are deterministic, and you can use them from any renderer:
@@ -53,7 +55,7 @@ logo.emblem.layers; // SquareLayer[]: size, rotation, cornerRadius, fill, opacit
 
 ### Export
 
-`renderLogoSvg(variant, model)` renders the components with React's `renderToStaticMarkup`. The studio's download buttons and `scripts/generate-assets.ts` both call it, so previews and files can never drift apart. `pnpm build` regenerates the assets before building.
+`renderLogoSvg(variant, model)` renders the components with React's `renderToStaticMarkup`. The 0.4.0 studio's download buttons call it, so previews and downloads can never drift apart. The generated assets don't come from it: `scripts/generate-assets.ts` draws `public/assets/` from `src/bubble/` (see [the code layout](architecture.md#the-bubble)).
 
 ## 3D
 
