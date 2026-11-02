@@ -1,7 +1,7 @@
 <p>
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/images/tate-modern-dark-band-bottom.svg">
-    <img alt="London TypeScript: Tate Modern" src="docs/images/tate-modern-light-band-bottom.svg" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/tate-modern-dark-band-bottom-d2231d66.svg">
+    <img alt="London TypeScript: Tate Modern" src="docs/images/tate-modern-light-band-bottom-b12b87d1.svg" width="100%">
   </picture>
 </p>
 

@@ -12,6 +12,8 @@ export interface KernedFont {
 export interface BubbleFonts {
   /** Exo 2 Bold, for the wordmark. */
   wordmark: KernedFont;
+  /** Exo 2 Light, for a banner's text. */
+  bannerText: KernedFont;
 }
 
 // opentype.js ships a UMD build for Node and the browser, so the module
@@ -24,7 +26,11 @@ const opentype: typeof opentypeNamespace =
  * loads the bytes its own way, as for the frozen concepts' fonts.
  */
 export async function parseBubbleFonts(buffers: Record<BubbleFontRole, ArrayBuffer>): Promise<BubbleFonts> {
-  return {
-    wordmark: { font: opentype.parse(buffers.wordmark), kerning: await readPairKerning(buffers.wordmark) },
-  };
+  const [wordmark, bannerText] = await Promise.all([kerned(buffers.wordmark), kerned(buffers.bannerText)]);
+  return { wordmark, bannerText };
 }
+
+const kerned = async (buffer: ArrayBuffer): Promise<KernedFont> => ({
+  font: opentype.parse(buffer),
+  kerning: await readPairKerning(buffer),
+});

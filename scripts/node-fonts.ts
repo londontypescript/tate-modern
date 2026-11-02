@@ -20,5 +20,9 @@ export async function loadLogoFontsFromDisk(): Promise<LogoFonts> {
 
 /** Loads the bubble logo's fonts from node_modules (generator script and tests). */
 export async function loadBubbleFontsFromDisk(): Promise<BubbleFonts> {
-  return parseBubbleFonts({ wordmark: await readFontFile(bubbleFontFiles.wordmark) });
+  const [wordmark, bannerText] = await Promise.all([
+    readFontFile(bubbleFontFiles.wordmark),
+    readFontFile(bubbleFontFiles.bannerText),
+  ]);
+  return parseBubbleFonts({ wordmark, bannerText });
 }

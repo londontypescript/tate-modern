@@ -11,11 +11,12 @@ The concepts and their studio are kept as they were at 0.4.0; [How the concepts 
 
 ## The bubble
 
-`src/bubble/` has five parts, each depending only on those before it:
+`src/bubble/` has six parts, each depending only on those before it:
 
 - **`engine/`:** framework-free drawing data. `buildBubble({ theme, detail, lettering })` returns the emblem as plain layers and definitions in a 240-unit box: the sunset fan and the blue TS tile (`emblem.ts`) inside the glass (`glass.ts` for the full step, `rimGlass.ts` for the small one). `detail.ts` names the four steps (`full`, `small`, `tiny`, `none`) and the sphere diameter each starts at; `bounds.ts` keeps the sphere, the painted area and each step's frame apart. `slots.ts` holds one recipe per place the logo lands (the favicon, Apple touch icon, GitHub avatar, README header, Meetup photo and the studio's previews): which drawing, theme, step, background and size it takes. `edges.ts` is the optional sunset band and rounded corners a recipe can offer (the Meetup photo only).
 - **`wordmark/`:** "London" over "TypeScript" in Exo 2 Bold, outlined, with the kerning opentype.js misses read from the font's GPOS table (`kerning.ts`). `lockup.ts` sets it beside the emblem in the reference lockup's proportions; `contrast.ts` is the WCAG contrast the colours are checked against.
 - **`react/`:** renders the drawing data to SVG. `BubbleSvg` draws an emblem, `SlotSvg` a recipe's whole image (with its band and corners); `renderBubbleSvg` and `renderSlotSvg` write them as standalone files with ids taken from their content.
+- **`banner/`:** the lockup with optional text beside it, as a 1200 × 208 strip for READMEs and websites, or framed in the Meetup photo's canvas. `layout.ts` holds the strip's rules and `text.ts` outlines the text in Exo 2 Light with the same GPOS kerning; `framing.ts` places the strip in either framing, and `BannerSvg` draws both. `scripts/banner.ts` (`pnpm banner --help`) writes the files, named with a hash of the drawing so a changed banner gets a new address; a test keeps the README's own banners in `docs/images/` current.
 - **`assets/`:** `manifest.ts` lists every file in `public/assets/`, with its name, format and source (a slot recipe, the emblem or the wordmark); `renderAssetSvg` draws each one.
 - **`studio/`:** the studio page, described in [Using the studio](using-the-studio.md#the-bubble-studio).
 
@@ -29,6 +30,7 @@ src/
     engine/            drawing data, detail steps, boxes, slot recipes, band and corners (framework-free)
     wordmark/          Exo 2 wordmark, GPOS kerning, lockup, contrast
     react/             SVG renderers and standalone export
+    banner/            the lockup with optional text: strip and Meetup framing
     assets/            the list of generated files and how each is drawn
     studio/            the bubble's studio (index.html)
   shared/              palette, fonts, typography, wordmark, SHA-256 (framework-free)
@@ -43,6 +45,7 @@ src/
   studio/              frozen 0.4.0 studio's shell (legacy.html): concept registry, layout, references, saved configurations
 scripts/
   generate-assets.ts   writes public/assets/ from src/bubble/assets/manifest.ts
+  banner.ts            writes a banner (SVG, and PNG through resvg)
   node-fonts.ts        loads the fonts in Node (generator and tests)
   score/               scores the flat emblem against the original (see scoring.md)
 public/
@@ -52,9 +55,9 @@ public/
 
 ## Fonts
 
-All three fonts are SIL Open Font License 1.1, installed from `@fontsource` and pinned by `pnpm-lock.yaml`:
+All four fonts are SIL Open Font License 1.1, installed from `@fontsource` and pinned by `pnpm-lock.yaml`:
 
-- **Exo 2 Bold:** the bubble's wordmark, listed in `bubbleFontFiles` and parsed by `src/bubble/wordmark/fonts.ts`. Only the bubble's page loads it.
+- **Exo 2 Bold and Light:** the bubble's wordmark, and a banner's text, listed in `bubbleFontFiles` and parsed by `src/bubble/wordmark/fonts.ts`. Only the bubble's page loads them.
 - **Open Sans ExtraBold:** the TS on the tile, in the bubble and the 0.4.0 concepts.
 - **Playfair Display Black:** the 0.4.0 concepts' wordmark.
 
