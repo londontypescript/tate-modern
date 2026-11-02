@@ -10,9 +10,11 @@ pnpm build            # regenerate assets, type-check, build both studios into d
 
 `pnpm dev` opens the bubble logo's studio. The 0.4.0 studio, with the Flat, 3D and Projected concepts, is kept unchanged at `legacy.html` (in development, http://localhost:5173/legacy.html), linked from the bubble studio's header. Both are development tools, not part of the eventual website.
 
+To try the studio as it is built, `pnpm build && pnpm preview` serves `dist/` at http://localhost:4173.
+
 ## The bubble studio
 
-The studio shows the logo as `src/bubble/` draws it. Nothing is tuned there; the drawing is changed in code.
+The studio shows the logo as `src/bubble/` draws it. Nothing is tuned there; the drawing is changed in code. Its header is itself a banner: the light lockup with the text "Studio" and a sunset band along the bottom.
 
 ![The bubble's studio: the header and topic bar, the Light and Dark download buttons, then the emblem large beside its reference in a light column on white and a dark column on GitHub dark, and below them the emblem at real sizes from 16 px, each labelled with its sphere diameter and detail step](../images/bubble-studio.png)
 
@@ -23,9 +25,11 @@ The studio shows the logo as `src/bubble/` draws it. Nothing is tuned there; the
   - **Every step:** every detail step (full, small, tiny, none) forced at every size, so competing steps compare at the same size.
   - **Circle crops:** every step cropped to a circle, as GitHub shows people's avatars.
   - **Lockup:** the emblem and the stacked Exo 2 wordmark at 56 and 110 px emblems.
+  - **Banner:** the lockup with optional text beside it, set up with its own controls (see below).
   - **Where it lands:** full width, one row per slot (favicon, Apple touch icon, GitHub avatar, README header, Meetup photo) at the sizes it is seen, light and dark together where it comes as a pair and once where it has a fixed background.
   - **Mismatch check:** each theme on the other background (Large, Real sizes and Every step again), to see that nothing breaks where it isn't meant to land.
 - **Download SVG:** Light or Dark, the full emblem alone, byte for byte the committed `london-typescript-bubble-light.svg` or `-dark.svg`.
+- **The banner:** the **Banner** topic makes the banner every LTS repo's README, the Meetup group and the website use, described in [The banner](banner.md). **Text** is optional; empty, the lockup stands alone. **Theme** (Light, Dark), **Band** (Off, Left, Bottom), **Alignment** (Left, Centre, Right: where the lockup sits when there is no text; with text it is always on the left) and **Framing** (the 1200 × 208 strip, or 1200 × 675 for the Meetup photo) apply at once. The preview, on the theme's own page, is the file **Download SVG** and **PNG** write, the same drawing `pnpm banner` makes, named for what it shows and a hash of the drawing. A character Exo 2 Light lacks shows an error naming it instead of the preview, and the downloads wait until it's gone.
 - **The Meetup photo's band and corners:** its row in **Where it lands** has two toggles, both off at first: **Band** (Off, Left, Right, Top, Bottom) lays the sunset fan's colours flat along that edge, and **Rounded corners** (Off, On) cuts the corners to transparent. The preview shows the file itself unmasked, plus one card simulating Meetup's own crop. **Download SVG** and **PNG** (1200 × 675, drawn by the browser from the same SVG) follow the toggles; a plain download is named as the committed file, and a band or corners add to the name. The committed asset is always plain.
 
 ## The 0.4.0 studio

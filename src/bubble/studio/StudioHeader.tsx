@@ -5,7 +5,7 @@ import { stripCanvas } from '../banner/layout';
 import type { BubbleFonts } from '../wordmark/fonts';
 
 /** The studio's own banner: as an LTS repo's README would carry it, on the light page. */
-export const headerBanner = {
+const headerBanner = {
   text: 'Studio',
   theme: 'light',
   band: 'bottom',
