@@ -88,7 +88,7 @@ Open `legacy.html`, then the **Projected** tab. It takes the 3D concept's settin
 
 ### Generated assets
 
-Since 0.5.0, `public/assets/` holds the bubble logo's files, listed in the [README](../../README.md#assets). The flat
+Since 0.5.0, `public/assets/` holds the bubble logo's files. The flat
 concept's mark, wordmark and complete logo are no longer generated; this studio still downloads them, and the signed
 `v0.4.0` tag keeps the last generated copies. Each flat download is:
 
