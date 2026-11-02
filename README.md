@@ -1,7 +1,9 @@
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/images/tate-modern-dark-band-bottom.svg">
-  <img alt="London TypeScript: Tate Modern" src="docs/images/tate-modern-light-band-bottom.svg" width="100%">
-</picture>
+<p>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/tate-modern-dark-band-bottom.svg">
+    <img alt="London TypeScript: Tate Modern" src="docs/images/tate-modern-light-band-bottom.svg" width="100%">
+  </picture>
+</p>
 
 Tate Modern is London TypeScript’s design studio. It houses our logos, character designs and illustrations, all defined in TypeScript, along with our official design guidelines and colour systems. Its studio apps let you tailor each design and export it in the formats our repos, events and websites need.
 
