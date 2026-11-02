@@ -25,13 +25,15 @@ export type FontRole = keyof typeof fontFiles;
  * studio never fetches them and the scorer's font provenance, which lists
  * `fontFiles`, stays as it was.
  *
- * - Exo 2 Bold: the bubble's wordmark (SIL Open Font License 1.1).
+ * - Exo 2 Bold: the bubble's wordmark.
+ * - Exo 2 Light: the text a banner sets beside the lockup.
  *
- * Parsed by `src/bubble/wordmark/fonts.ts`, which also reads the kerning
- * opentype.js misses.
+ * Both SIL Open Font License 1.1. Parsed by `src/bubble/wordmark/fonts.ts`,
+ * which also reads the kerning opentype.js misses.
  */
 export const bubbleFontFiles = {
   wordmark: '@fontsource/exo-2/files/exo-2-latin-700-normal.woff',
+  bannerText: '@fontsource/exo-2/files/exo-2-latin-300-normal.woff',
 } as const;
 
 export type BubbleFontRole = keyof typeof bubbleFontFiles;
