@@ -2,11 +2,19 @@ import type { Box, Point } from '../../shared/types';
 import { bandRect, slotRecipes, type BandSide } from '../engine';
 import type { BubbleFonts } from '../wordmark/fonts';
 import { themeBackgrounds } from '../wordmark/colours';
-import { layoutStripContent, strip, stripCanvas, type StripContent, type StripOptions } from './layout';
+import {
+  layoutGroupContent,
+  layoutStripContent,
+  strip,
+  stripCanvas,
+  type BannerAlign,
+  type StripContent,
+  type StripOptions,
+} from './layout';
 
 /**
- * The two framings one renderer draws: the strip alone, and the strip
- * fitted into the Meetup photo's canvas.
+ * The two framings one renderer draws: the strip alone, and the lockup and
+ * text fitted into the Meetup photo's canvas.
  */
 export const bannerFramings = ['strip', 'meetup'] as const;
 type BannerFraming = (typeof bannerFramings)[number];
@@ -22,7 +30,7 @@ export interface BannerLayout {
   ground?: string;
   /** The sunset band's rectangle on the canvas, and which way its colours run. */
   band?: ReturnType<typeof bandRect>;
-  /** The strip's content, placed on the canvas by `at` and `scale`. */
+  /** The lockup and text, placed on the canvas by `at` and `scale`. */
   content: StripContent;
   at: Point;
   scale: number;
@@ -36,15 +44,22 @@ function meetupPhoto() {
   return { canvas: recipe.canvas, safe: recipe.safe, bandWidth: recipe.edges.bandWidth };
 }
 
-/** The largest scale that fits `size` in `box`, and where that puts its top left, centred. */
-function fit(size: { width: number; height: number }, box: Box) {
-  const width = box.maxX - box.minX;
-  const height = box.maxY - box.minY;
-  const scale = Math.min(width / size.width, height / size.height);
-  return {
-    scale,
-    at: { x: box.minX + (width - size.width * scale) / 2, y: box.minY + (height - size.height * scale) / 2 },
-  };
+/**
+ * The largest scale that fits `content` in `box`, and where that puts the
+ * content's origin: centred vertically, and placed left, centre or right
+ * within the box's width.
+ */
+function fit(content: Box, box: Box, align: BannerAlign) {
+  const width = content.maxX - content.minX;
+  const height = content.maxY - content.minY;
+  const scale = Math.min((box.maxX - box.minX) / width, (box.maxY - box.minY) / height);
+  const left = {
+    left: box.minX,
+    centre: (box.minX + box.maxX - width * scale) / 2,
+    right: box.maxX - width * scale,
+  }[align];
+  const top = (box.minY + box.maxY - height * scale) / 2;
+  return { scale, at: { x: left - content.minX * scale, y: top - content.minY * scale } };
 }
 
 /**
@@ -53,10 +68,12 @@ function fit(size: { width: number; height: number }, box: Box) {
  * - **strip:** 1200 × 208 and transparent; a left band keeps the lockup
  *   `bandGap` clear of it.
  * - **meetup:** a 1200 × 675 canvas filled with the theme's page (GitHub's
- *   dark page, or white), the strip fitted inside the Meetup photo's safe
- *   rectangle, and the band along the photo's own edge at the photo's own
- *   width, as the Meetup photo's band is drawn. The strip inside carries no
- *   band, so its lockup starts at the safe rectangle's edge.
+ *   dark page, or white). The lockup and text, as one group with no empty
+ *   middle, are scaled together to fill the Meetup photo's safe rectangle
+ *   on whichever axis runs out first, and centred on the other; with no
+ *   text, the alignment places the lockup within the rectangle's width. The
+ *   band runs along the photo's own edge at the photo's own width, as the
+ *   Meetup photo's band is drawn.
  */
 export function layoutBanner(
   fonts: Pick<BubbleFonts, 'wordmark' | 'bannerText'>,
@@ -76,12 +93,13 @@ export function layoutBanner(
     };
   }
   const photo = meetupPhoto();
+  const content = layoutGroupContent(fonts, options);
   return {
     options,
     canvas: photo.canvas,
     ground: themeBackgrounds[options.theme],
     band: side && bandRect(photo.canvas, side, photo.bandWidth),
-    content: layoutStripContent(fonts, options, 0),
-    ...fit(stripCanvas, photo.safe),
+    content,
+    ...fit(content.bounds, photo.safe, content.text ? 'centre' : options.align),
   };
 }

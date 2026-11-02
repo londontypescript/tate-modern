@@ -78,6 +78,10 @@ describe('the banner’s SVG', () => {
     expect(file()).toMatch(/<svg x="-4" y="44" width="385\.4\d" height="126\.5"/);
   });
 
+  it('draws the full bubble, glass and glow, in both framings, however large the Meetup framing makes it', () => {
+    for (const framing of ['strip', 'meetup'] as const) expect(file({ framing })).toContain('<feGaussianBlur');
+  });
+
   it('rasterises the strip with a transparent ground, and the Meetup framing as an opaque 1200 × 675', () => {
     const strip = raster(file({ band: 'off' }));
     expect({ width: strip.width, height: strip.height }).toEqual({ width: 1200, height: 208 });
