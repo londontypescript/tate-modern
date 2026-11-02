@@ -71,6 +71,15 @@ describe('the studio’s Banner topic', () => {
     expect(preview(html)).toContain('<title>London TypeScript</title>');
   });
 
+  // A page wider than the banner would show a ground the file doesn't have.
+  it('shows the theme’s page only as wide as the banner: 1200 plus the panel’s padding and border, or the room there is', () => {
+    for (const o of [options(), options({ framing: 'meetup', theme: 'dark' }), options({ text: 'Łódź' })]) {
+      const panel = /<div data-theme="\w+" data-banner-preview="true" class="([^"]*)" style="([^"]*)"/.exec(topic(o));
+      expect(panel?.[1]?.split(' ')).toContain('w-full');
+      expect(panel?.[2]).toContain('max-width:1234px');
+    }
+  });
+
   // With text the lockup is always on the left; an alignment that looked changeable would silently do nothing.
   it('turns the alignment off while there is text', () => {
     expect(groups(topic({ text: 'Tate Modern' })).Alignment?.disabled).toBe(true);

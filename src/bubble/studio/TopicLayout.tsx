@@ -35,14 +35,28 @@ export type Topic = ColumnTopic | FullTopic;
 
 export const themeLabels: Record<Theme, string> = { light: 'Light', dark: 'Dark' };
 
+/**
+ * The page's one content width, centred: the header's banner, the topic
+ * bar's contents and every topic line up in it, so the banner's band runs
+ * exactly across the content however wide the window is. Backgrounds may
+ * run the window's full width; their contents keep to this column.
+ */
+export const pageColumn = 'mx-auto w-full max-w-7xl';
+
 /** The topic bar's height; the column labels stick just below it. */
 const barHeight = 'h-12';
 const belowBar = 'md:top-12';
+/** A bar link's hover and focus: an underline in the band's sunset orange (`bandColours`' fourth pane). */
+const barLink =
+  'decoration-[#ff9a5c] decoration-2 underline-offset-[6px] hover:text-stone-950 hover:underline focus-visible:underline';
 
 /**
- * The bar that stays at the top while scrolling: a link to each topic and,
- * on a narrow window where the columns can't sit side by side, the Light /
- * Dark toggle that picks the one shown.
+ * The bar that stays at the top while scrolling: a link to each topic, the
+ * link to the 0.4.0 studio at its far end and, on a narrow window where the
+ * columns can't sit side by side, the Light / Dark toggle that picks the
+ * one shown. A tinted strip in larger, bolder type, so it reads as the
+ * page's navigation rather than as part of a topic; a hovered or focused
+ * link is underlined in the banner's sunset orange.
  */
 export function TopicBar({
   topics,
@@ -54,36 +68,47 @@ export function TopicBar({
   onShow: (theme: Theme) => void;
 }) {
   return (
-    <div
-      className={`sticky top-0 z-20 flex ${barHeight} items-center gap-4 border-b border-stone-200 bg-white/95 px-6 backdrop-blur`}
-    >
-      {/* Two toggle buttons rather than tabs: the columns they pick aren't tab panels, and plain buttons need no arrow-key wiring. */}
-      <div role="group" aria-label="Theme shown" className="flex shrink-0 gap-1 rounded-lg bg-stone-200 p-1 md:hidden">
-        {themes.map((theme) => (
-          <button
-            key={theme}
-            type="button"
-            aria-pressed={theme === shown}
-            onClick={() => onShow(theme)}
-            className={`rounded-md px-3 py-0.5 text-sm font-medium transition-colors ${
-              theme === shown ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'
-            }`}
-          >
-            {themeLabels[theme]}
-          </button>
-        ))}
-      </div>
-      <nav aria-label="Topics" className="min-w-0 overflow-x-auto">
-        <ul className="flex gap-4 text-sm whitespace-nowrap">
-          {topics.map((topic) => (
-            <li key={topic.id}>
-              <a href={`#${topic.id}`} className="font-medium text-stone-600 hover:text-stone-900">
-                {topic.nav}
-              </a>
-            </li>
+    <div className="sticky top-0 z-20 border-b border-stone-300 bg-stone-200/95 px-6 backdrop-blur">
+      <div className={`${pageColumn} flex ${barHeight} items-center gap-4`}>
+        {/* Two toggle buttons rather than tabs: the columns they pick aren't tab panels, and plain buttons need no arrow-key wiring. */}
+        <div
+          role="group"
+          aria-label="Theme shown"
+          className="flex shrink-0 gap-1 rounded-lg bg-stone-300 p-1 md:hidden"
+        >
+          {themes.map((theme) => (
+            <button
+              key={theme}
+              type="button"
+              aria-pressed={theme === shown}
+              onClick={() => onShow(theme)}
+              className={`rounded-md px-3 py-0.5 text-sm font-medium transition-colors ${
+                theme === shown ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'
+              }`}
+            >
+              {themeLabels[theme]}
+            </button>
           ))}
-        </ul>
-      </nav>
+        </div>
+        <nav aria-label="Topics" className="min-w-0 overflow-x-auto">
+          <ul className="flex gap-5 text-[15px] whitespace-nowrap">
+            {topics.map((topic) => (
+              <li key={topic.id}>
+                <a href={`#${topic.id}`} className={`font-semibold text-stone-800 ${barLink}`}>
+                  {topic.nav}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <a
+          href="./legacy.html"
+          title="The 0.4.0 studio: the Flat, 3D and Projected concepts"
+          className={`ml-auto shrink-0 text-sm font-medium whitespace-nowrap text-stone-600 ${barLink}`}
+        >
+          0.4.0 studio<span aria-hidden="true"> ↗</span>
+        </a>
+      </div>
     </div>
   );
 }
@@ -100,8 +125,11 @@ export function TopicSection({ topic, shown }: { topic: Topic; shown: Theme }) {
       aria-labelledby={`${topic.id}-title`}
       className={`scroll-mt-16 space-y-3 ${topic.apart ? 'border-t-2 border-stone-300 pt-8' : ''}`}
     >
-      <div>
-        <h2 id={`${topic.id}-title`} className="text-base font-semibold">
+      <div className="space-y-1.5">
+        <h2
+          id={`${topic.id}-title`}
+          className="border-b-2 border-stone-300 pb-1.5 text-xl font-bold tracking-tight text-stone-900"
+        >
           {topic.title}
         </h2>
         {topic.note && <p className="text-sm text-stone-600">{topic.note}</p>}

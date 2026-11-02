@@ -5,6 +5,7 @@ import { loadBubbleFontsFromDisk, loadLogoFontsFromDisk } from '../../../scripts
 import { bandColours, tileLettering } from '../engine';
 import type { BubbleFonts } from '../wordmark/fonts';
 import { HeaderBanner, StudioHeader } from './StudioHeader';
+import { pageColumn } from './TopicLayout';
 
 let fonts: BubbleFonts;
 let lettering: string;
@@ -63,7 +64,11 @@ describe('the studio’s header', () => {
     expect(heading(loadingHeader())).not.toContain('<svg');
   });
 
-  it('keeps the link to the 0.4.0 studio', () => {
-    for (const html of [drawnHeader(), loadingHeader()]) expect(html).toContain('href="./legacy.html"');
+  // The link to the 0.4.0 studio is in the topic bar, so the banner has the header, and the page's width, to itself.
+  it('holds only the heading, its banner spanning the page’s content column', () => {
+    for (const html of [drawnHeader(), loadingHeader()]) {
+      expect(/<header[^>]*>(.*)<\/header>/.exec(html)?.[1]).toMatch(new RegExp(`^<h1 class="${pageColumn}">.*</h1>$`));
+      expect(bannerBox(html)).toMatch(/class="block w-full"/);
+    }
   });
 });

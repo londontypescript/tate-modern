@@ -9,7 +9,7 @@ import { LockupPreviews } from './LockupPreviews';
 import { LargePreviews, SizeRow } from './Previews';
 import { SlotPreviews } from './SlotPreviews';
 import { AvatarCrops, ForcedDetailGrid } from './StepPreviews';
-import { themeLabels, TopicBar, TopicSection, type Topic } from './TopicLayout';
+import { pageColumn, themeLabels, TopicBar, TopicSection, type Topic } from './TopicLayout';
 
 const home = { grounds: homeGround, label: (theme: Theme) => themeLabels[theme] } as const;
 
@@ -98,23 +98,25 @@ export function StudioPage({ lettering, fonts }: { lettering: string; fonts: Bub
   return (
     <>
       <TopicBar topics={topics} shown={shown} onShow={setShown} />
-      <main className="space-y-10 p-6">
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-stone-600">Download SVG</span>
-          {themes.map((theme) => (
-            <button
-              key={theme}
-              type="button"
-              onClick={() => downloadSvg(bubbleFileName(theme), renderBubbleSvg(theme, lettering))}
-              className="rounded-md border border-stone-300 bg-white px-3 py-1 text-sm font-medium text-stone-700 hover:bg-stone-50"
-            >
-              {themeLabels[theme]}
-            </button>
+      <main className="p-6">
+        <div className={`${pageColumn} space-y-10`}>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-stone-600">Download SVG</span>
+            {themes.map((theme) => (
+              <button
+                key={theme}
+                type="button"
+                onClick={() => downloadSvg(bubbleFileName(theme), renderBubbleSvg(theme, lettering))}
+                className="rounded-md border border-stone-300 bg-white px-3 py-1 text-sm font-medium text-stone-700 hover:bg-stone-50"
+              >
+                {themeLabels[theme]}
+              </button>
+            ))}
+          </div>
+          {topics.map((topic) => (
+            <TopicSection key={topic.id} topic={topic} shown={shown} />
           ))}
         </div>
-        {topics.map((topic) => (
-          <TopicSection key={topic.id} topic={topic} shown={shown} />
-        ))}
       </main>
     </>
   );

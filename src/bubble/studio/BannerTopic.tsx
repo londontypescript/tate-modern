@@ -11,6 +11,7 @@ import {
 } from '../banner';
 import { BannerSvg } from '../banner/BannerSvg';
 import type { BannerLayout } from '../banner/framing';
+import { stripCanvas } from '../banner/layout';
 import { themes } from '../engine';
 import type { BubbleFonts } from '../wordmark/fonts';
 import { Choices } from './Choices';
@@ -133,8 +134,9 @@ export function BannerTopic({ fonts, lettering, initial }: Props) {
 }
 
 /**
- * The banner on its theme's own page, never shown larger than its own
- * size, or, when it can't be drawn, why: an error, never a blank panel.
+ * The banner on its theme's own page, the page hugging the banner at its
+ * own size, or the room there is, never wider; or, when it can't be drawn,
+ * why: an error, never a blank panel.
  */
 function BannerPreview({
   drawn,
@@ -147,17 +149,18 @@ function BannerPreview({
 }) {
   const ground = homeGround[theme];
   const { layout } = drawn;
+  // The canvas plus the panel's padding (p-4) and border, as Tailwind sizes boxes border-box.
+  const width = (layout?.canvas.width ?? stripCanvas.width) + 2 * 16 + 2;
   return (
     <div
       data-theme={theme}
-      className="space-y-2 overflow-x-auto rounded-lg border border-stone-200 p-4"
-      style={{ backgroundColor: ground }}
+      data-banner-preview
+      className="w-full space-y-2 rounded-lg border border-stone-200 p-4"
+      style={{ backgroundColor: ground, maxWidth: width }}
     >
       {layout ? (
         <>
-          <div style={{ maxWidth: layout.canvas.width }}>
-            <BannerSvg layout={layout} lettering={lettering} className="block h-auto w-full" />
-          </div>
+          <BannerSvg layout={layout} lettering={lettering} className="block h-auto w-full" />
           <div className={captionClass(ground)}>
             {themeLabels[theme]}, on the {theme} page · {layout.canvas.width} × {layout.canvas.height},{' '}
             {layout.ground ? 'opaque' : 'transparent'}

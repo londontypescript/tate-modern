@@ -5,6 +5,7 @@ import { palette } from '../../shared/palette';
 import { details, tileLettering, type Theme } from '../engine';
 import { previewSizes } from './Previews';
 import { StudioPage } from './StudioPage';
+import { pageColumn } from './TopicLayout';
 
 let markup: string;
 beforeAll(async () => {
@@ -110,5 +111,16 @@ describe('the studio page', () => {
     const nav = /<nav aria-label="Topics".*?<\/nav>/.exec(markup)?.[0] ?? '';
     const links = [...nav.matchAll(/href="([^"]+)"/g)].map((m) => m[1]);
     expect(links).toEqual(sections().map((s) => `#${s.id}`));
+  });
+
+  // On a wide window the topics stay in the same centred column as the header's banner and the bar's links.
+  it('keeps the topic bar’s contents and every topic in the page’s one content column', () => {
+    expect(markup).toMatch(new RegExp(`<div class="${pageColumn} flex h-12[^"]*"><div role="group"`));
+    expect(markup).toMatch(new RegExp(`<main class="p-6"><div class="${pageColumn} space-y-10">`));
+  });
+
+  it('ends the topic bar with the link to the 0.4.0 studio, outside the topics', () => {
+    const bar = /<nav aria-label="Topics".*?<\/nav>(.*?)<\/div>/.exec(markup)?.[1] ?? '';
+    expect(bar).toMatch(/^<a href="\.\/legacy\.html"[^>]*>0\.4\.0 studio<span aria-hidden="true"> ↗<\/span><\/a>$/);
   });
 });
