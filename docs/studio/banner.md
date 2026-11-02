@@ -54,8 +54,10 @@ comes from resvg; the studio's from the browser, drawing the same SVG.
 The text is drawn as outlines and written into the file only as its accessible name, which React escapes. It never
 reaches a file name except as the slug, so no character in it can choose where a file goes.
 
-Exo 2 Light covers Latin: accented letters and common punctuation draw, but a character the font lacks (Ł, an emoji,
-a line break) is refused with an error naming it, never drawn as a blank. Spaces at either end are dropped.
+Exo 2 Light covers Latin: accented letters and common punctuation draw, but a character the font lacks (Ł, an emoji)
+is refused with an error naming it, never drawn as a blank. Spaces at either end are dropped. The text is one line:
+the studio's field takes one line (browsers drop pasted line breaks), and the command refuses a line break with an
+error.
 
 ## Using it in a README
 

@@ -55,9 +55,12 @@ describe('the studio’s header', () => {
 
   it('holds the strip’s shape while the fonts load, so nothing below moves when the banner appears', () => {
     const box = 'style="aspect-ratio:1200 / 208"';
-    expect(bannerBox(loadingHeader())).toContain(box);
+    // An inline box ignores aspect-ratio and would collapse to no height, so the box must be a block too.
+    for (const html of [loadingHeader(), drawnHeader()]) {
+      expect(bannerBox(html)).toContain(box);
+      expect(/class="([^"]*)"/.exec(bannerBox(html) ?? '')?.[1]?.split(' ')).toContain('block');
+    }
     expect(heading(loadingHeader())).not.toContain('<svg');
-    expect(bannerBox(drawnHeader())).toContain(box);
   });
 
   it('keeps the link to the 0.4.0 studio', () => {
