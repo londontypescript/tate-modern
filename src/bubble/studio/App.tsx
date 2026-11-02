@@ -4,6 +4,7 @@ import { loadBubbleFonts } from '../wordmark/fonts.browser';
 import { tileLettering } from '../engine';
 import { HeaderBanner, StudioHeader } from './StudioHeader';
 import { StudioPage } from './StudioPage';
+import { LoadingBar } from './TopicLayout';
 
 /**
  * The bubble logo's studio: the emblem large and at real sizes beside the
@@ -16,7 +17,14 @@ export function App() {
   return (
     <div className="min-h-screen bg-stone-100 text-stone-900">
       <StudioHeader banner={<LiveHeaderBanner />} />
-      <Suspense fallback={<p className="p-8 text-stone-500">Loading the fonts…</p>}>
+      <Suspense
+        fallback={
+          <>
+            <LoadingBar />
+            <p className="p-8 text-stone-500">Loading the fonts…</p>
+          </>
+        }
+      >
         <Studio />
       </Suspense>
     </div>

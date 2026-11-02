@@ -5,7 +5,7 @@ import { palette } from '../../shared/palette';
 import { details, tileLettering, type Theme } from '../engine';
 import { previewSizes } from './Previews';
 import { StudioPage } from './StudioPage';
-import { pageColumn } from './TopicLayout';
+import { LoadingBar, pageColumn } from './TopicLayout';
 
 let markup: string;
 beforeAll(async () => {
@@ -122,5 +122,13 @@ describe('the studio page', () => {
   it('ends the topic bar with the link to the 0.4.0 studio, outside the topics', () => {
     const bar = /<nav aria-label="Topics".*?<\/nav>(.*?)<\/div>/.exec(markup)?.[1] ?? '';
     expect(bar).toMatch(/^<a href="\.\/legacy\.html"[^>]*>0\.4\.0 studio<span aria-hidden="true"> ↗<\/span><\/a>$/);
+  });
+
+  it('centres one column, capped at 1280 px', () => {
+    expect(pageColumn.split(' ')).toEqual(expect.arrayContaining(['mx-auto', 'w-full', 'max-w-7xl']));
+  });
+
+  it('keeps the link to the 0.4.0 studio while the fonts load', () => {
+    expect(renderToStaticMarkup(<LoadingBar />)).toMatch(/<a href="\.\/legacy\.html"[^>]*>0\.4\.0 studio/);
   });
 });

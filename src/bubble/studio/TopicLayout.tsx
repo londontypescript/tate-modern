@@ -50,6 +50,36 @@ const belowBar = 'md:top-12';
 const barLink =
   'decoration-[#ff9a5c] decoration-2 underline-offset-[6px] hover:text-stone-950 hover:underline focus-visible:underline';
 
+const barStrip = 'sticky top-0 z-20 border-b border-stone-300 bg-stone-200/95 px-6 backdrop-blur';
+const barRow = `${pageColumn} flex ${barHeight} items-center gap-4`;
+
+function LegacyLink() {
+  return (
+    <a
+      href="./legacy.html"
+      title="The 0.4.0 studio: the Flat, 3D and Projected concepts"
+      className={`ml-auto shrink-0 text-sm font-medium whitespace-nowrap text-stone-600 ${barLink}`}
+    >
+      0.4.0 studio<span aria-hidden="true"> ↗</span>
+    </a>
+  );
+}
+
+/**
+ * The topic bar while the fonts load: the topics wait for the fonts, but
+ * the way to the 0.4.0 studio doesn't, so a slow or failed font request
+ * never hides it.
+ */
+export function LoadingBar() {
+  return (
+    <div className={barStrip}>
+      <div className={barRow}>
+        <LegacyLink />
+      </div>
+    </div>
+  );
+}
+
 /**
  * The bar that stays at the top while scrolling: a link to each topic, the
  * link to the 0.4.0 studio at its far end and, on a narrow window where the
@@ -68,8 +98,8 @@ export function TopicBar({
   onShow: (theme: Theme) => void;
 }) {
   return (
-    <div className="sticky top-0 z-20 border-b border-stone-300 bg-stone-200/95 px-6 backdrop-blur">
-      <div className={`${pageColumn} flex ${barHeight} items-center gap-4`}>
+    <div className={barStrip}>
+      <div className={barRow}>
         {/* Two toggle buttons rather than tabs: the columns they pick aren't tab panels, and plain buttons need no arrow-key wiring. */}
         <div
           role="group"
@@ -101,13 +131,7 @@ export function TopicBar({
             ))}
           </ul>
         </nav>
-        <a
-          href="./legacy.html"
-          title="The 0.4.0 studio: the Flat, 3D and Projected concepts"
-          className={`ml-auto shrink-0 text-sm font-medium whitespace-nowrap text-stone-600 ${barLink}`}
-        >
-          0.4.0 studio<span aria-hidden="true"> ↗</span>
-        </a>
+        <LegacyLink />
       </div>
     </div>
   );
