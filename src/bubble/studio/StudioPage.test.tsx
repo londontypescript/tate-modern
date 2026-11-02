@@ -5,12 +5,13 @@ import { palette } from '../../shared/palette';
 import { details, tileLettering, type Theme } from '../engine';
 import { previewSizes } from './Previews';
 import { StudioPage } from './StudioPage';
+import { LoadingBar, pageColumn } from './TopicLayout';
 
 let markup: string;
 beforeAll(async () => {
   const lettering = tileLettering((await loadLogoFontsFromDisk()).sans);
-  const font = (await loadBubbleFontsFromDisk()).wordmark;
-  markup = renderToStaticMarkup(<StudioPage lettering={lettering} font={font} />);
+  const fonts = await loadBubbleFontsFromDisk();
+  markup = renderToStaticMarkup(<StudioPage lettering={lettering} fonts={fonts} />);
 });
 
 /** Each topic's section, by id, in page order. */
@@ -36,9 +37,25 @@ function column(html: string, theme: Theme) {
   };
 }
 
+/** Topics that take the full width rather than light and dark columns: each has a reason in StudioPage. */
+const fullWidth = new Set(['banner', 'slots']);
+
 describe('the studio page', () => {
+  it('has every topic, in order, with the mismatch check last', () => {
+    expect(sections().map((s) => s.id)).toEqual([
+      'large',
+      'sizes',
+      'steps',
+      'crops',
+      'lockup',
+      'banner',
+      'slots',
+      'mismatch',
+    ]);
+  });
+
   it('shows every topic as a light column on white and a dark column on GitHub’s dark page, each with its own theme’s drawing', () => {
-    const topics = sections().filter((s) => s.id !== 'mismatch' && s.id !== 'slots');
+    const topics = sections().filter((s) => s.id !== 'mismatch' && !fullWidth.has(s.id));
     expect(topics.map((s) => s.id)).toEqual(['large', 'sizes', 'steps', 'crops', 'lockup']);
     for (const { id, html } of topics) {
       expect(column(html, 'light'), id).toMatchObject({ ground: palette.white, named: ['light'] });
@@ -55,7 +72,7 @@ describe('the studio page', () => {
   });
 
   it('puts the columns side by side from md up, and on a narrow window shows only the chosen theme (light at first)', () => {
-    for (const { id, html } of sections().filter((s) => s.id !== 'slots')) {
+    for (const { id, html } of sections().filter((s) => !fullWidth.has(s.id))) {
       expect(html, id).toContain('grid gap-4 md:grid-cols-2');
       expect(column(html, 'light').classes, id).toContain('min-w-0');
       expect(column(html, 'light').classes, id).not.toContain('hidden');
@@ -94,5 +111,24 @@ describe('the studio page', () => {
     const nav = /<nav aria-label="Topics".*?<\/nav>/.exec(markup)?.[0] ?? '';
     const links = [...nav.matchAll(/href="([^"]+)"/g)].map((m) => m[1]);
     expect(links).toEqual(sections().map((s) => `#${s.id}`));
+  });
+
+  // On a wide window the topics stay in the same centred column as the header's banner and the bar's links.
+  it('keeps the topic bar’s contents and every topic in the page’s one content column', () => {
+    expect(markup).toMatch(new RegExp(`<div class="${pageColumn} flex h-12[^"]*"><div role="group"`));
+    expect(markup).toMatch(new RegExp(`<main class="p-6"><div class="${pageColumn} space-y-10">`));
+  });
+
+  it('ends the topic bar with the link to the 0.4.0 studio, outside the topics', () => {
+    const bar = /<nav aria-label="Topics".*?<\/nav>(.*?)<\/div>/.exec(markup)?.[1] ?? '';
+    expect(bar).toMatch(/^<a href="\.\/legacy\.html"[^>]*>0\.4\.0 studio<span aria-hidden="true"> ↗<\/span><\/a>$/);
+  });
+
+  it('centres one column, capped at 1280 px', () => {
+    expect(pageColumn.split(' ')).toEqual(expect.arrayContaining(['mx-auto', 'w-full', 'max-w-7xl']));
+  });
+
+  it('keeps the link to the 0.4.0 studio while the fonts load', () => {
+    expect(renderToStaticMarkup(<LoadingBar />)).toMatch(/<a href="\.\/legacy\.html"[^>]*>0\.4\.0 studio/);
   });
 });
