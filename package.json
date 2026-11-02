@@ -11,6 +11,7 @@
     "dev": "vite",
     "generate:assets": "tsx scripts/generate-assets.ts",
     "score": "tsx scripts/score/cli.ts",
+    "banner": "tsx scripts/banner.ts",
     "build": "pnpm generate:assets && tsc && vite build",
     "preview": "vite preview",
     "typecheck": "tsc",
