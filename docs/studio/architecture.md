@@ -70,7 +70,7 @@ The last two are listed in `fontFiles` and parsed by `parseLogoFonts` in `src/sh
 - **Drawing:** the fan, tile, TS and glass against the reference; the detail steps and the diameters they swap at; the boxes and each step's frame; TS contrast against its tile.
 - **Wordmark and lockup:** Exo 2 Bold drawn as the font draws it, the GPOS kerning against what Chrome applies, line spacing and widths against the reference lockup, and lockups that need no fonts.
 - **Slots and edges:** every slot's recipe and image; the Meetup photo's band and corners, clear of its safe rectangle, and plain by default as the committed file.
-- **Export:** the same file every run; ids unique per drawing, live or exported; `public/assets/` holding exactly the manifest's files, each listed in the README, and matching the studio's download.
+- **Export:** the same file every run; ids unique per drawing, live or exported; `public/assets/` holding exactly the manifest's files and matching the studio's download.
 - **Studio:** every topic in light and dark columns, the mismatch check, the topic bar's links, the Meetup photo's toggles and download names, the browser's PNG, and the build writing both pages with Exo 2 in the bubble's only.
 
 And for the frozen 0.4.0 concepts:
