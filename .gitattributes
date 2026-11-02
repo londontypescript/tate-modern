@@ -1,3 +1,6 @@
+# Every text file keeps LF on every checkout, as temple-bar asks.
+* text=auto eol=lf
+
 # Generated SVGs are compared byte for byte with the renderers' output (public/assets,
 # docs/images, the flat concept's fixtures), so they keep LF on every checkout, Windows included.
 *.svg text eol=lf

@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
-    "@londontypescript/temple-bar": "0.2.0",
+    "@londontypescript/temple-bar": "0.2.2",
     "@resvg/resvg-js": "2.6.2",
     "@tailwindcss/vite": "4.3.3",
     "@types/node": "26.6.5",
