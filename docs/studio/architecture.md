@@ -19,7 +19,7 @@ The concepts and their studio are kept as they were at 0.4.0; [How the concepts 
 - **`assets/`:** `manifest.ts` lists every file in `public/assets/`, with its name, format and source (a slot recipe, the emblem or the wordmark); `renderAssetSvg` draws each one.
 - **`studio/`:** the studio page, described in [Using the studio](using-the-studio.md#the-bubble-studio).
 
-`scripts/generate-assets.ts` loads the fonts from disk, draws every manifest entry with `renderAssetSvg`, writes SVGs as they are and PNGs through resvg, and removes any file in `public/assets/` the manifest doesn't list. The studio's downloads call the same renderers, so a plain download is byte for byte the committed file. To change the logo, change `src/bubble/` and run `pnpm generate:assets`.
+`scripts/generate-assets.ts` loads the fonts from disk, draws every manifest entry with `renderAssetSvg`, writes SVGs as they are and PNGs through resvg, and removes any file in `public/assets/` the manifest doesn't list. The studio's downloads call the same renderers, so the emblem's download is byte for byte the committed file. To change the logo, change `src/bubble/` and run `pnpm generate:assets`.
 
 ## Project structure
 
