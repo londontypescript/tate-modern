@@ -27,12 +27,15 @@ const loadingHeader = () => renderToStaticMarkup(<StudioHeader banner={<StillLoa
 
 const heading = (html: string) => /<h1[^>]*>(.*)<\/h1>/.exec(html)?.[1] ?? '';
 
-/** The heading's name as assistive technology reads it: its text, leaving out whatever is hidden from it. */
+/**
+ * The heading's name as assistive technology reads it: the heading must be
+ * exactly its visually hidden text followed by the banner's box, hidden from
+ * assistive technology, so that text is all that is read.
+ */
 const accessibleName = (html: string) =>
-  heading(html)
-    .replace(/<(\w+)[^>]*aria-hidden="true"[^>]*>.*?<\/\1>/g, '')
-    .replace(/<[^>]+>/g, '')
-    .trim();
+  /^<span class="sr-only">([^<]*)<\/span><span aria-hidden="true" data-header-banner="true"[^>]*>.*<\/span>$/.exec(
+    heading(html),
+  )?.[1];
 
 /** The box the banner is drawn in, as the page lays it out. */
 const bannerBox = (html: string) => /<span aria-hidden="true" data-header-banner="true"[^>]*>/.exec(html)?.[0];
