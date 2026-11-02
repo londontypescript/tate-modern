@@ -5,15 +5,37 @@ pnpm dev              # the studio at http://localhost:5173
 pnpm generate:assets  # regenerate public/assets/ (the bubble logo's files)
 pnpm test             # unit tests (Vitest)
 pnpm typecheck        # strict TypeScript check
-pnpm build            # regenerate assets, type-check, build the studio into dist/
+pnpm build            # regenerate assets, type-check, build both studios into dist/
 ```
 
-This page describes the 0.4.0 studio, kept unchanged at `legacy.html` (in development, http://localhost:5173/legacy.html); `pnpm dev`'s main page is the bubble logo's studio, described in the [README](../../README.md#the-studio). The 0.4.0 studio is a development tool, not part of the eventual website:
+`pnpm dev` opens the bubble logo's studio. The 0.4.0 studio, with the Flat, 3D and Projected concepts, is kept unchanged at `legacy.html` (in development, http://localhost:5173/legacy.html), linked from the bubble studio's header. Both are development tools, not part of the eventual website.
+
+## The bubble studio
+
+The studio shows the logo as `src/bubble/` draws it. Nothing is tuned there; the drawing is changed in code.
+
+![The bubble's studio: the header and topic bar, the Light and Dark download buttons, then the emblem large beside its reference in a light column on white and a dark column on GitHub dark, and below them the emblem at real sizes from 16 px, each labelled with its sphere diameter and detail step](../images/bubble-studio.png)
+
+- **Light and dark side by side:** each topic is a Light column on white and a Dark column on GitHub's dark page (`#0d1117`). On a narrow window only one column shows, picked with the Light / Dark toggle in the topic bar.
+- **Topic bar:** stays at the top while scrolling, with a link to each topic:
+  - **Large:** the full emblem large, beside the committed reference in `docs/references/bubble/`.
+  - **Real sizes:** the emblem at frame widths from 16 to 96 px, each captioned with its sphere's diameter and the step that size gets.
+  - **Every step:** every detail step (full, small, tiny, none) forced at every size, so competing steps compare at the same size.
+  - **Circle crops:** every step cropped to a circle, as GitHub shows people's avatars.
+  - **Lockup:** the emblem and the stacked Exo 2 wordmark at 56 and 110 px emblems.
+  - **Where it lands:** full width, one row per slot (favicon, Apple touch icon, GitHub avatar, README header, Meetup photo) at the sizes it is seen, light and dark together where it comes as a pair and once where it has a fixed background.
+  - **Mismatch check:** each theme on the other background (Large, Real sizes and Every step again), to see that nothing breaks where it isn't meant to land.
+- **Download SVG:** Light or Dark, the full emblem alone, byte for byte the committed `london-typescript-bubble-light.svg` or `-dark.svg`.
+- **The Meetup photo's band and corners:** its row in **Where it lands** has two toggles, both off at first: **Band** (Off, Left, Right, Top, Bottom) lays the sunset fan's colours flat along that edge, and **Rounded corners** (Off, On) cuts the corners to transparent. The preview shows the file itself unmasked, plus one card simulating Meetup's own crop. **Download SVG** and **PNG** (1200 × 675, drawn by the browser from the same SVG) follow the toggles; a plain download is named as the committed file, and a band or corners add to the name. The committed asset is always plain.
+
+## The 0.4.0 studio
+
+Across its concepts:
 
 - **Concept switcher:** the tabs in the header. The open concept is kept in the URL hash (for example `#flat`), so reloads and links keep it. Concepts load on demand.
 - **Compare with a reference:** shows one of the reference images in `public/references/` beside the previews: the 2D mockup and the Three.js stack and hero concepts. The choice is remembered in this browser.
 
-The flat concept opens on its defaults (`defaultLogoConfig`), the approved logo, which is also its one starter, `Default`. It has:
+The flat concept opens on its defaults (`defaultLogoConfig`), the logo approved in 0.4.0, which is also its one starter, `Default`. It has:
 
 - **Previews:** the complete logo on the reference's cream background, a static emblem, and an animation preview.
 - **Sliders:**
@@ -46,9 +68,9 @@ The flat concept opens on its defaults (`defaultLogoConfig`), the approved logo,
 
 Saved configurations live only in this browser; they aren't shared and don't change the generated assets. `defaultLogoConfig` in `src/concepts/flat/engine/config.ts` was the official logo until 0.5.0; the logo is now the bubble, and `pnpm generate:assets` draws only that. (Flat configurations saved in the original playground still load: the storage key is unchanged.)
 
-## The 3D concept
+### The 3D concept
 
-`pnpm dev`, then the **3D** tab. It renders the prototype's sculpture with react-three-fiber:
+Open `legacy.html`, then the **3D** tab. It renders the prototype's sculpture with react-three-fiber:
 
 - **Starting points** recreate the arrangements found in the original code: the visible stack in `londontypescript/site` (30 slabs, each turned 0.15 rad, grown 0.1 and pushed back 0.2), its scrambled final state, the hidden second group ("Turned deck"), the same stack with studio reflections, and the earlier seven-slab experiment from `chaquejour` (September 2025).
 - **Controls:** the stack (count, turn, scale, depth, drift, tilt), the slab (thickness and chamfer), the material (colour, metalness, roughness, opacity), the lighting (ambient, the two key lights from the right and their direction, the fill light), environment reflections (drei's `Environment` presets, Poly Haven HDRIs fetched from a CDN on first use), camera and spin speed.
@@ -56,17 +78,17 @@ Saved configurations live only in this browser; they aren't shared and don't cha
 - **Wordmark beside it:** the shared wordmark, for judging a lockup.
 - **Download PNG** at 1×, 2× or 4× the preview's resolution, on white, cream, black or a transparent background.
 
-## The projected concept
+### The projected concept
 
-`pnpm dev`, then the **Projected** tab. It takes the 3D concept's settings (the same starting points and sliders, minus environment reflections) and draws them as polygons:
+Open `legacy.html`, then the **Projected** tab. It takes the 3D concept's settings (the same starting points and sliders, minus environment reflections) and draws them as polygons:
 
 - **Compare with the live 3D render:** shows the projected emblem beside the real react-three-fiber render of the same settings, framed identically. The two should match.
 - **Drawing:** gradients across faces (on by default; a face's highlight varies across it in perspective), see-through back faces, exposure, and the wordmark's size and gap in the lockup.
 - **Download SVG:** the mark, the complete logo, or the logo on the chosen background.
 
-## Generated assets
+### Generated assets
 
-Since 0.5.0, `public/assets/` holds the bubble logo's files, listed in the [README](../../README.md#assets). The flat
+Since 0.5.0, `public/assets/` holds the bubble logo's files. The flat
 concept's mark, wordmark and complete logo are no longer generated; this studio still downloads them, and the signed
 `v0.4.0` tag keeps the last generated copies. Each flat download is:
 
@@ -78,7 +100,7 @@ concept's mark, wordmark and complete logo are no longer generated; this studio 
 
 Each square, facet and glyph is its own element with an id: `lts-`, the file's own prefix of 32 hex digits, then the shape's name, for example `lts-78ea8feaba35190bc341db321e637e29-layer-3`. To find a shape, look for the name at the end (`-layer-3`). The prefix is the same for every id in one file.
 
-### Ids and pages with several logos
+#### Ids and pages with several logos
 
 Each exported SVG, from the studio's Download buttons or from `pnpm generate:assets`, takes its id prefix from its own content: the file is drawn once with the plain prefix `lts`, that drawing is hashed (SHA-256) with its concept and variant, and the file is drawn again with `lts-` and 128 bits of the hash. So:
 
@@ -92,7 +114,7 @@ Each exported SVG, from the studio's Download buttons or from `pnpm generate:ass
 
 The files in `public/assets/` are build artefacts. Never edit them by hand: change the bubble's drawing in `src/bubble/` and run `pnpm generate:assets`.
 
-## Using the components in a website
+### Using the components in a website
 
 ```tsx
 import { LondonTypeScriptLogo, AnimatedTypeScriptMark } from './src/concepts/flat/components';
