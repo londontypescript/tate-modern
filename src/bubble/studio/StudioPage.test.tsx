@@ -9,8 +9,8 @@ import { StudioPage } from './StudioPage';
 let markup: string;
 beforeAll(async () => {
   const lettering = tileLettering((await loadLogoFontsFromDisk()).sans);
-  const font = (await loadBubbleFontsFromDisk()).wordmark;
-  markup = renderToStaticMarkup(<StudioPage lettering={lettering} font={font} />);
+  const fonts = await loadBubbleFontsFromDisk();
+  markup = renderToStaticMarkup(<StudioPage lettering={lettering} fonts={fonts} />);
 });
 
 /** Each topic's section, by id, in page order. */
@@ -36,9 +36,25 @@ function column(html: string, theme: Theme) {
   };
 }
 
+/** Topics that take the full width rather than light and dark columns: each has a reason in StudioPage. */
+const fullWidth = new Set(['banner', 'slots']);
+
 describe('the studio page', () => {
+  it('has every topic, in order, with the mismatch check last', () => {
+    expect(sections().map((s) => s.id)).toEqual([
+      'large',
+      'sizes',
+      'steps',
+      'crops',
+      'lockup',
+      'banner',
+      'slots',
+      'mismatch',
+    ]);
+  });
+
   it('shows every topic as a light column on white and a dark column on GitHub’s dark page, each with its own theme’s drawing', () => {
-    const topics = sections().filter((s) => s.id !== 'mismatch' && s.id !== 'slots');
+    const topics = sections().filter((s) => s.id !== 'mismatch' && !fullWidth.has(s.id));
     expect(topics.map((s) => s.id)).toEqual(['large', 'sizes', 'steps', 'crops', 'lockup']);
     for (const { id, html } of topics) {
       expect(column(html, 'light'), id).toMatchObject({ ground: palette.white, named: ['light'] });
@@ -55,7 +71,7 @@ describe('the studio page', () => {
   });
 
   it('puts the columns side by side from md up, and on a narrow window shows only the chosen theme (light at first)', () => {
-    for (const { id, html } of sections().filter((s) => s.id !== 'slots')) {
+    for (const { id, html } of sections().filter((s) => !fullWidth.has(s.id))) {
       expect(html, id).toContain('grid gap-4 md:grid-cols-2');
       expect(column(html, 'light').classes, id).toContain('min-w-0');
       expect(column(html, 'light').classes, id).not.toContain('hidden');

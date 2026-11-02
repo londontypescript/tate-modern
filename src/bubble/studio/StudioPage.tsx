@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { themes, type Theme } from '../engine';
 import { bubbleFileName, renderBubbleSvg } from '../react/renderSvg';
-import type { KernedFont } from '../wordmark/fonts';
+import type { BubbleFonts } from '../wordmark/fonts';
+import { BannerTopic } from './BannerTopic';
 import { downloadSvg } from './download';
 import { groundName, homeGround, otherGround } from './grounds';
 import { LockupPreviews } from './LockupPreviews';
@@ -16,9 +17,11 @@ const home = { grounds: homeGround, label: (theme: Theme) => themeLabels[theme] 
  * The page's topics, most shown as light and dark columns. Every column
  * topic but the last shows a theme only on the ground it is drawn for; the
  * last puts each on the other one, to check nothing breaks when it lands
- * there. Where the logo lands takes the full width, one row per slot.
+ * there. The banner, set by its own controls in one theme at a time, and
+ * where the logo lands, one row per slot, take the full width.
  */
-function studioTopics(lettering: string, font: KernedFont): Topic[] {
+function studioTopics(lettering: string, fonts: BubbleFonts): Topic[] {
+  const font = fonts.wordmark;
   return [
     {
       id: 'large',
@@ -56,6 +59,13 @@ function studioTopics(lettering: string, font: KernedFont): Topic[] {
       render: (theme) => <LockupPreviews theme={theme} font={font} lettering={lettering} />,
     },
     {
+      id: 'banner',
+      nav: 'Banner',
+      title: 'Banner',
+      note: 'The lockup with optional text beside it, as a strip for READMEs and websites or framed for the Meetup photo, drawn as the banner command draws it.',
+      full: () => <BannerTopic fonts={fonts} lettering={lettering} />,
+    },
+    {
       id: 'slots',
       nav: 'Where it lands',
       title: 'Where the logo lands',
@@ -82,9 +92,9 @@ function studioTopics(lettering: string, font: KernedFont): Topic[] {
 }
 
 /** The studio once its fonts are in: the downloads, the topic bar, and every topic. */
-export function StudioPage({ lettering, font }: { lettering: string; font: KernedFont }) {
+export function StudioPage({ lettering, fonts }: { lettering: string; fonts: BubbleFonts }) {
   const [shown, setShown] = useState<Theme>('light');
-  const topics = studioTopics(lettering, font);
+  const topics = studioTopics(lettering, fonts);
   return (
     <>
       <TopicBar topics={topics} shown={shown} onShow={setShown} />
