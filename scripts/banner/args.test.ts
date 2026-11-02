@@ -39,6 +39,8 @@ describe('the banner command’s arguments', () => {
 
   it('take an alignment for a banner with no text, and refuse one with text, where it would do nothing', () => {
     expect(parseBannerArgs(['--align', 'centre', '--out', 'x'])?.banners[0]?.align).toBe('centre');
+    // A newline is text (and an error when drawn), not an empty banner the alignment would apply to.
+    expect(() => parseBannerArgs(['--text', '\n', '--align', 'right', '--out', 'x'])).toThrow(/only to a banner/);
     expect(() => parseBannerArgs(['--text', 'Tate', '--align', 'right', '--out', 'x'])).toThrow(
       /only to a banner with no text/,
     );

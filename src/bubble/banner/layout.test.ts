@@ -141,6 +141,14 @@ describe('the banner strip', () => {
     expect(banner({ align: 'right' }).lockupAt).toEqual(banner({ align: 'left' }).lockupAt);
   });
 
+  it('trims only plain spaces, so a newline or tab the font can’t draw is still an error, never dropped', () => {
+    expect(banner({ text: '  Tate  ' }).title).toBe('London TypeScript: Tate');
+    for (const given of ['Tate\n', '\n', 'Tate\t', '\t', ' \r\n ']) {
+      expect(() => banner({ text: given }), JSON.stringify(given)).toThrow(/no glyph for/);
+      expect(() => banner({ text: given, framing: 'meetup' }), JSON.stringify(given)).toThrow(/no glyph for/);
+    }
+  });
+
   it('names the banner by its text, or the lockup alone', () => {
     expect(banner().title).toBe('London TypeScript: Tate Modern');
     expect(banner({ text: '' }).title).toBe('London TypeScript');

@@ -1,5 +1,5 @@
 import { parseArgs } from 'node:util';
-import { bannerAlignments, bannerBands, bannerFramings, type BannerOptions } from '../../src/bubble/banner';
+import { bannerAlignments, bannerBands, bannerFramings, bannerText, type BannerOptions } from '../../src/bubble/banner';
 import { themes } from '../../src/bubble/engine';
 
 export const usage = `Usage: pnpm banner --out <dir> [options]
@@ -53,7 +53,7 @@ export function parseBannerArgs(argv: string[]): BannerCommand | undefined {
   if (!values.out) throw new Error('--out is required: the folder to write the banner into');
   const text = values.text;
   // With text the lockup is always on the left, so an alignment would be silently ignored.
-  if (text.trim() !== '' && values.align !== undefined)
+  if (bannerText(text) !== '' && values.align !== undefined)
     throw new Error('--align applies only to a banner with no text');
   const theme = oneOf('theme', values.theme, [...themes, 'both'], 'both');
   const shared = {

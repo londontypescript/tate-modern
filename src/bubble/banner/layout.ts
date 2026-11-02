@@ -7,9 +7,8 @@ import { layoutBubbleLockup, type BubbleLockup } from '../wordmark/lockup';
 import { setBannerText, type BannerTextRun } from './text';
 
 /**
- * The banner: the London TypeScript lockup with optional text beside it, as
- * the maintainer settled it on 2 November 2026 (#81). Framework-free; the
- * React renderer draws what this returns.
+ * The banner: the London TypeScript lockup with optional text beside it.
+ * Framework-free; the React renderer draws what this returns.
  */
 
 export const bannerBands = ['off', 'left', 'bottom'] as const;
@@ -38,7 +37,7 @@ export const strip = {
   textGap: 56,
   /** The sunset band: thinner than the Meetup photo's 28, so it stays a stripe on a strip this short. */
   bandWidth: 14,
-  /** Between a left band and the bubble's glass, as the prototype the maintainer approved had it. */
+  /** Between a left band and the bubble's glass, so the band reads as an edge rather than touching the logo. */
   bandGap: 40,
 } as const;
 
@@ -58,8 +57,13 @@ export interface StripContent {
   title: string;
 }
 
-/** The text as the banner sets it: trimmed, since leading or trailing spaces have no ink to align by. */
-export const bannerText = (text: string) => text.trim();
+/**
+ * The text as the banner sets it: leading and trailing spaces dropped, since
+ * they have no ink to align by. Only the plain space (U+0020): a newline, tab
+ * or any other character the font can't draw must still reach the glyph
+ * check and fail there, never vanish quietly.
+ */
+export const bannerText = (text: string) => text.replace(/^ +| +$/g, '');
 
 /**
  * Lays out the strip's lockup and text, leaving `inset` clear on the left
