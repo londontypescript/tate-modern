@@ -135,8 +135,8 @@ export function BannerTopic({ fonts, lettering, initial }: Props) {
 
 /**
  * The banner on its theme's own page, the page hugging the banner at its
- * own size, or the room there is, never wider; or, when it can't be drawn,
- * why: an error, never a blank panel.
+ * own size, or the room there is, never wider, with its caption beneath;
+ * or, when it can't be drawn, why: an error, never a blank panel.
  */
 function BannerPreview({
   drawn,
@@ -152,24 +152,27 @@ function BannerPreview({
   // The canvas plus the panel's padding (p-4) and border, as Tailwind sizes boxes border-box.
   const width = (layout?.canvas.width ?? stripCanvas.width) + 2 * 16 + 2;
   return (
-    <div
-      data-theme={theme}
-      data-banner-preview
-      className="w-full space-y-2 rounded-lg border border-stone-200 p-4"
-      style={{ backgroundColor: ground, maxWidth: width }}
-    >
-      {layout ? (
-        <>
+    <div className="w-full space-y-2" style={{ maxWidth: width }}>
+      <div
+        data-theme={theme}
+        data-banner-preview
+        className="w-full rounded-lg border border-stone-200 p-4"
+        style={{ backgroundColor: ground, maxWidth: width }}
+      >
+        {layout ? (
           <BannerSvg layout={layout} lettering={lettering} className="block h-auto w-full" />
-          <div className={captionClass(ground)}>
-            {themeLabels[theme]}, on the {theme} page · {layout.canvas.width} × {layout.canvas.height},{' '}
-            {layout.ground ? 'opaque' : 'transparent'}
-          </div>
-        </>
-      ) : (
-        <p role="alert" className={`text-sm font-medium ${theme === 'dark' ? 'text-red-400' : 'text-red-700'}`}>
-          The banner can’t be drawn: {drawn.error}.
-        </p>
+        ) : (
+          <p role="alert" className={`text-sm font-medium ${theme === 'dark' ? 'text-red-400' : 'text-red-700'}`}>
+            The banner can’t be drawn: {drawn.error}.
+          </p>
+        )}
+      </div>
+      {/* Under the panel, on the studio's page, so nothing sits on the banner's own ground. */}
+      {layout && (
+        <div className={captionClass(homeGround.light)}>
+          {themeLabels[theme]}, on the {theme} page · {layout.canvas.width} × {layout.canvas.height},{' '}
+          {layout.ground ? 'opaque' : 'transparent'}
+        </div>
       )}
     </div>
   );
