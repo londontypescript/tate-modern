@@ -3,8 +3,9 @@ import { PNG } from 'pngjs';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { loadBubbleFontsFromDisk, loadLogoFontsFromDisk } from '../../../scripts/node-fonts';
-import { bandColours, tileLettering } from '../engine';
+import { bandColours, boxSize, stepBounds, tileLettering } from '../engine';
 import type { BubbleFonts } from '../wordmark/fonts';
+import { lockupBounds } from '../wordmark/lockup';
 import { BannerSvg } from './BannerSvg';
 import { layoutBanner, type BannerOptions } from './framing';
 import { renderBannerSvg } from './renderBanner';
@@ -77,6 +78,36 @@ describe('the banner’s SVG', () => {
     // The full bubble's frame is 253 of its 240 units tall: 126.5 at the strip's 120.
     expect(file()).toMatch(/<svg x="-4" y="44" width="385\.4\d" height="126\.5"/);
   });
+
+  it.each(['strip', 'meetup'] as const)(
+    '%s: gives the lockup a viewport covering the full bubble’s painted frame, so the glow is never clipped',
+    (framing) => {
+      for (const theme of ['light', 'dark'] as const) {
+        const { content } = layout({ framing, theme });
+        const painted = lockupBounds(content.lockup, stepBounds('full', theme).frame, boxSize);
+        const svg = file({ framing, theme });
+        const viewport =
+          /<svg x="(-?[\d.]+)" y="(-?[\d.]+)" width="([\d.]+)" height="([\d.]+)" viewBox="([^"]+)" overflow="hidden">(<svg [^>]*>)/.exec(
+            svg,
+          );
+        if (!viewport) throw new Error(`${framing} ${theme}: no viewport holds the lockup`);
+        const [, x, y, width, height, viewBox = '', frame = ''] = viewport;
+        const [minX = NaN, minY = NaN, w = NaN, h = NaN] = viewBox.split(' ').map(Number);
+        const cropped = [
+          minX > painted.minX && 'left',
+          minY > painted.minY && 'top',
+          minX + w < painted.maxX && 'right',
+          minY + h < painted.maxY && 'bottom (the glow)',
+        ].filter(Boolean);
+        expect(cropped, `${framing} ${theme}: the lockup's viewport crops the bubble's painted frame`).toEqual([]);
+        // Drawn 1:1 where the layout puts it, and the lockup's own frame inside takes the same box, so nothing is squeezed.
+        expect([Number(width), Number(height)], `${framing} ${theme}: viewport size`).toEqual([w, h]);
+        expect(Number(x)).toBeCloseTo(content.lockupAt.x + minX, 3);
+        expect(Number(y)).toBeCloseTo(content.lockupAt.y + minY, 3);
+        expect(frame, `${framing} ${theme}: the lockup's frame`).toContain(`viewBox="${viewBox}"`);
+      }
+    },
+  );
 
   it('draws the full bubble, glass and glow, in both framings, however large the Meetup framing makes it', () => {
     for (const framing of ['strip', 'meetup'] as const) expect(file({ framing })).toContain('<feGaussianBlur');
