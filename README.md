@@ -41,7 +41,7 @@ The logo is a glass bubble around the TypeScript tile and a fan of sunset-colour
 
 `pnpm dev` opens the bubble's studio: the emblem large beside its reference, at real sizes with the step each size gets, every step at every size, the lockup, and each place the logo lands, in both themes, with SVG downloads. Nothing is tuned there; the drawing is changed in code.
 
-<p align="center"><img src="docs/images/bubble-studio.png" alt="The bubble's studio: the light emblem large on white and on GitHub dark beside the reference, then rows of the emblem at real sizes from 16 to 96 px on white and on dark, each labelled with its detail step"></p>
+<p align="center"><img src="docs/images/bubble-studio.png" alt="The bubble's studio: its banner header and topic bar, then the light emblem large on white and on GitHub dark beside the reference, then rows of the emblem at real sizes from 16 to 96 px on white and on dark, each labelled with its detail step"></p>
 
 Every file GitHub, Meetup and the website need is exported from the studio, and `pnpm generate:assets` writes the committed set to [`public/assets/`](public/assets/).
 
